@@ -1,0 +1,12 @@
+﻿{
+  "info": {
+    "name": "Unheard India API",
+    "description": "Complete API collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "base_url", "value": "http://localhost:5000", "type": "string"},
+    {"key": "token", "value": "", "type": "string"}
+  ],
+  "item": []
+}

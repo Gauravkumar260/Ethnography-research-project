@@ -1,0 +1,363 @@
+﻿{
+  "info": {
+    "name": "Unheard India API",
+    "description": "Complete API collection for The Unheard India platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('token', jsonData.token);",
+                  "    pm.environment.set('token', jsonData.token);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"faculty@unheardindia.org\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Communities",
+      "item": [
+        {
+          "name": "Get All Communities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/communities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communities"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Gadia Lohar Community",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/communities/gadia-lohar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communities", "gadia-lohar"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Community Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/communities/gadia-lohar/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communities", "gadia-lohar", "stats"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Community (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Community\",\n  \"slug\": \"test-community\",\n  \"region\": \"Test Region\",\n  \"state\": \"Test State\",\n  \"description\": \"Test description\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/communities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communities"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Research",
+      "item": [
+        {
+          "name": "Get Public Research",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/research/public",
+              "host": ["{{base_url}}"],
+              "path": ["api", "research", "public"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Admin Research (Protected)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/research/admin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "research", "admin"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Research",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "studentId",
+                  "value": "PHD123",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "john@example.com",
+                  "type": "text"
+                },
+                {
+                  "key": "program",
+                  "value": "PhD Anthropology",
+                  "type": "text"
+                },
+                {
+                  "key": "mentor",
+                  "value": "Dr. Smith",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Test Research Title",
+                  "type": "text"
+                },
+                {
+                  "key": "abstract",
+                  "value": "Test abstract content",
+                  "type": "text"
+                },
+                {
+                  "key": "community",
+                  "value": "Gadia Lohar",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "thesis",
+                  "type": "text"
+                },
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/research/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "research", "submit"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Research Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/research/:id/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "research", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "REPLACE_WITH_RESEARCH_ID"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Documentaries",
+      "item": [
+        {
+          "name": "Get All Documentaries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/docs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Documentary (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Test Documentary",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Test description",
+                  "type": "text"
+                },
+                {
+                  "key": "duration",
+                  "value": "15",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "craft",
+                  "type": "text"
+                },
+                {
+                  "key": "studentName",
+                  "value": "John Doe",
+                  "type": "text"
+                },
+                {
+                  "key": "thumbnail",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "video",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/docs/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs", "upload"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
