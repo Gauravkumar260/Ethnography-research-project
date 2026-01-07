@@ -6,50 +6,62 @@ const path = require('path');
 const connectDB = require('./config/db');
 
 // --- DEBUGGING IMPORTS ---
-// We try to require them here to see which one is undefined
+// This helps us verify all files exist before the server tries to start
 const authRoutes = require('./routes/authRoutes');
-const researchRoutes = require('./routes/researchRoutes');
-const docRoutes = require('./routes/docRoutes');
+const researchRoutes = require('./routes/researchRoutes'); 
 const communityRoutes = require('./routes/communityRoutes');
+// const docRoutes = require('./routes/docRoutes'); // Uncomment if you have this file
+
 const { errorHandler } = require('./middlewares/errorMiddleware');
 
-console.log("Auth Routes:", authRoutes ? "Loaded" : "FAILED (Undefined)");
-console.log("Research Routes:", researchRoutes ? "Loaded" : "FAILED (Undefined)");
-console.log("Doc Routes:", docRoutes ? "Loaded" : "FAILED (Undefined)");
-console.log("Community Routes:", communityRoutes ? "Loaded" : "FAILED (Undefined)");
-console.log("Error Handler:", errorHandler ? "Loaded" : "FAILED (Undefined)");
+console.log("------------------------------------------------");
+console.log("Auth Routes:      ", authRoutes ? "✅ Loaded" : "❌ FAILED");
+console.log("Research Routes:  ", researchRoutes ? "✅ Loaded" : "❌ FAILED");
+console.log("Community Routes: ", communityRoutes ? "✅ Loaded" : "❌ FAILED");
+// console.log("Doc Routes:       ", docRoutes ? "✅ Loaded" : "❌ FAILED");
+console.log("Error Handler:    ", errorHandler ? "✅ Loaded" : "❌ FAILED");
+console.log("------------------------------------------------");
 // -------------------------
 
+// 1. Config & Database
 dotenv.config();
 connectDB();
 
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+// 2. Middlewares
+app.use(cors()); // Allow Frontend to communicate
+app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: false }));
 
-// Static Folder
+// 3. Static Folder (Crucial for displaying images/PDFs)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
-// Note: We use the variables we imported above to ensure they are valid
+// 4. Routes
 app.use('/api/auth', authRoutes);
+
+// ✅ MASTER RESEARCH ROUTE
+// This single route handles: Thesis, Publications, AND Field Data (Interviews, Surveys, etc.)
+// Do NOT add a separate '/api/field-data' route.
 app.use('/api/research', researchRoutes);
-app.use('/api/docs', docRoutes);
+
 app.use('/api/communities', communityRoutes);
 
+// app.use('/api/docs', docRoutes); // Uncomment if needed
+
+// 5. Base Route
 app.get('/', (req, res) => {
   res.json({ message: 'Unheard India API is running...' });
 });
 
-// Fix: Ensure errorHandler is actually a function before using it
+// 6. Error Handling
 if (errorHandler) {
     app.use(errorHandler);
 } else {
-    console.log("WARNING: errorHandler is not loaded correctly. Check errorMiddleware.js".red);
+    console.log("WARNING: errorHandler is not loaded correctly.".red);
 }
 
+// 7. Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
