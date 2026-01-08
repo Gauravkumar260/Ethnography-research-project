@@ -34,7 +34,7 @@ function MenubarGroup({
   return <MenubarPrimitive.Group data-slot="menubar-group" {...props} />;
 }
 
-function MenubarPortal({
+function MenubarPortal({ 
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
   // ✅ FIXED: Removed the backslash before the quote
