@@ -1,7 +1,9 @@
 import axios from 'axios';
 
 // 1. Point to your Backend Server
-const API_URL = 'http://localhost:5000/api';
+// FIXED CODE:
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
 
 // 2. Create an Axios Instance
 const api = axios.create({
