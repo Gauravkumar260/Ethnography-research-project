@@ -27,8 +27,9 @@ console.log("------------------------------------------------");
 const startServer = async () => {
   try {
     dotenv.config();
-    await connectDB();
-const app = express();
+    await connectDB();  // ✅ Wait for database connection
+    
+    const app = express();
 
 // 2. Middlewares
 app.use(cors()); // Allow Frontend to communicate
@@ -68,7 +69,7 @@ if (errorHandler) {
       console.log(`Server running on port ${PORT}`.yellow.bold);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('Failed to start server:'.red, error.message);
     process.exit(1);
   }
 };
