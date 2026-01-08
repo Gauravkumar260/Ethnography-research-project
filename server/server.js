@@ -24,9 +24,10 @@ console.log("------------------------------------------------");
 // -------------------------
 
 // 1. Config & Database
-dotenv.config();
-connectDB();
-
+const startServer = async () => {
+  try {
+    dotenv.config();
+    await connectDB();
 const app = express();
 
 // 2. Middlewares
@@ -62,8 +63,14 @@ if (errorHandler) {
 }
 
 // 7. Start Server
-const PORT = process.env.PORT || 5000;
+ const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`.yellow.bold);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`.yellow.bold);
-});
+startServer();
