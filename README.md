@@ -821,7 +821,7 @@ This project was developed as part of ethnographic research to document and pres
 
 ---
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 Special thanks to:
 
