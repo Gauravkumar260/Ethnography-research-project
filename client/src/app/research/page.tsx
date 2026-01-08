@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, FileText, Award, Users, Database, ArrowRight, Upload } from 'lucide-react';
+import { BookOpen, FileText, Award, Users, Database, ArrowRight, Upload, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function ResearchHubPage() {
@@ -18,20 +18,23 @@ export default function ResearchHubPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch all research items
-        const { data: research } = await api.get('/research/public');
-        // Fetch all field data
-        const { data: fieldData } = await api.get('/field-data');
+        // ✅ Corrected: Fetch ALL research items from the single unified endpoint
+        const { data: response } = await api.get('/research');
+        
+        // Ensure we are working with an array
+        const allItems = Array.isArray(response.data) ? response.data : [];
 
+        // Calculate stats dynamically based on the 'type' field
         setStats({
-          thesis: research.filter((i: any) => i.type === 'thesis').length,
-          publications: research.filter((i: any) => i.type === 'publication').length,
-          patents: research.filter((i: any) => i.type === 'patent').length,
-          conferences: research.filter((i: any) => i.type === 'conference' || i.type === 'presentation').length,
-          datasets: fieldData.length
+          thesis: allItems.filter((i: any) => i.type === 'Thesis').length,
+          publications: allItems.filter((i: any) => i.type === 'Publication').length,
+          patents: allItems.filter((i: any) => i.type === 'Patent').length,
+          conferences: allItems.filter((i: any) => i.type === 'Conference').length,
+          // 'Field Data' is just another type in our unified schema
+          datasets: allItems.filter((i: any) => i.type === 'Field Data').length
         });
       } catch (error) {
-        console.error("Error fetching stats:", error);
+        console.error("Error fetching research stats:", error);
       } finally {
         setLoading(false);
       }
@@ -45,7 +48,7 @@ export default function ResearchHubPage() {
       title: 'Thesis & Dissertations',
       description: 'Comprehensive academic research exploring community ethnography, cultural preservation, and social anthropology',
       icon: BookOpen,
-      count: `${loading ? '...' : stats.thesis} Works`,
+      count: loading ? '...' : `${stats.thesis} Works`,
       link: '/research/thesis',
       image: 'https://images.unsplash.com/photo-1766050589102-a81ce15cc844?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
@@ -54,7 +57,7 @@ export default function ResearchHubPage() {
       title: 'Publications',
       description: 'Peer-reviewed journals, conference papers, and research articles on marginalized communities',
       icon: FileText,
-      count: `${loading ? '...' : stats.publications} Articles`,
+      count: loading ? '...' : `${stats.publications} Articles`,
       link: '/research/publications',
       image: 'https://images.unsplash.com/photo-1623357247199-b5e97b20acb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
@@ -63,7 +66,7 @@ export default function ResearchHubPage() {
       title: 'Patents & Innovations',
       description: 'Documentation methodologies, digital preservation systems, and research tools',
       icon: Award,
-      count: `${loading ? '...' : stats.patents} Patents`,
+      count: loading ? '...' : `${stats.patents} Patents`,
       link: '/research/patents',
       image: 'https://images.unsplash.com/photo-1633158108216-f10cd3202d8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
@@ -72,7 +75,7 @@ export default function ResearchHubPage() {
       title: 'Conference Presentations',
       description: 'International symposiums, academic conferences, and research presentations',
       icon: Users,
-      count: `${loading ? '...' : stats.conferences} Presentations`,
+      count: loading ? '...' : `${stats.conferences} Presentations`,
       link: '/research/conferences',
       image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
     },
@@ -185,7 +188,7 @@ export default function ResearchHubPage() {
                   Field Data Repository
                 </h3>
                 <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6">
-                  Access {loading ? '...' : stats.datasets} primary datasets, interviews, photographs, and field documentation. Open for academic use.
+                  Access {loading ? <Loader2 className="inline w-3 h-3 animate-spin" /> : stats.datasets} primary datasets, interviews, photographs, and field documentation. Open for academic use.
                 </p>
               </div>
               <span className="text-sm text-[#99302A] group-hover:underline font-semibold flex items-center gap-2">
