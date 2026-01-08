@@ -32,7 +32,10 @@ const startServer = async () => {
     const app = express();
 
 // 2. Middlewares
-app.use(cors()); // Allow Frontend to communicate
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  credentials: true
+})); // Allow Frontend to communicate
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: false }));
 
