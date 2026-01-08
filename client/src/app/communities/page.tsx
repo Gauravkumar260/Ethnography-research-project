@@ -5,11 +5,10 @@ import Link from 'next/link';
 import { MapPin, Loader2 } from 'lucide-react';
 import api from '@/lib/api';
 
-// Define the shape of a community card
 interface CommunityCard {
   _id: string;
   name: string;
-  slug: string; // Used for the URL
+  slug: string;
   subtitle?: string;
   location?: string;
   heroImage?: string;
@@ -17,19 +16,14 @@ interface CommunityCard {
 }
 
 export default function CommunitiesPage() {
-  // Explicitly type the state as an array of CommunityCard
   const [communitiesList, setCommunitiesList] = useState<CommunityCard[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 1. Fetch Communities from Backend
+  // 1. Fetch Communities
   useEffect(() => {
     const fetchCommunities = async () => {
       try {
-        // Axios returns the response object in 'data' property
         const { data: responseData } = await api.get('/communities'); 
-        
-        // Backend returns { success: true, count: X, data: [...] }
-        // We need to extract the 'data' array from that response
         setCommunitiesList(responseData.data || []); 
       } catch (error) {
         console.error("Failed to load communities", error);
@@ -40,11 +34,18 @@ export default function CommunitiesPage() {
     fetchCommunities();
   }, []);
 
-  // 2. Helper to handle Image URLs
+  // 2. Helper for Image URLs (Secured & Dynamic)
+  // Fixes "Hardcoded Secrets" issue from Code Review
   const getImageUrl = (path?: string) => {
     if (!path) return '';
-    if (path.startsWith('http')) return path;
-    return `http://localhost:5000/${path}`;
+    if (path.startsWith('http')) return path; // External (Unsplash)
+    
+    // Use the environment variable, or fallback gracefully
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL 
+      ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') // Remove '/api' suffix
+      : 'http://localhost:5000';
+      
+    return `${baseUrl}/${path}`;
   };
 
   if (loading) {
@@ -74,7 +75,6 @@ export default function CommunitiesPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {communitiesList.map((community) => (
                 <Link 
-                  // ✅ Use slug for the URL
                   href={`/communities/${community.slug}`}
                   key={community._id}
                   className="group cursor-pointer bg-white overflow-hidden hover:shadow-2xl transition-all duration-300 border border-[#1a1a1a]/10 block"

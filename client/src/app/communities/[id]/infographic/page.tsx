@@ -8,7 +8,7 @@ import api from '@/lib/api';
 
 export default function InfographicPage() {
   const params = useParams();
-  const slug = params.id as string; // Capture slug from URL
+  const slug = Array.isArray(params.id) ? params.id[0] : params.id;
   
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -17,8 +17,8 @@ export default function InfographicPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        if (!slug) return;
         const response = await api.get(`/communities/${slug}`);
-        // ✅ Extract the actual data object
         setData(response.data.data); 
       } catch (error) {
         console.error("Failed to load infographic data", error);
@@ -26,16 +26,37 @@ export default function InfographicPage() {
         setLoading(false);
       }
     };
-    if (slug) fetchData();
+    fetchData();
   }, [slug]);
 
+  // ✅ Helper: Dynamic & Secure Image URL
   const getUrl = (path?: string) => {
     if (!path) return '';
-    return path.startsWith('http') ? path : `http://localhost:5000/${path}`;
+    if (path.startsWith('http')) return path;
+    
+    // Use env variable or fallback
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL 
+      ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+      : 'http://localhost:5000';
+      
+    return `${baseUrl}/${path}`;
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center bg-[#E3E1DB]"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>;
-  if (!data) return <div className="h-screen flex items-center justify-center">Data not found</div>;
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#E3E1DB]">
+        <Loader2 className="w-10 h-10 animate-spin text-[#99302A]" />
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#E3E1DB] text-[#1a1a1a]">
+        Data not found
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#E3E1DB]">
@@ -50,7 +71,6 @@ export default function InfographicPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
         <div className="absolute bottom-0 left-0 right-0 p-8 md:p-16">
           <Link
-            // ✅ Use slug to go back
             href={`/communities/${slug}`}
             className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-6 w-fit"
           >
@@ -144,10 +164,10 @@ export default function InfographicPage() {
                   <h3 className="text-[#1a1a1a] mb-6 font-semibold uppercase tracking-wider text-sm">Migration Logic</h3>
                   <div className="space-y-6">
                     {Object.entries(data.lifestyle.migration).map(([key, val]: [string, any]) => (
-                       <div key={key}>
-                         <div className="text-xs text-[#1a1a1a]/50 uppercase font-bold tracking-widest mb-1">{key}</div>
-                         <div className="text-lg text-[#1a1a1a] font-medium font-serif">{val}</div>
-                       </div>
+                        <div key={key}>
+                          <div className="text-xs text-[#1a1a1a]/50 uppercase font-bold tracking-widest mb-1">{key}</div>
+                          <div className="text-lg text-[#1a1a1a] font-medium font-serif">{val}</div>
+                        </div>
                     ))}
                   </div>
                 </div>
