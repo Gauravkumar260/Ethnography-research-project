@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs'); // Package to encrypt passwords
+const bcrypt = require('bcryptjs');
 
 const userSchema = mongoose.Schema(
   {
@@ -11,6 +11,8 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, 'Please add an email'],
       unique: true,
+      lowercase: true, // Optimization: Ensure emails are always stored lowercase
+      trim: true
     },
     password: {
       type: String,
@@ -18,12 +20,19 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      default: 'admin', // Default role is admin
+      enum: ['admin', 'editor'], // Security: Restrict roles to specific values
+      default: 'admin',
     },
   },
   {
     timestamps: true,
   }
 );
+
+// --- METHOD: Check if entered password matches hashed password ---
+// This is used in authController.js during Login
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,56 +1,80 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 
-// 1. Dynamic Base URL
-// Picks up localhost for dev, or your production URL if set in Vercel/Netlify
+// 1. Extend the Axios config to include our custom 'retryCount' property
+interface RetryConfig extends InternalAxiosRequestConfig {
+  retryCount?: number;
+}
+
+// 2. Dynamic Base URL & Configuration
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 10000, // 10 seconds timeout
-  // "withCredentials" is mostly for cookies. 
-  // If you use it, ensure your Backend CORS allows your specific frontend origin.
-  // withCredentials: true, 
+  timeout: 10000, // 10 seconds timeout (Good practice from Snippet 2)
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // =================================================================
-// 2. REQUEST INTERCEPTOR (Attach Token)
+// 3. REQUEST INTERCEPTOR (Attach Token Securely)
 // =================================================================
 api.interceptors.request.use(
-  (config) => {
-    // Check if we are running in the browser (Client-Side)
+  (config: InternalAxiosRequestConfig) => {
+    // Check if running in browser to avoid SSR errors (Snippet 2 Logic)
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
-      
-      // If token exists, attach it to every request
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: AxiosError) => Promise.reject(error)
 );
 
 // =================================================================
-// 3. RESPONSE INTERCEPTOR (Global Error Handling)
+// 4. RESPONSE INTERCEPTOR (Retry Logic + Error Handling)
 // =================================================================
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: AxiosResponse) => response,
+  async (error: AxiosError) => {
+    const config = error.config as RetryConfig;
+
+    // A. RETRY LOGIC (Snippet 1 Feature)
+    // Only retry if config exists, we haven't hit the limit, and it's a Network Error
+    if (config && config.retryCount === undefined) {
+        config.retryCount = 0;
+    }
+
+    const MAX_RETRIES = 2;
+    
+    if (config && config.retryCount! < MAX_RETRIES && error.message === 'Network Error') {
+      config.retryCount! += 1;
+      
+      // Calculate delay: 1s, 2s... (Backoff strategy)
+      const delay = 1000 * config.retryCount!;
+      
+      console.log(`Network error. Retrying attempt ${config.retryCount}...`);
+      
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, delay));
+      
+      // Retry the request
+      return api(config);
+    }
+
+    // B. GLOBAL ERROR LOGGING
     console.error('API Error:', error.response?.data || error.message);
 
-    // Check for 401 Unauthorized (Token Expired or Invalid)
-    if (error.response && error.response.status === 401) {
+    // C. AUTHENTICATION HANDLING (Snippet 2 Feature - Safer)
+    if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        // 1. Clear the invalid token
         localStorage.removeItem('token');
         
-        // 2. Redirect to Login (unless we are already there)
+        // Only redirect if we aren't already on the login page to avoid loops
         if (!window.location.pathname.includes('/login')) {
-           window.location.href = '/login';
+          window.location.href = '/login';
         }
       }
     }

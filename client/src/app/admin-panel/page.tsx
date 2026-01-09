@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { 
-  CheckCircle, XCircle, Edit, Eye, Download, LogOut, 
+  CheckCircle, XCircle, Download, LogOut, 
   Users, BookOpen, FileText, Database, Clock, Loader2 
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -327,9 +327,8 @@ export default function AdminPage() {
         </div>
       </section>
 
-      {/* Review Guidelines Footer (Kept from your original code) */}
+      {/* Review Guidelines Footer */}
       <section className="bg-[#FAFAF9] py-16 px-6 border-t border-[#1a1a1a]/5 mt-auto">
-        {/* ... (Kept the guidelines section exactly as you had it) ... */}
          <div className="max-w-6xl mx-auto">
           <h2 className="text-center font-serif font-bold text-[#1a1a1a] mb-10">Review Guidelines</h2>
           <div className="grid md:grid-cols-3 gap-8">
