@@ -37,7 +37,7 @@ function MenubarGroup({
 function MenubarPortal({ 
   ...props
 }: React.ComponentProps<typeof MenubarPrimitive.Portal>) {
-  // ✅ FIXED: Removed the backslash before the quote
+    // ✅ FIXED: Removed the backslash before the quote
   return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />;
 }
 
