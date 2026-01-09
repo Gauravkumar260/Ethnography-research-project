@@ -4,12 +4,10 @@ const Documentary = require('../models/Documentary');
 // @route   POST /api/docs/upload
 const uploadDocumentary = async (req, res) => {
   try {
-    // req.files is created by Multer (we will set this up next)
-    // We expect 2 files: 'thumbnail' and 'video'
-    
+    // req.files is created by Multer middleware
     const { title, description, duration, category, studentName } = req.body;
 
-    // Basic Validation
+    // Validation: Ensure files exist
     if (!req.files || !req.files.thumbnail || !req.files.video) {
       return res.status(400).json({ message: 'Please upload both a thumbnail and a video file.' });
     }
@@ -18,7 +16,8 @@ const uploadDocumentary = async (req, res) => {
       title,
       description,
       duration,
-      category: category.split(','), // Convert "craft,tribal" string to array
+      // Handle category if it comes as a string (from FormData) or array
+      category: typeof category === 'string' ? category.split(',') : category,
       studentName,
       thumbnailUrl: req.files.thumbnail[0].path,
       videoUrl: req.files.video[0].path,
@@ -29,7 +28,7 @@ const uploadDocumentary = async (req, res) => {
     res.status(201).json(savedDoc);
 
   } catch (error) {
-    console.error(error);
+    console.error("Upload Error:", error);
     res.status(500).json({ message: 'Server Error during upload' });
   }
 };
@@ -41,6 +40,7 @@ const getDocumentaries = async (req, res) => {
     const docs = await Documentary.find({ status: 'approved' }).sort({ createdAt: -1 });
     res.status(200).json(docs);
   } catch (error) {
+    console.error("Fetch Error:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };

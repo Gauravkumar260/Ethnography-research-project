@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Play, Loader2, AlertCircle } from 'lucide-react';
-import api from '@/lib/api'; // Ensure you have this helper from previous steps
+import Link from 'next/link';
+import { Play, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
+import api from '@/lib/api'; 
 
 type FilterType = 'all' | 'craft' | 'tribal' | 'nomadic' | 'heritage';
 
-// Define the shape of data coming from MongoDB
+// Define the shape of data based on the Backend Model
 interface Documentary {
   _id: string;
   title: string;
@@ -22,11 +23,11 @@ export default function DocumentaryPage() {
   const [documentaries, setDocumentaries] = useState<Documentary[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- 1. FETCH REAL DATA FROM BACKEND ---
+  // --- 1. FETCH DATA ---
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        // This endpoint should be defined in your backend routes
+        // Fetches from http://localhost:5000/api/docs
         const { data } = await api.get('/docs'); 
         setDocumentaries(data);
       } catch (error) {
@@ -39,11 +40,11 @@ export default function DocumentaryPage() {
     fetchDocs();
   }, []);
 
-  // Helper to handle local vs remote images
+  // Helper: Handle local vs remote images
   const getFileUrl = (path: string) => {
     if (!path) return '';
-    if (path.startsWith('http')) return path; // It's an external link
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`; // It's a local file from your server
+    if (path.startsWith('http')) return path; 
+    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
   };
 
   const filters: { id: FilterType; label: string }[] = [
@@ -60,19 +61,23 @@ export default function DocumentaryPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
-      {/* Header */}
+      
+      {/* HEADER */}
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-6xl mx-auto">
+          <Link href="/" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
+            <ChevronLeft className="w-5 h-5" /> Back Home
+          </Link>
           <h1 className="mb-4 text-4xl font-bold font-serif">
             Documentary Library
           </h1>
           <p className="text-[#E3E1DB]/80 text-lg font-light">
-            Watch the stories that need to be told
+            Visual ethnography: Watch the stories that need to be told.
           </p>
         </div>
       </section>
 
-      {/* Filters */}
+      {/* FILTER TABS */}
       <section className="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-sm border-b border-[#1a1a1a]/10 py-4 px-4 shadow-sm">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-3">
@@ -93,7 +98,7 @@ export default function DocumentaryPage() {
         </div>
       </section>
 
-      {/* Documentary Grid */}
+      {/* VIDEO GRID */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
           
@@ -133,7 +138,7 @@ export default function DocumentaryPage() {
                       <h3 className="text-[#1a1a1a] mb-3 text-xl font-serif font-bold leading-tight group-hover:text-[#99302A] transition-colors">
                         {doc.title}
                       </h3>
-                      <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6 flex-grow font-light">
+                      <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6 flex-grow font-light line-clamp-3">
                         {doc.description}
                       </p>
                       
@@ -156,8 +161,7 @@ export default function DocumentaryPage() {
               {filteredDocs.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-lg border border-dashed border-[#1a1a1a]/20">
                    <AlertCircle className="w-10 h-10 text-[#1a1a1a]/20 mb-4" />
-                   <p className="text-[#1a1a1a]/50 text-lg font-serif italic">No documentaries found in the library yet.</p>
-                   <p className="text-[#1a1a1a]/40 text-sm mt-2">Submit a video to see it appear here.</p>
+                   <p className="text-[#1a1a1a]/50 text-lg font-serif italic">No documentaries found.</p>
                 </div>
               )}
             </>

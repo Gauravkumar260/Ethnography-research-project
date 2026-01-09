@@ -3,53 +3,58 @@ const dotenv = require('dotenv');
 const colors = require('colors');
 const cors = require('cors');
 const path = require('path');
-// --- SECURITY IMPORTS (Issue #4 Fixes) ---
+
+// --- SECURITY IMPORTS ---
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
-// -----------------------------------------
+
+// --- DATABASE ---
 const connectDB = require('./config/db');
 
-// --- DEBUGGING IMPORTS ---
+// --- ROUTES IMPORTS ---
 const authRoutes = require('./routes/authRoutes');
 const researchRoutes = require('./routes/researchRoutes'); 
 const communityRoutes = require('./routes/communityRoutes');
+const docRoutes = require('./routes/docRoutes'); 
 const { errorHandler } = require('./middlewares/errorMiddleware');
 
+// --- DEBUGGING CHECKS ---
 console.log("------------------------------------------------");
 console.log("Auth Routes:      ", authRoutes ? "✅ Loaded" : "❌ FAILED");
 console.log("Research Routes:  ", researchRoutes ? "✅ Loaded" : "❌ FAILED");
 console.log("Community Routes: ", communityRoutes ? "✅ Loaded" : "❌ FAILED");
+console.log("Doc Routes:       ", docRoutes ? "✅ Loaded" : "❌ FAILED");
 console.log("Error Handler:    ", errorHandler ? "✅ Loaded" : "❌ FAILED");
 console.log("------------------------------------------------");
 
 const startServer = async () => {
   try {
     dotenv.config();
-    await connectDB();  // ✅ Wait for database connection
+    await connectDB();  // Wait for DB before starting server
     
     const app = express();
 
     // ==========================================
-    // 2. Middlewares (Secured)
+    // 1. MIDDLEWARES (Security & Config)
     // ==========================================
 
-    // A. Security Headers (Helmet)
-    // Fixes "Security Headers Missing" vulnerability
-    app.use(helmet());
+    // A. Security Headers
+    app.use(helmet({
+      crossOriginResourcePolicy: { policy: "cross-origin" } // Allows images/videos to load
+    }));
 
-    // B. Robust CORS Configuration
+    // B. CORS Configuration
     const allowedOrigins = [
-      "http://localhost:3000",      // React (Create React App)
-      "http://localhost:5173",      // React (Vite)
-      "http://127.0.0.1:3000",      // Localhost IP variant
+      "http://localhost:3000",      // Local Frontend
+      "http://localhost:5173",      // Vite
+      "http://127.0.0.1:3000",      
       process.env.CLIENT_URL        // Production URL
     ].filter(Boolean);
 
     app.use(cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         if (allowedOrigins.indexOf(origin) === -1) {
           const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
@@ -60,42 +65,56 @@ const startServer = async () => {
       credentials: true
     }));
 
-    // C. Body Parsers with Limits
-    // Prevents DoS attacks by limiting body size
+    // C. Parsers
     app.use(express.json({ limit: '10kb' })); 
     app.use(express.urlencoded({ extended: false }));
 
-    // D. Data Sanitization (The "Bodyguards")
-    // 1. Prevent NoSQL Injection (removes '$' and '.')
-    app.use(mongoSanitize());
-
-    // 2. Prevent XSS Attacks (cleans malicious HTML)
-    app.use(xss());
-
-    // 3. Prevent Parameter Pollution
-    app.use(hpp());
+    // D. Data Sanitization
+    app.use(mongoSanitize()); // Prevent NoSQL Injection
+    app.use(xss());           // Prevent XSS
+    app.use(hpp());           // Prevent Parameter Pollution
 
     // ==========================================
-    // 3. Static Assets & Routes
+    // 2. STATIC FILES & ROUTES
     // ==========================================
+    
+    // Serve uploaded images/videos
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+    // API Routes
     app.use('/api/auth', authRoutes);
     app.use('/api/research', researchRoutes);
     app.use('/api/communities', communityRoutes);
+    app.use('/api/docs', docRoutes); 
 
+    // Health Check
     app.get('/', (req, res) => {
-      res.json({ message: 'Unheard India API is running (Secured)...' });
+      res.json({ 
+        message: 'Unheard India API is running...', 
+        status: 'healthy',
+        timestamp: new Date().toISOString()
+      });
     });
 
-    // 4. Error Handling
+    // ==========================================
+    // 3. ERROR HANDLING
+    // ==========================================
+
+    // 404 Handler (From your old code - Good to have!)
+    app.use((req, res, next) => {
+      const error = new Error(`Not Found - ${req.originalUrl}`);
+      res.status(404);
+      next(error);
+    });
+
+    // Global Error Handler
     if (errorHandler) {
         app.use(errorHandler);
-    } else {
-        console.log("WARNING: errorHandler is not loaded correctly.".red);
     }
 
-    // 5. Start Server
+    // ==========================================
+    // 4. STARTUP
+    // ==========================================
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`.yellow.bold);

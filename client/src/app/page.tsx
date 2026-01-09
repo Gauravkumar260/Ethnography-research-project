@@ -70,8 +70,9 @@ export default function HomePage() {
             >
               Explore Communities
             </Link>
+            {/* ✅ CORRECTED LINK 1: Hero Button */}
             <Link 
-              href="/documentary"
+              href="/documentaries"
               className="px-8 py-3 bg-transparent border-2 border-[#E3E1DB] text-[#E3E1DB] hover:bg-[#E3E1DB] hover:text-[#1a1a1a] transition-all flex items-center justify-center gap-2 rounded font-semibold"
             >
               <Play className="w-4 h-4" />
@@ -200,8 +201,9 @@ export default function HomePage() {
             <h2 className="text-[#E3E1DB] text-2xl font-bold">
               Watch Their Stories
             </h2>
+            {/* ✅ CORRECTED LINK 2: Section Header */}
             <Link 
-              href="/documentary"
+              href="/documentaries"
               className="text-[#99302A] hover:underline text-sm font-semibold"
             >
               View All →
@@ -210,9 +212,10 @@ export default function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {communities.slice(0, 3).map((community) => (
+              // ✅ CORRECTED LINK 3: Grid Items
               <Link 
                 key={community.id}
-                href="/documentary"
+                href="/documentaries"
                 className="group cursor-pointer block"
               >
                 <div className="relative h-48 overflow-hidden mb-3 rounded border border-[#E3E1DB]/10">

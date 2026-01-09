@@ -5,6 +5,7 @@ const documentarySchema = mongoose.Schema(
     title: {
       type: String,
       required: [true, 'Please add a title'],
+      trim: true
     },
     description: {
       type: String,
@@ -23,7 +24,7 @@ const documentarySchema = mongoose.Schema(
       required: true,
     },
     videoUrl: {
-      type: String, // Path to uploaded video OR YouTube link
+      type: String, // Path to uploaded video
       required: true,
     },
     studentName: {
@@ -32,7 +33,8 @@ const documentarySchema = mongoose.Schema(
     },
     status: {
       type: String,
-      default: 'pending', // pending, approved, rejected
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
   },
   {
