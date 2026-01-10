@@ -1,14 +1,14 @@
 const express = require('express');
 const router = express.Router();
 
-// 1. Import Middlewares
+// 1. Import Middleware
 const { protect, authorize } = require('../middlewares/authMiddleware');
-// If you don't have upload middleware yet, comment this out or use a dummy
-// const { documentUpload } = require('../middlewares/uploadMiddleware'); 
-// TEMPORARY FIX: Dummy upload middleware if the real one is missing
+
+// TEMPORARY: Dummy upload to prevent crashes if multer is missing
+// You can uncomment the real one once you set up file uploads
 const documentUpload = { single: () => (req, res, next) => next() }; 
 
-// 2. Import Controllers (These match your Controller file exactly)
+// 2. Import Controllers
 const { 
   submitResearch, 
   getAllSubmissions, 
@@ -21,14 +21,17 @@ const {
 // PUBLIC ROUTES
 // ==========================================
 
+// ✅ NEW: Handle the Root Route (Fixes 404 on /api/research)
+// This maps "GET /" to the Public Gallery function
+router.get('/', getPublicResearch);
+
 // Landing Page Stats
 router.get('/stats', getResearchStats);
 
-// Public Gallery
+// Public Gallery (Alternative URL)
 router.get('/public', getPublicResearch);
 
 // Submit Research (Student)
-// Note: We use the dummy upload for now to prevent crashes if multer isn't set up
 router.post('/submit', documentUpload.single('file'), submitResearch);
 
 // ==========================================
@@ -46,5 +49,4 @@ router.get('/test', (req, res) => {
   res.status(200).json({ success: true, message: "Research Routes Working" });
 });
 
-// ✅ CRITICAL: MUST EXPORT ROUTER
 module.exports = router;
