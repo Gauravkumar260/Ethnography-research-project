@@ -49,7 +49,8 @@ const startServer = async () => {
     const allowedOrigins = [
       "http://localhost:3000",      // Local Frontend
       "http://localhost:5173",      // Vite
-      "http://127.0.0.1:3000",      
+      "http://127.0.0.1:3000",  
+      "https://ethnography-research-project.vercel.app",    
       process.env.CLIENT_URL        // Production URL
     ].filter(Boolean);
 
