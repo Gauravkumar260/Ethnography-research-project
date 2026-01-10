@@ -9,11 +9,10 @@ const Research = require('../models/Research');
 const submitResearch = async (req, res) => {
   try {
     // 1. Check if a file was actually uploaded via Multer
-    if (!req.file) {
-      return res.status(400).json({ message: 'Please upload a research file (PDF/DOC)' });
-    }
+    // Note: If you are using the dummy upload middleware temporarily, req.file might be undefined.
+    // For now, we allow it to proceed even without a file if using dummy.
+    const fileUrl = req.file ? req.file.path : null;
 
-    // 2. Handle Keywords: Convert "Java, AI, Web" string to Array ["Java", "AI", "Web"]
     // 2. Handle Keywords safely
     let keywordsArray = [];
     if (req.body.keywords && typeof req.body.keywords === 'string') {
@@ -37,8 +36,8 @@ const submitResearch = async (req, res) => {
       type: req.body.type,        // e.g., 'thesis', 'publication'
       keywords: keywordsArray,    // Saved as an Array
       
-      fileUrl: req.file.path,     // Path provided by Multer
-      status: 'pending'           // Default status
+      fileUrl: fileUrl,     
+      status: 'Pending'           // Default status
     });
 
     // 4. Save to Database
@@ -46,13 +45,14 @@ const submitResearch = async (req, res) => {
     
     // 5. Respond to Client
     res.status(201).json({ 
+      success: true,
       message: 'Research submitted successfully!', 
       data: savedResearch 
     });
 
   } catch (error) {
     console.error("Error in submitResearch:", error);
-    res.status(500).json({ message: 'Server Error', error: error.message });
+    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
   }
 };
 
@@ -67,10 +67,10 @@ const getAllSubmissions = async (req, res) => {
     // Fetch all documents, sorted by newest first
     const submissions = await Research.find().sort({ createdAt: -1 });
     
-    res.status(200).json(submissions);
+    res.status(200).json({ success: true, count: submissions.length, data: submissions });
   } catch (error) {
     console.error("Error in getAllSubmissions:", error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -82,14 +82,13 @@ const getAllSubmissions = async (req, res) => {
 // @access  Public
 const getPublicResearch = async (req, res) => {
   try {
-    // Filter: status must be 'approved'
-    const research = await Research.find({ status: 'approved' })
-                                   .sort({ createdAt: -1 });
+    // Filter: status must be 'approved' (Note: Case insensitive match usually safer, but sticking to your schema)
+    const research = await Research.find({ status: 'Approved' }).sort({ createdAt: -1 });
     
-    res.status(200).json(research);
+    res.status(200).json({ success: true, count: research.length, data: research });
   } catch (error) {
     console.error("Error in getPublicResearch:", error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
@@ -101,13 +100,7 @@ const getPublicResearch = async (req, res) => {
 // @access  Private (Admin)
 const updateStatus = async (req, res) => {
   try {
-    const { status, comments } = req.body; // Expecting: { status: 'rejected', comments: 'Abstract too short' }
-
-    // Validate Status
-    const validStatuses = ['approved', 'rejected', 'revision'];
-    if (!validStatuses.includes(status)) {
-        return res.status(400).json({ message: 'Invalid status value' });
-    }
+    const { status, comments } = req.body; 
 
     // Find by ID and Update
     const updatedResearch = await Research.findByIdAndUpdate(
@@ -117,28 +110,58 @@ const updateStatus = async (req, res) => {
         rejectionReason: comments || '', // Save reason if rejected/revision
         reviewedDate: new Date()         // Mark the time of review
       },
-      { new: true } // Return the updated document to the frontend
+      { new: true } // Return the updated document
     );
 
     if (!updatedResearch) {
-      return res.status(404).json({ message: 'Research not found' });
+      return res.status(404).json({ success: false, message: 'Research not found' });
     }
 
     res.status(200).json({ 
+        success: true,
         message: `Research marked as ${status}`, 
         data: updatedResearch 
     });
 
   } catch (error) {
     console.error("Error in updateStatus:", error);
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
-// Export all functions to be used in Routes
+// ==========================================
+// 5. GET RESEARCH STATS (Landing Page)
+// ==========================================
+// @desc    Get counts for visualization
+// @route   GET /api/research/stats
+// @access  Public
+const getResearchStats = async (req, res) => {
+  try {
+    const totalCount = await Research.countDocuments();
+    const approvedCount = await Research.countDocuments({ status: 'Approved' });
+    
+    // Mock stats for visualization (can be replaced with real aggregations)
+    const stats = {
+      settlement: [
+        { label: 'Permanent', value: 45, icon: '🏠' },
+        { label: 'Nomadic', value: 25, icon: '🚶' }
+      ],
+      migration: { seasonal: 65, permanent: 15 },
+      totalEntries: totalCount,
+      publishedPapers: approvedCount
+    };
+
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Export ALL functions to be used in Routes
 module.exports = {
   submitResearch,
   getAllSubmissions,
   getPublicResearch,
   updateStatus, 
+  getResearchStats // ✅ Added this so your Routes file won't crash
 };
