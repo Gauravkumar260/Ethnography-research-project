@@ -1,55 +1,104 @@
-const express = require('express');
-const router = express.Router();
+const Research = require('../models/Research');
 
-// 1. Import Controllers
-const {
+// @desc    Submit new research (Student)
+// @route   POST /api/research/submit
+const submitResearch = async (req, res) => {
+  try {
+    const { title, abstract, author, tags } = req.body;
+    
+    // Create entry (Status defaults to 'Pending' in model)
+    const research = await Research.create({
+      title,
+      abstract,
+      author,
+      tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+      fileUrl: req.file ? req.file.path : null, // Assuming you use Cloudinary/Multer
+      status: 'Pending'
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Research submitted successfully!',
+      data: research
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get ALL submissions (Admin)
+// @route   GET /api/research/admin
+const getAllSubmissions = async (req, res) => {
+  try {
+    const submissions = await Research.find().sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: submissions.length, data: submissions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get only APPROVED research (Public)
+// @route   GET /api/research/public
+const getPublicResearch = async (req, res) => {
+  try {
+    // Filter by status: 'Approved'
+    const approvedResearch = await Research.find({ status: 'Approved' }).sort({ createdAt: -1 });
+    res.status(200).json({ success: true, count: approvedResearch.length, data: approvedResearch });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Update submission status (Admin)
+// @route   PATCH /api/research/:id/status
+const updateStatus = async (req, res) => {
+  try {
+    const { status } = req.body; // Expecting 'Approved' or 'Rejected'
+    const research = await Research.findByIdAndUpdate(
+      req.params.id, 
+      { status }, 
+      { new: true, runValidators: true }
+    );
+
+    if (!research) {
+      return res.status(404).json({ success: false, message: 'Research not found' });
+    }
+
+    res.status(200).json({ success: true, data: research });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Get Research Statistics
+// @route   GET /api/research/stats
+const getResearchStats = async (req, res) => {
+  try {
+    const totalCount = await Research.countDocuments();
+    const approvedCount = await Research.countDocuments({ status: 'Approved' });
+    
+    // Mock stats for visualization
+    const stats = {
+      settlement: [
+        { label: 'Permanent', value: 45, icon: '🏠' },
+        { label: 'Nomadic', value: 25, icon: '🚶' }
+      ],
+      migration: { seasonal: 65, permanent: 15 },
+      totalEntries: totalCount,
+      publishedPapers: approvedCount
+    };
+
+    res.status(200).json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ✅ EXPORT EXACTLY WHAT THE ROUTE FILE NEEDS
+module.exports = {
   submitResearch,
   getAllSubmissions,
   getPublicResearch,
   updateStatus,
-  getResearchStats // Optional: if you kept this function for the landing page
-} = require('../controllers/researchController');
-
-// 2. Import Middlewares
-const { protect, authorize } = require('../middlewares/authMiddleware'); // Security
-const { documentUpload } = require('../middlewares/uploadMiddleware');   // File Handling
-
-// ==========================================
-// A. PUBLIC ROUTES (No Login Required)
-// ==========================================
-
-// @route   GET /api/research/public
-// @desc    Fetch only "Approved" research for the frontend gallery
-router.get('/public', getPublicResearch);
-
-// @route   GET /api/research/stats
-// @desc    Get counts (e.g., "50+ Papers Published") - Optional
-router.get('/stats', getResearchStats);
-
-// @route   POST /api/research/submit
-// @desc    Student submits research (Handles file upload 'file')
-// Note: 'file' must match the name attribute in your frontend form <input name="file" />
-router.post('/submit', documentUpload.single('file'), submitResearch);
-
-
-// ==========================================
-// B. PROTECTED ROUTES (Admin Only)
-// ==========================================
-
-// @route   GET /api/research/admin
-// @desc    View ALL submissions (Pending, Rejected, Approved)
-// Security: Must be Logged In + Must be Admin
-router.get('/admin', protect, authorize('admin'), getAllSubmissions);
-
-// @route   PATCH /api/research/:id/status
-// @desc    Approve or Reject a submission
-// Security: Must be Logged In + Must be Admin
-router.patch('/:id/status', protect, authorize('admin'), updateStatus);
-
-// @route   GET /api/research/test
-// @desc    Simple check to see if routes are loading
-router.get('/test', (req, res) => {
-  res.status(200).json({ success: true, message: "Research Routes Working" });
-});
-
-module.exports = router;
+  getResearchStats
+};
