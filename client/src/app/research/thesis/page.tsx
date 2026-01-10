@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { BookOpen, Download, ExternalLink, Calendar, User, ChevronLeft, GraduationCap, Loader2, AlertCircle } from 'lucide-react';
+import { BookOpen, Download, Calendar, User, ChevronLeft, GraduationCap, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/api';
+
+const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function ThesisPage() {
   const [theses, setTheses] = useState([]);
@@ -12,8 +14,12 @@ export default function ThesisPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await api.get('/research/public');
-        setTheses(data.filter((item: any) => item.type === 'thesis'));
+        // ✅ FIX 1: Correctly extract the array from response.data
+        const { data: response } = await api.get('/research/public');
+        const allItems = response.data || [];
+        
+        // ✅ FIX 2: Case-insensitive filtering
+        setTheses(allItems.filter((item: any) => item.type?.toLowerCase() === 'thesis'));
       } catch (error) {
         console.error("Error fetching theses:", error);
       } finally {
@@ -87,11 +93,20 @@ export default function ThesisPage() {
                           "{thesis.abstract}"
                         </p>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <a href={`http://localhost:5000/${thesis.fileUrl}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
-                          <Download className="w-4 h-4" /> Download PDF
-                        </a>
-                      </div>
+                      
+                      {/* ✅ FIX 3: Correct Download Link pointing to Render */}
+                      {thesis.fileUrl && (
+                        <div className="flex items-center gap-4">
+                            <a 
+                              href={`${API_BASE_URL}/${thesis.fileUrl.replace(/\\/g, "/")}`} 
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline"
+                            >
+                              <Download className="w-4 h-4" /> Download PDF
+                            </a>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
