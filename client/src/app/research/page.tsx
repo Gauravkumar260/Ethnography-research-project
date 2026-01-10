@@ -18,21 +18,23 @@ export default function ResearchHubPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // ✅ Corrected: Fetch ALL research items from the single unified endpoint
         const { data: response } = await api.get('/research');
         
-        // Ensure we are working with an array
+        // Ensure array
         const allItems = Array.isArray(response.data) ? response.data : [];
 
-        // Calculate stats dynamically based on the 'type' field
+        // ✅ Helper for safe, case-insensitive comparison
+        const countType = (type: string) => 
+          allItems.filter((i: any) => i.type?.toLowerCase() === type.toLowerCase()).length;
+
         setStats({
-          thesis: allItems.filter((i: any) => i.type === 'Thesis').length,
-          publications: allItems.filter((i: any) => i.type === 'Publication').length,
-          patents: allItems.filter((i: any) => i.type === 'Patent').length,
-          conferences: allItems.filter((i: any) => i.type === 'Conference').length,
-          // 'Field Data' is just another type in our unified schema
-          datasets: allItems.filter((i: any) => i.type === 'Field Data').length
+          thesis: countType('Thesis'),
+          publications: countType('Publication'),
+          patents: countType('Patent'),
+          conferences: countType('Conference'),
+          datasets: countType('Field Data')
         });
+
       } catch (error) {
         console.error("Error fetching research stats:", error);
       } finally {

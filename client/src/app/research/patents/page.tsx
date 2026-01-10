@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Award, Download, ChevronLeft, Lightbulb, FileCheck, Calendar, Loader2, AlertCircle } from 'lucide-react';
+import { Lightbulb, FileCheck, Calendar, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/api';
+
+const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function PatentsPage() {
   const [patents, setPatents] = useState([]);
@@ -12,8 +14,9 @@ export default function PatentsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await api.get('/research/public');
-        setPatents(data.filter((item: any) => item.type === 'patent'));
+        const { data: response } = await api.get('/research/public');
+        const allItems = response.data || [];
+        setPatents(allItems.filter((item: any) => item.type?.toLowerCase() === 'patent'));
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -74,11 +77,13 @@ export default function PatentsPage() {
                         </div>
                       </div>
                       <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6"><span className="font-bold text-[#1a1a1a]">Abstract: </span>{patent.abstract}</p>
-                      <div className="flex items-center gap-4">
-                        <a href={`http://localhost:5000/${patent.fileUrl}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
-                          <FileCheck className="w-4 h-4" /> View Full Documentation
-                        </a>
-                      </div>
+                      {patent.fileUrl && (
+                        <div className="flex items-center gap-4">
+                            <a href={`${API_BASE_URL}/${patent.fileUrl.replace(/\\/g, "/")}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
+                            <FileCheck className="w-4 h-4" /> View Full Documentation
+                            </a>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

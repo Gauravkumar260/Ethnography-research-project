@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FileText, Download, ExternalLink, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { FileText, Download, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/api';
+
+const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function PublicationsPage() {
   const [publications, setPublications] = useState([]);
@@ -12,8 +14,14 @@ export default function PublicationsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await api.get('/research/public');
-        setPublications(data.filter((item: any) => item.type === 'publication'));
+        // ✅ Fix 1: Get the response object correctly
+        const { data: response } = await api.get('/research/public');
+        
+        // ✅ Fix 2: Extract the array safely (response.data is the array)
+        const allItems = response.data || [];
+        
+        // ✅ Fix 3: Case-insensitive filter
+        setPublications(allItems.filter((item: any) => item.type?.toLowerCase() === 'publication'));
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -66,9 +74,18 @@ export default function PublicationsPage() {
                       <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6 bg-[#FAFAF9] p-4 border-l-2 border-[#99302A]">
                         "{pub.abstract}"
                       </p>
-                      <a href={`http://localhost:5000/${pub.fileUrl}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
-                        <Download className="w-4 h-4" /> Download Full Paper
-                      </a>
+                      
+                      {/* ✅ Fix 4: Correct Download Link */}
+                      {pub.fileUrl && (
+                        <a 
+                          href={`${API_BASE_URL}/${pub.fileUrl.replace(/\\/g, "/")}`} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline"
+                        >
+                            <Download className="w-4 h-4" /> Download Full Paper
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>

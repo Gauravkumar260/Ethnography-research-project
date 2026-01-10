@@ -13,9 +13,10 @@ import {
   FileText, 
   FileSpreadsheet 
 } from 'lucide-react';
-import api from '@/lib/api'; // Ensure this path matches your project
+import api from '@/lib/api';
 
-// Types for our filter tabs
+const API_BASE_URL = "https://unheard-india-api.onrender.com";
+
 type FilterType = 'all' | 'interview' | 'photo' | 'survey' | 'field_note' | 'document' | 'dataset';
 
 export default function FieldDataPage() {
@@ -29,9 +30,9 @@ export default function FieldDataPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ CORRECT LINE: Fetch from the existing research route
-        const { data } = await api.get('/research/public');
-        setAllData(data);
+        const { data: response } = await api.get('/research/public');
+        // Fix: Use response.data to get the array
+        setAllData(response.data || []);
       } catch (error) {
         console.error("Error loading field data:", error);
       } finally {
@@ -45,20 +46,22 @@ export default function FieldDataPage() {
   // 2. FILTER LOGIC
   // ==========================================
   const filteredData = allData.filter((item: any) => {
-    // A. Security Check: Only show valid Field Data types (Exclude Thesis/Publications)
-    const validFieldTypes = ['dataset', 'interview', 'photo', 'survey', 'field_note', 'document'];
-    if (!validFieldTypes.includes(item.type)) return false;
+    const itemType = item.type?.toLowerCase();
+    
+    // A. Security Check
+    const validFieldTypes = ['dataset', 'interview', 'photo', 'survey', 'field_note', 'document', 'field data'];
+    if (!validFieldTypes.includes(itemType)) return false;
 
-    // B. Tab Filter: Show everything if 'all', otherwise match specific type
+    // B. Tab Filter
     if (activeFilter === 'all') return true;
-    return item.type === activeFilter;
+    return itemType === activeFilter;
   });
 
   // ==========================================
-  // 3. UI HELPERS (Icons & Labels)
+  // 3. UI HELPERS
   // ==========================================
   const getTypeIcon = (type: string) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case 'interview': return <FileAudio className="w-6 h-6" />;
       case 'photo': return <ImageIcon className="w-6 h-6" />;
       case 'survey': return <FileSpreadsheet className="w-6 h-6" />;
@@ -68,7 +71,7 @@ export default function FieldDataPage() {
   };
 
   const getTypeLabel = (type: string) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case 'interview': return 'Interview';
       case 'photo': return 'Photo Gallery';
       case 'survey': return 'Survey Data';
@@ -77,7 +80,6 @@ export default function FieldDataPage() {
     }
   };
 
-  // Configuration for the Filter Tabs
   const filters: { id: FilterType; label: string; icon: any }[] = [
     { id: 'all', label: 'All Data', icon: Database },
     { id: 'interview', label: 'Interviews', icon: FileAudio },
@@ -88,8 +90,6 @@ export default function FieldDataPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF9]">
-      
-      {/* --- HEADER SECTION --- */}
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
@@ -97,13 +97,12 @@ export default function FieldDataPage() {
           </Link>
           <h1 className="mb-4 text-4xl font-bold font-serif">Field Data Repository</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            Access primary research data, field documentation, and raw datasets from ethnographic fieldwork. 
-            Strictly for academic use.
+            Access primary research data, field documentation, and raw datasets.
           </p>
         </div>
       </section>
 
-      {/* --- FILTER TABS (STICKY) --- */}
+      {/* Filter Tabs */}
       <section className="sticky top-0 z-30 bg-[#FAFAF9]/95 backdrop-blur-sm border-b border-[#1a1a1a]/10 px-4 py-4">
         <div className="max-w-6xl mx-auto flex flex-wrap gap-3">
           {filters.map((filter) => (
@@ -123,7 +122,7 @@ export default function FieldDataPage() {
         </div>
       </section>
 
-      {/* --- DATA LIST SECTION --- */}
+      {/* Data List */}
       <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
           {loading ? (
@@ -133,7 +132,7 @@ export default function FieldDataPage() {
           ) : filteredData.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg p-10">
                <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> 
-               <p>No {activeFilter === 'all' ? 'data' : activeFilter.replace('_', ' ') + 's'} found in the repository.</p>
+               <p>No {activeFilter === 'all' ? 'data' : activeFilter.replace('_', ' ') + 's'} found.</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -144,29 +143,18 @@ export default function FieldDataPage() {
               {filteredData.map((data: any) => (
                 <div key={data._id} className="bg-white p-8 border border-[#1a1a1a]/10 hover:shadow-lg transition-all duration-300 rounded-sm">
                   <div className="flex flex-col md:flex-row gap-6 items-start">
-                    
-                    {/* Icon Box */}
                     <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 text-[#99302A]">
                       {getTypeIcon(data.type)}
                     </div>
                     
-                    {/* Content Box */}
                     <div className="flex-1 w-full">
                       <div className="flex flex-wrap gap-2 mb-3">
-                          {/* Type Label */}
                           <span className="bg-[#99302A]/10 text-[#99302A] text-[10px] uppercase font-bold px-2 py-1 rounded-sm tracking-wide">
                             {getTypeLabel(data.type)}
                           </span>
-                          {/* Community Label */}
                           <span className="bg-gray-100 text-gray-600 text-[10px] uppercase font-bold px-2 py-1 rounded-sm">
                             {data.community}
                           </span>
-                          {/* Size Label (if available) */}
-                          {data.datasetSize && (
-                            <span className="bg-gray-50 text-gray-500 text-[10px] border border-gray-200 px-2 py-1 rounded-sm">
-                              {data.datasetSize}
-                            </span>
-                          )}
                       </div>
 
                       <h3 className="text-[#1a1a1a] mb-2 text-xl font-bold font-serif leading-tight">
@@ -185,14 +173,16 @@ export default function FieldDataPage() {
                       </p>
 
                       <div className="flex gap-4">
-                        <a 
-                          href={`http://localhost:5000/${data.fileUrl}`} 
-                          target="_blank" 
-                          rel="noreferrer" 
-                          className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors shadow-sm"
-                        >
-                          <Download className="w-4 h-4" /> Download File
-                        </a>
+                        {data.fileUrl && (
+                            <a 
+                              href={`${API_BASE_URL}/${data.fileUrl.replace(/\\/g, "/")}`}
+                              target="_blank" 
+                              rel="noreferrer" 
+                              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors shadow-sm"
+                            >
+                              <Download className="w-4 h-4" /> Download File
+                            </a>
+                        )}
                       </div>
                     </div>
                   </div>

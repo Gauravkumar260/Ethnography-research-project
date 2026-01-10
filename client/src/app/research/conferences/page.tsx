@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Calendar, MapPin, ChevronLeft, Mic, Globe, Award, Download, Loader2, AlertCircle } from 'lucide-react';
+import { Users, Calendar, MapPin, ChevronLeft, Mic, Download, Loader2, AlertCircle } from 'lucide-react';
 import api from '@/lib/api';
+
+const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function ConferencesPage() {
   const [conferences, setConferences] = useState([]);
@@ -12,10 +14,14 @@ export default function ConferencesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await api.get('/research/public');
-        // Filter for conference or presentation types
-        // Note: Ensure your submission form allows 'conference' as a type, or map 'publication' here if needed.
-        const confData = data.filter((item: any) => item.type === 'conference' || item.type === 'presentation');
+        const { data: response } = await api.get('/research/public');
+        const allItems = response.data || [];
+        
+        // Filter case-insensitive
+        const confData = allItems.filter((item: any) => 
+            item.type?.toLowerCase() === 'conference' || 
+            item.type?.toLowerCase() === 'presentation'
+        );
         setConferences(confData);
       } catch (error) {
         console.error("Error fetching conferences:", error);
@@ -72,7 +78,7 @@ export default function ConferencesPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>
           ) : conferences.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg">
-               <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> No presentations found.
+                <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> No presentations found.
             </div>
           ) : (
             conferences.map((conf: any) => (
@@ -112,9 +118,11 @@ export default function ConferencesPage() {
                         <Users className="w-3 h-3" />
                         Presenter: {conf.studentName}
                       </div>
-                      <a href={`http://localhost:5000/${conf.fileUrl}`} target="_blank" rel="noreferrer" className="text-sm text-[#99302A] font-medium hover:underline flex items-center gap-1">
-                        <Download className="w-4 h-4" /> Download Abstract
-                      </a>
+                      {conf.fileUrl && (
+                        <a href={`${API_BASE_URL}/${conf.fileUrl.replace(/\\/g, "/")}`} target="_blank" rel="noreferrer" className="text-sm text-[#99302A] font-medium hover:underline flex items-center gap-1">
+                            <Download className="w-4 h-4" /> Download Abstract
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
