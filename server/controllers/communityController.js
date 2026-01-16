@@ -1,6 +1,4 @@
-const Community = require('../models/Community');
-const Research = require('../models/Research');
-// const Documentary = require('../models/Documentary'); // Uncomment when you have this model
+const communityService = require('../services/communityService');
 
 // ==========================================
 // 1. PUBLIC: GET ALL COMMUNITIES (Grid View)
@@ -9,12 +7,8 @@ const Research = require('../models/Research');
 // @route   GET /api/communities
 const getCommunities = async (req, res) => {
   try {
-    // Fetch only active communities and select specific fields for performance
-    const communities = await Community.find({ status: 'active' })
-      .select('name slug subtitle location thumbnail heroImage region') // <--- OPTIMIZATION
-      .sort({ name: 1 });
+    const communities = await communityService.getActiveCommunities();
 
-    // Send response
     res.status(200).json({
       success: true,
       count: communities.length,
@@ -33,35 +27,16 @@ const getCommunities = async (req, res) => {
 // @route   GET /api/communities/:slug
 const getCommunityBySlug = async (req, res) => {
   try {
-    // 1. Find the community by its URL slug
-    const community = await Community.findOne({ 
-      slug: req.params.slug,
-      status: 'active' 
-    });
+    const community = await communityService.getCommunityBySlug(req.params.slug);
 
-    // Check if community exists
     if (!community) {
       return res.status(404).json({ message: 'Community not found' });
     }
 
-    // 2. LIVE COUNT: Check for approved research papers
-    // This ensures the "Research Count" badge is always accurate
-    const researchCount = await Research.countDocuments({
-      community: community.name,
-      status: 'approved',
-    });
-
-    // 3. Update the stats in the database (optional, but keeps DB fresh)
-    community.researchCount = researchCount;
-    // community.documentaryCount = await Documentary.countDocuments({...}); 
-    await community.save();
-
-    // Send response
     res.status(200).json({
       success: true,
       data: community,
     });
-
   } catch (error) {
     console.error("Error in getCommunityBySlug:", error);
     res.status(500).json({ message: 'Server Error' });
@@ -69,26 +44,25 @@ const getCommunityBySlug = async (req, res) => {
 };
 
 // ==========================================
-// 3. PUBLIC: GET COMMUNITY STATS (Missing Function)
+// 3. PUBLIC: GET COMMUNITY STATS
 // ==========================================
 // @desc    Get statistics for a specific community
 // @route   GET /api/communities/:slug/stats
 const getCommunityStats = async (req, res) => {
   try {
-    // Logic to get stats (Placeholder for now to prevent crash)
-    const community = await Community.findOne({ slug: req.params.slug });
+    // Reusing getCommunityBySlug service for now as it contains the logic
+    // In a full implementation, we might have a dedicated service method for lighter stats fetching
+    const community = await communityService.getCommunityBySlug(req.params.slug);
     
     if (!community) {
         return res.status(404).json({ message: 'Community not found' });
     }
 
-    // Example stats response
     res.status(200).json({
         success: true,
         data: {
             researchCount: community.researchCount || 0,
             population: community.population || 0,
-            // Add other stats here
         }
     });
   } catch (error) {
@@ -104,7 +78,7 @@ const getCommunityStats = async (req, res) => {
 // @route   POST /api/communities
 const createCommunity = async (req, res) => {
   try {
-    const newCommunity = await Community.create(req.body);
+    const newCommunity = await communityService.createCommunity(req.body);
     
     res.status(201).json({
       success: true,
@@ -127,11 +101,7 @@ const createCommunity = async (req, res) => {
 // @route   PUT /api/communities/:id
 const updateCommunity = async (req, res) => {
   try {
-    const community = await Community.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const community = await communityService.updateCommunity(req.params.id, req.body);
 
     if (!community) {
       return res.status(404).json({ message: 'Community not found' });
@@ -153,13 +123,11 @@ const updateCommunity = async (req, res) => {
 // @route   DELETE /api/communities/:id
 const deleteCommunity = async (req, res) => {
   try {
-    const community = await Community.findById(req.params.id);
+    const success = await communityService.deleteCommunity(req.params.id);
 
-    if (!community) {
+    if (!success) {
       return res.status(404).json({ message: 'Community not found' });
     }
-
-    await community.deleteOne();
 
     res.status(200).json({
       success: true,
@@ -169,14 +137,13 @@ const deleteCommunity = async (req, res) => {
     console.error("Error in deleteCommunity:", error);
     res.status(500).json({ message: 'Server Error' });
   }
-  
 };
 
 // Export all functions
 module.exports = {
-  getCommunities,     // Renamed from getAllCommunities
+  getCommunities,
   getCommunityBySlug,
-  getCommunityStats,  // Added this new function
+  getCommunityStats,
   createCommunity,
   updateCommunity,
   deleteCommunity

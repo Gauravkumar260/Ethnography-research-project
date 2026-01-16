@@ -1,49 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'; // ✅ Imported Next.js Image
 import { Search, Filter, MapPin, Loader2, AlertCircle } from 'lucide-react';
-import api from '@/lib/api';
-
-interface Community {
-  _id: string;
-  name: string;
-  slug: string;
-  region: string;
-  location?: string;
-  heroImage: string;
-  description: string;
-  subtitle?: string;
-}
+import { useCommunities } from '@/hooks/useCommunities';
 
 export default function CommunitiesPage() {
-  // State Management
-  const [communities, setCommunities] = useState<Community[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // State Management (Abstracted to Hook)
+  const { communities, loading, error, refetch } = useCommunities();
 
   // Filter State
   const [searchTerm, setSearchTerm] = useState('');
   const [regionFilter, setRegionFilter] = useState('All');
-
-  // Fetch Data
-  useEffect(() => {
-    const fetchCommunities = async () => {
-      try {
-        setLoading(true);
-        const res = await api.get('/communities');
-        setCommunities(res.data.data || []); 
-      } catch (err) {
-        console.error('Failed to fetch communities:', err);
-        setError('Unable to load community data.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCommunities();
-  }, []);
 
   // Helper: Get Image URL
   const getImageUrl = (path?: string) => {
@@ -87,7 +56,7 @@ export default function CommunitiesPage() {
         <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">Connection Error</h2>
         <p className="text-[#1a1a1a]/60 max-w-md">{error}</p>
         <button 
-          onClick={() => window.location.reload()}
+          onClick={() => refetch()}
           className="mt-6 px-6 py-2 bg-[#99302A] text-white rounded hover:bg-[#99302A]/90 transition-colors"
         >
           Try Again
