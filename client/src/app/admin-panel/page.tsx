@@ -338,7 +338,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
   const getFileUrl = (path: string) => {
     if (!path) return '#';
     // Remove backward slashes if any (Windows paths)
-    const cleanPath = path.replace(/\/g, "/");
+    const cleanPath = path.split('\\').join('/');
     return `${API_BASE_URL}/${cleanPath}`;
   };
 
