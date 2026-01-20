@@ -73,6 +73,13 @@ const researchSchema = new mongoose.Schema(
       type: String, 
       required: [true, 'File upload is required'] 
     },
+    ethicsFileUrl: {
+      type: String,
+      required: [true, 'Ethics approval document is required']
+    },
+    mediaFileUrl: {
+      type: String // Optional: For datasets or supplementary media
+    },
 
     // --- Admin & Approval Workflow ---
     status: { 

@@ -4,9 +4,8 @@ const router = express.Router();
 // 1. Import Middleware
 const { protect, authorize } = require('../middlewares/authMiddleware');
 
-// TEMPORARY: Dummy upload to prevent crashes if multer is missing
-// You can uncomment the real one once you set up file uploads
-const documentUpload = { single: () => (req, res, next) => next() }; 
+// File Upload Middleware
+const { dataUpload } = require('../middlewares/uploadMiddleware'); 
 
 // 2. Import Controllers
 const { 
@@ -32,7 +31,11 @@ router.get('/stats', getResearchStats);
 router.get('/public', getPublicResearch);
 
 // Submit Research (Student)
-router.post('/submit', documentUpload.single('file'), submitResearch);
+router.post('/submit', dataUpload.fields([
+  { name: 'mainFile', maxCount: 1 },
+  { name: 'mediaFile', maxCount: 1 },
+  { name: 'ethicsFile', maxCount: 1 }
+]), submitResearch);
 
 // ==========================================
 // ADMIN ROUTES

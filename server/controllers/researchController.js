@@ -8,10 +8,20 @@ const Research = require('../models/Research');
 // @access  Private (Student)
 const submitResearch = async (req, res) => {
   try {
-    // 1. Check if a file was actually uploaded via Multer
-    // Note: If you are using the dummy upload middleware temporarily, req.file might be undefined.
-    // For now, we allow it to proceed even without a file if using dummy.
-    const fileUrl = req.file ? req.file.path : null;
+    // 1. Check if files were uploaded via Multer
+    const files = req.files || {};
+    
+    // Extract file paths
+    const mainFile = files['mainFile'] ? files['mainFile'][0] : null;
+    const mediaFile = files['mediaFile'] ? files['mediaFile'][0] : null;
+    const ethicsFile = files['ethicsFile'] ? files['ethicsFile'][0] : null;
+
+    if (!mainFile) {
+        return res.status(400).json({ success: false, message: 'Main research document is required.' });
+    }
+    if (!ethicsFile) {
+        return res.status(400).json({ success: false, message: 'Ethics approval document is required.' });
+    }
 
     // 2. Handle Keywords safely
     let keywordsArray = [];
@@ -36,8 +46,11 @@ const submitResearch = async (req, res) => {
       type: req.body.type,        // e.g., 'thesis', 'publication'
       keywords: keywordsArray,    // Saved as an Array
       
-      fileUrl: fileUrl,     
-      status: 'Pending'           // Default status
+      fileUrl: mainFile.path,
+      ethicsFileUrl: ethicsFile.path,
+      mediaFileUrl: mediaFile ? mediaFile.path : undefined,
+      
+      status: 'pending'           // Default status
     });
 
     // 4. Save to Database
@@ -83,7 +96,7 @@ const getAllSubmissions = async (req, res) => {
 const getPublicResearch = async (req, res) => {
   try {
     // Filter: status must be 'approved' (Note: Case insensitive match usually safer, but sticking to your schema)
-    const research = await Research.find({ status: 'Approved' }).sort({ createdAt: -1 });
+    const research = await Research.find({ status: 'approved' }).sort({ createdAt: -1 });
     
     res.status(200).json({ success: true, count: research.length, data: research });
   } catch (error) {
