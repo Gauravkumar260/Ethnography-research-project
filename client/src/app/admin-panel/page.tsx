@@ -13,118 +13,64 @@ import {
   Eye,
   BookOpen,
   File,
-  AlertCircle
+  AlertCircle,
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import api from '@/lib/api';
 
-// --- Types for Mock Data ---
-type SubmissionStatus = 'pending' | 'approved' | 'rejected';
+// --- Configuration ---
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+
+// --- Types ---
+type SubmissionStatus = 'pending' | 'approved' | 'rejected' | 'revision';
 
 interface Submission {
-  id: string;
-  type: 'Thesis' | 'Publication' | 'Dataset';
+  _id: string;
+  type: string;
   community: string;
   title: string;
   studentName: string;
   studentId: string;
   mentor: string;
   program: string;
-  submittedDate: string;
-  fileCount: number;
+  batch: string;
+  createdAt: string; // ISO Date
+  fileUrl: string;
+  ethicsFileUrl?: string;
+  mediaFileUrl?: string;
   abstract: string;
-  ethicsStatus: 'Approved' | 'Missing';
   status: SubmissionStatus;
   rejectionReason?: string;
-  approvalMeta?: string;
+  reviewedDate?: string;
 }
-
-// --- Mock Data ---
-const MOCK_SUBMISSIONS: Submission[] = [
-  {
-    id: '1',
-    type: 'Thesis',
-    community: 'Van Gujjar',
-    title: 'Traditional Ecological Knowledge and Climate Adaptation Among Van Gujjar Communities',
-    studentName: 'Rahul Kumar',
-    studentId: 'PhD2020015',
-    mentor: 'Dr. Suresh Patel',
-    program: 'PhD',
-    submittedDate: '2024-12-20',
-    fileCount: 8,
-    abstract: 'This dissertation examines how Van Gujjar communities utilize traditional ecological knowledge for climate adaptation strategies...',
-    ethicsStatus: 'Approved',
-    status: 'pending'
-  },
-  {
-    id: '2',
-    type: 'Publication',
-    community: 'Banjara',
-    title: 'Gender Dynamics in Banjara Craft Production: An Economic Analysis',
-    studentName: 'Priya Singh',
-    studentId: 'MA2022034',
-    mentor: 'Dr. Kavita Mehta',
-    program: 'MA',
-    submittedDate: '2024-12-22',
-    fileCount: 4,
-    abstract: 'This paper analyzes the economic contribution of women in Banjara textile craft production...',
-    ethicsStatus: 'Approved',
-    status: 'pending'
-  },
-  {
-    id: '3',
-    type: 'Dataset',
-    community: 'Gadia Lohar',
-    title: 'Gadia Lohar Migration Patterns GPS Tracking Data (2023-2024)',
-    studentName: 'Amit Verma',
-    studentId: 'MPhil2021028',
-    mentor: 'Dr. Priya Sharma',
-    program: 'MPhil',
-    submittedDate: '2024-12-23',
-    fileCount: 12,
-    abstract: 'GPS tracking data from 45 Gadia Lohar families documenting seasonal migration routes across three states...',
-    ethicsStatus: 'Approved',
-    status: 'pending'
-  },
-  {
-    id: '4',
-    type: 'Thesis',
-    community: 'Jaunsar',
-    title: 'Oral Traditions and Historical Memory in Jaunsar Communities',
-    studentName: 'Neha Joshi',
-    studentId: 'PhD2019008',
-    mentor: 'Prof. Ramesh Kumar',
-    program: 'PhD',
-    submittedDate: '2024-12-18',
-    fileCount: 15,
-    abstract: 'An ethnographic study of oral narratives as repositories of historical memory in the Jaunsar-Bawar region...',
-    ethicsStatus: 'Approved',
-    status: 'approved',
-    approvalMeta: 'Reviewed and approved by Prof. Ramesh Kumar on 2024-12-24'
-  },
-  {
-    id: '5',
-    type: 'Publication',
-    community: 'Multiple',
-    title: 'Digital Storytelling Among Nomadic Youth',
-    studentName: 'Karan Malhotra',
-    studentId: 'MA2022019',
-    mentor: 'Dr. Nandita Roy',
-    program: 'MA',
-    submittedDate: '2024-12-15',
-    fileCount: 3,
-    abstract: 'This paper examines social media use among nomadic youth...',
-    ethicsStatus: 'Missing',
-    status: 'rejected',
-    rejectionReason: 'Insufficient ethics documentation - consent forms incomplete. Reviewed by Dr. Nandita Roy on 2024-12-19'
-  }
-];
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [activeTab, setActiveTab] = useState<SubmissionStatus>('pending');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchSubmissions = async () => {
+    try {
+      setRefreshing(true);
+      const { data: response } = await api.get('/research/admin');
+      setSubmissions(response.data || []);
+    } catch (error: any) {
+      console.error("Error fetching submissions:", error);
+      toast.error("Failed to load submissions.");
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        router.push('/admin-panel/security/login');
+      }
+    } finally {
+      setRefreshing(false);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -132,7 +78,7 @@ export default function AdminDashboard() {
       router.push('/admin-panel/security/login');
     } else {
       setIsAuthorized(true);
-      setLoading(false);
+      fetchSubmissions();
     }
   }, [router]);
 
@@ -142,14 +88,36 @@ export default function AdminDashboard() {
     router.push('/admin-panel/security/login');
   };
 
+  const handleStatusUpdate = async (id: string, newStatus: SubmissionStatus, reason?: string) => {
+    try {
+      await api.patch(`/research/${id}/status`, {
+        status: newStatus,
+        comments: reason
+      });
+      
+      toast.success(`Submission marked as ${newStatus}`);
+      
+      // Update local state to reflect change immediately
+      setSubmissions(prev => prev.map(sub => 
+        sub._id === id 
+          ? { ...sub, status: newStatus, rejectionReason: reason, reviewedDate: new Date().toISOString() } 
+          : sub
+      ));
+      
+    } catch (error) {
+      console.error("Error updating status:", error);
+      toast.error("Failed to update status.");
+    }
+  };
+
   // --- Filter Data Based on Tab ---
-  const filteredSubmissions = MOCK_SUBMISSIONS.filter(s => s.status === activeTab);
+  const filteredSubmissions = submissions.filter(s => s.status === activeTab);
 
   // --- Stats Calculation ---
-  const pendingCount = MOCK_SUBMISSIONS.filter(s => s.status === 'pending').length;
-  const approvedCount = MOCK_SUBMISSIONS.filter(s => s.status === 'approved').length;
-  const rejectedCount = MOCK_SUBMISSIONS.filter(s => s.status === 'rejected').length;
-  const totalCount = MOCK_SUBMISSIONS.length;
+  const pendingCount = submissions.filter(s => s.status === 'pending').length;
+  const approvedCount = submissions.filter(s => s.status === 'approved').length;
+  const rejectedCount = submissions.filter(s => s.status === 'rejected').length;
+  const totalCount = submissions.length;
 
   if (loading) {
     return (
@@ -169,12 +137,22 @@ export default function AdminDashboard() {
           <h1 className="text-lg font-serif tracking-wide">Faculty Administration Panel</h1>
           <p className="text-xs opacity-60">Review and manage research submissions</p>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 border border-[#99302A] text-[#E3E1DB] bg-[#99302A] hover:bg-[#7a2621] rounded-sm text-sm transition-colors"
-        >
-          <LogOut className="w-4 h-4" /> Logout
-        </button>
+        <div className="flex items-center gap-4">
+            <button 
+                onClick={fetchSubmissions} 
+                disabled={refreshing}
+                className="p-2 text-[#E3E1DB]/70 hover:text-white transition-colors"
+                title="Refresh Data"
+            >
+                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+            <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 border border-[#99302A] text-[#E3E1DB] bg-[#99302A] hover:bg-[#7a2621] rounded-sm text-sm transition-colors"
+            >
+            <LogOut className="w-4 h-4" /> Logout
+            </button>
+        </div>
       </header>
 
       <main className="max-w-7xl mx-auto p-8 space-y-8">
@@ -231,13 +209,17 @@ export default function AdminDashboard() {
             label={`Rejected (${rejectedCount})`}
             activeClass="bg-red-100 text-red-800 border-red-200"
           />
-
+          {/* We can add Revision tab if needed, but let's stick to these 3 for now */}
         </div>
 
         {/* --- SUBMISSIONS LIST --- */}
         <div className="space-y-6">
           {filteredSubmissions.map((submission) => (
-            <SubmissionCard key={submission.id} submission={submission} />
+            <SubmissionCard 
+                key={submission._id} 
+                submission={submission} 
+                onUpdateStatus={handleStatusUpdate}
+            />
           ))}
           {filteredSubmissions.length === 0 && (
             <div className="text-center py-20 text-[#1a1a1a]/40">
@@ -329,8 +311,36 @@ function GuidelineColumn({ title, items }: { title: string, items: string[] }) {
   );
 }
 
-function SubmissionCard({ submission }: { submission: Submission }) {
+interface SubmissionCardProps {
+    submission: Submission;
+    onUpdateStatus: (id: string, status: SubmissionStatus, reason?: string) => void;
+}
+
+function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
   const isPending = submission.status === 'pending';
+
+  const handleAction = (status: SubmissionStatus) => {
+    let reason = '';
+    if (status === 'rejected') {
+        reason = prompt("Please provide a reason for rejection:") || '';
+        if (!reason) return; // Cancel if no reason provided
+    }
+    if (status === 'revision') {
+        reason = prompt("Please provide instructions for revision:") || '';
+        if (!reason) return;
+    }
+    
+    if (confirm(`Are you sure you want to mark this as ${status.toUpperCase()}?`)) {
+        onUpdateStatus(submission._id, status, reason);
+    }
+  };
+
+  const getFileUrl = (path: string) => {
+    if (!path) return '#';
+    // Remove backward slashes if any (Windows paths)
+    const cleanPath = path.replace(/\/g, "/");
+    return `${API_BASE_URL}/${cleanPath}`;
+  };
 
   return (
     <div className="bg-white p-8 rounded-sm shadow-sm border border-[#1a1a1a]/5 hover:shadow-md transition-shadow">
@@ -338,7 +348,7 @@ function SubmissionCard({ submission }: { submission: Submission }) {
         {/* Icon Column */}
         <div className="flex-shrink-0">
           <div className="w-12 h-12 rounded-full bg-[#99302A]/5 flex items-center justify-center text-[#99302A]">
-            {submission.type === 'Dataset' ? <Database className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
+            {submission.type?.toLowerCase() === 'dataset' ? <Database className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
           </div>
         </div>
 
@@ -349,10 +359,10 @@ function SubmissionCard({ submission }: { submission: Submission }) {
           <div className="flex items-center gap-3 flex-wrap">
             <span className="px-3 py-1 bg-[#99302A]/10 text-[#99302A] text-xs font-bold uppercase tracking-wider rounded-sm">{submission.type}</span>
             <span className="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-bold uppercase tracking-wider rounded-sm">{submission.community}</span>
-            <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm flex items-center gap-1 ${submission.ethicsStatus === 'Approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm flex items-center gap-1 ${submission.ethicsFileUrl ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}>
-              {submission.ethicsStatus === 'Approved' ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-              Ethics {submission.ethicsStatus}
+              {submission.ethicsFileUrl ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+              Ethics {submission.ethicsFileUrl ? 'Uploaded' : 'Missing'}
             </span>
           </div>
 
@@ -372,10 +382,10 @@ function SubmissionCard({ submission }: { submission: Submission }) {
                 <span className="text-[#1a1a1a]">Mentor:</span> {submission.mentor}
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Submitted:</span> {submission.submittedDate}
+                <span className="text-[#1a1a1a]">Submitted:</span> {new Date(submission.createdAt).toLocaleDateString()}
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Files:</span> {submission.fileCount} uploaded
+                <span className="text-[#1a1a1a]">Batch:</span> {submission.batch}
               </div>
             </div>
           </div>
@@ -392,32 +402,65 @@ function SubmissionCard({ submission }: { submission: Submission }) {
               <strong>Rejection Reason:</strong> {submission.rejectionReason}
             </div>
           )}
-          {submission.status === 'approved' && (
-            <div className="bg-green-50 text-green-800 text-xs p-3 rounded-sm border border-green-100">
-              {submission.approvalMeta}
+          {submission.status === 'approved' && submission.reviewedDate && (
+             <div className="bg-green-50 text-green-800 text-xs p-3 rounded-sm border border-green-100">
+              Approved on {new Date(submission.reviewedDate).toLocaleDateString()}
             </div>
           )}
 
           {/* Action Bar */}
           <div className="flex flex-wrap items-center justify-between pt-4 border-t border-[#1a1a1a]/5 gap-4">
             <div className="flex gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors">
-                <Eye className="w-4 h-4" /> View Details
-              </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors">
-                <Download className="w-4 h-4" /> Download Files
-              </button>
+              <a 
+                href={getFileUrl(submission.fileUrl)} 
+                target="_blank" 
+                rel="noreferrer"
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+              >
+                <Download className="w-4 h-4" /> Main File
+              </a>
+              
+              {submission.ethicsFileUrl && (
+                  <a 
+                    href={getFileUrl(submission.ethicsFileUrl)} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                  >
+                    <FileText className="w-4 h-4" /> Ethics Doc
+                  </a>
+              )}
+
+              {submission.mediaFileUrl && (
+                  <a 
+                    href={getFileUrl(submission.mediaFileUrl)} 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                  >
+                    <Database className="w-4 h-4" /> Media/Data
+                  </a>
+              )}
             </div>
 
             {isPending && (
               <div className="flex gap-2">
-                <button className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2">
+                <button 
+                    onClick={() => handleAction('approved')}
+                    className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
+                >
                   <CheckCircle className="w-4 h-4" /> Approve
                 </button>
-                <button className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors">
+                <button 
+                    onClick={() => handleAction('revision')}
+                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors"
+                >
                   Request Revision
                 </button>
-                <button className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2">
+                <button 
+                    onClick={() => handleAction('rejected')}
+                    className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
+                >
                   <XCircle className="w-4 h-4" /> Reject
                 </button>
               </div>

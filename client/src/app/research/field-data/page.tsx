@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import api from '@/lib/api';
 
-const API_BASE_URL = "https://unheard-india-api.onrender.com";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 type FilterType = 'all' | 'interview' | 'photo' | 'survey' | 'field_note' | 'document' | 'dataset';
 

@@ -32,7 +32,7 @@ export default function ResearchHubPage() {
           publications: countType('Publication'),
           patents: countType('Patent'),
           conferences: countType('Conference'),
-          datasets: countType('Field Data')
+          datasets: countType('dataset')
         });
 
       } catch (error) {
