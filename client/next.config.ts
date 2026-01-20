@@ -1,0 +1,32 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  // 1. Image Optimization Rules
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com', // Unsplash often uses this subdomain
+      },
+      {
+        protocol: 'https',
+        hostname: 'unheard-india-api.onrender.com', // Your Production Backend
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost', // Allows images from local backend testing
+      },
+    ],
+  },
+
+  // 2. Experimental Features (Kept empty for now, ready for future use)
+  experimental: {
+    // You can add features like typedRoutes or serverActions here later
+  },
+};
+
+export default nextConfig;
