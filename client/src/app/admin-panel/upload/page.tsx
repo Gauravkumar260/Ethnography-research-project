@@ -137,7 +137,7 @@ export default function UploadPage() {
                   <div className="flex flex-col items-center">
                     <FileVideo className={`w-10 h-10 mb-2 ${video ? 'text-green-600' : 'text-gray-400'}`} />
                     <span className="text-sm font-medium text-gray-700">{video ? video.name : "Upload Video"}</span>
-                    <span className="text-xs text-gray-400 mt-1">MP4, WebM (Max 50MB)</span>
+                    <span className="text-xs text-gray-400 mt-1">MP4, WebM (Max 5GB)</span>
                   </div>
                 </div>
               </div>

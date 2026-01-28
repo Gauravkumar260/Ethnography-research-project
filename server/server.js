@@ -117,9 +117,12 @@ const startServer = async () => {
     // 4. STARTUP
     // ==========================================
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`.yellow.bold);
     });
+
+    // Increase timeout for large file uploads (e.g., 5GB could take 30+ minutes)
+    server.timeout = 3600000; // 1 hour
 
   } catch (error) {
     console.error('Failed to start server:'.red, error.message);

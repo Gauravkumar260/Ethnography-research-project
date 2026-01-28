@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { FileText } from "lucide-react";
 
 export function Footer() {
   return (
@@ -11,7 +10,7 @@ export function Footer() {
         {/* Admin Quick Action (Merged from Admin Panel) */}
         <div className="flex justify-center mb-16">
           <Link href="/admin-panel/upload">
-            <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" /> Upload New  Documentary
+             Upload New  Documentary
           </Link>
         </div>
 
@@ -23,7 +22,7 @@ export function Footer() {
               Unheard India
             </h3>
             <p className="opacity-70 leading-relaxed max-w-xs">
-              Preserving stories today, so history doesn't lose them tomorrow.
+              Preserving stories today, so history doesn&apos;t lose them tomorrow.
             </p>
           </div>
 

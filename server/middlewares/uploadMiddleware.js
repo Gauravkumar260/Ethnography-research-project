@@ -98,11 +98,11 @@ const documentUpload = multer({
   fileFilter: documentFilter,
 });
 
-// Upload for media (thumbnails + videos - 500MB limit)
+// Upload for media (thumbnails + videos - 5GB limit)
 const mediaUpload = multer({
   storage: storage,
   limits: {
-    fileSize: 500 * 1024 * 1024, // 500MB
+    fileSize: 5 * 1024 * 1024 * 1024, // 5GB
   },
   fileFilter: mediaFilter,
 });

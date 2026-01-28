@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Crimson_Text } from "next/font/google"; // Academic fonts
-import "../styles/globals.css"; // Ensure this path matches your folder structure
+import "@/styles/globals.css"; // Ensure this path matches your folder structure
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { Toaster } from "@/components/ui/sonner"; 

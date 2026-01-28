@@ -3,45 +3,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { Play } from 'lucide-react';
+import { communities as communityData } from '@/lib/communityData';
 
 export default function HomePage() {
-  const communities = [
-    {
-      id: 'gadia-lohar',
-      name: 'Gadia Lohar',
-      identity: 'Forged in Fire',
-      description: 'Iron artisans carrying 500 years of heritage amidst instability and strength',
-      image: 'https://images.unsplash.com/photo-1748640773152-a5c24b000d98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBhcnRpc2FuJTIwYmxhY2tzbWl0aCUyMGZpcmV8ZW58MXx8fHwxNzY2MTUxMTk5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'bhoksa',
-      name: 'Bhoksa',
-      identity: 'Between Tradition and Tomorrow',
-      description: 'A community navigating modern challenges while preserving ancestral wisdom',
-      image: 'https://images.unsplash.com/photo-1759738103333-1c836a32f848?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmliYWwlMjBjb21tdW5pdHklMjBpbmRpYXxlbnwxfHx8fDE3NjYxNTExOTl8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'jaunsar',
-      name: 'Jaunsar',
-      identity: 'Where Culture Breathes',
-      description: 'Himalayan communities with unique polyandrous traditions and rich folklore',
-      image: 'https://images.unsplash.com/photo-1738482223848-008ac3110276?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaW1hbGF5YW4lMjB2aWxsYWdlJTIwY3VsdHVyZXxlbnwxfHx8fDE3NjYxNTEyMDF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'banjara',
-      name: 'Banjara',
-      identity: 'Lives That Speak',
-      description: 'Nomadic traders whose vibrant culture moves with their journeys',
-      image: 'https://images.unsplash.com/photo-1759459295621-50110405a4bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxub21hZGljJTIwcGVvcGxlJTIwaW5kaWF8ZW58MXx8fHwxNzY2MTUxMjAwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'van-gujjar',
-      name: 'Van Gujjar',
-      identity: 'Beyond Survival',
-      description: 'Forest dwellers balancing conservation challenges with traditional livelihoods',
-      image: 'https://images.unsplash.com/photo-1745988583865-2249654d864c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjB2aWxsYWdlJTIwdHJhZGl0aW9uYWx8ZW58MXx8fHwxNzY2MTUxMjAwfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-  ];
+  const communities = Object.values(communityData).map((community) => ({
+    id: community.id,
+    name: community.name,
+    identity: community.subtitle,
+    description: community.description,
+    image: community.heroImage,
+  }));
 
   return (
     <div>
@@ -61,7 +32,7 @@ export default function HomePage() {
             Stories That Live Beyond Silence
           </h1>
           <p className="text-[#E3E1DB]/90 mb-8 max-w-2xl mx-auto text-xl">
-            A digital ethnography platform documenting lives, craft, culture, and resilience of India's overlooked communities.
+            A digital ethnography platform documenting lives, craft, culture, and resilience of India&apos;s overlooked communities.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link 

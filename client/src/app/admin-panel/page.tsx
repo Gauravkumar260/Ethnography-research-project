@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<SubmissionStatus>('pending');
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = React.useCallback(async () => {
     try {
       setRefreshing(true);
       const { data: response } = await api.get('/research/admin');
@@ -70,7 +70,7 @@ export default function AdminDashboard() {
       setRefreshing(false);
       setLoading(false);
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -80,7 +80,7 @@ export default function AdminDashboard() {
       setIsAuthorized(true);
       fetchSubmissions();
     }
-  }, [router]);
+  }, [router, fetchSubmissions]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -94,16 +94,16 @@ export default function AdminDashboard() {
         status: newStatus,
         comments: reason
       });
-      
+
       toast.success(`Submission marked as ${newStatus}`);
-      
+
       // Update local state to reflect change immediately
-      setSubmissions(prev => prev.map(sub => 
-        sub._id === id 
-          ? { ...sub, status: newStatus, rejectionReason: reason, reviewedDate: new Date().toISOString() } 
+      setSubmissions(prev => prev.map(sub =>
+        sub._id === id
+          ? { ...sub, status: newStatus, rejectionReason: reason, reviewedDate: new Date().toISOString() }
           : sub
       ));
-      
+
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status.");
@@ -138,20 +138,20 @@ export default function AdminDashboard() {
           <p className="text-xs opacity-60">Review and manage research submissions</p>
         </div>
         <div className="flex items-center gap-4">
-            <button 
-                onClick={fetchSubmissions} 
-                disabled={refreshing}
-                className="p-2 text-[#E3E1DB]/70 hover:text-white transition-colors"
-                title="Refresh Data"
-            >
-                <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
-            </button>
-            <button
+          <button
+            onClick={fetchSubmissions}
+            disabled={refreshing}
+            className="p-2 text-[#E3E1DB]/70 hover:text-white transition-colors"
+            title="Refresh Data"
+          >
+            <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
+          <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 border border-[#99302A] text-[#E3E1DB] bg-[#99302A] hover:bg-[#7a2621] rounded-sm text-sm transition-colors"
-            >
+          >
             <LogOut className="w-4 h-4" /> Logout
-            </button>
+          </button>
         </div>
       </header>
 
@@ -215,10 +215,10 @@ export default function AdminDashboard() {
         {/* --- SUBMISSIONS LIST --- */}
         <div className="space-y-6">
           {filteredSubmissions.map((submission) => (
-            <SubmissionCard 
-                key={submission._id} 
-                submission={submission} 
-                onUpdateStatus={handleStatusUpdate}
+            <SubmissionCard
+              key={submission._id}
+              submission={submission}
+              onUpdateStatus={handleStatusUpdate}
             />
           ))}
           {filteredSubmissions.length === 0 && (
@@ -312,8 +312,8 @@ function GuidelineColumn({ title, items }: { title: string, items: string[] }) {
 }
 
 interface SubmissionCardProps {
-    submission: Submission;
-    onUpdateStatus: (id: string, status: SubmissionStatus, reason?: string) => void;
+  submission: Submission;
+  onUpdateStatus: (id: string, status: SubmissionStatus, reason?: string) => void;
 }
 
 function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
@@ -322,16 +322,16 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
   const handleAction = (status: SubmissionStatus) => {
     let reason = '';
     if (status === 'rejected') {
-        reason = prompt("Please provide a reason for rejection:") || '';
-        if (!reason) return; // Cancel if no reason provided
+      reason = prompt("Please provide a reason for rejection:") || '';
+      if (!reason) return; // Cancel if no reason provided
     }
     if (status === 'revision') {
-        reason = prompt("Please provide instructions for revision:") || '';
-        if (!reason) return;
+      reason = prompt("Please provide instructions for revision:") || '';
+      if (!reason) return;
     }
-    
+
     if (confirm(`Are you sure you want to mark this as ${status.toUpperCase()}?`)) {
-        onUpdateStatus(submission._id, status, reason);
+      onUpdateStatus(submission._id, status, reason);
     }
   };
 
@@ -403,7 +403,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
             </div>
           )}
           {submission.status === 'approved' && submission.reviewedDate && (
-             <div className="bg-green-50 text-green-800 text-xs p-3 rounded-sm border border-green-100">
+            <div className="bg-green-50 text-green-800 text-xs p-3 rounded-sm border border-green-100">
               Approved on {new Date(submission.reviewedDate).toLocaleDateString()}
             </div>
           )}
@@ -411,55 +411,55 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
           {/* Action Bar */}
           <div className="flex flex-wrap items-center justify-between pt-4 border-t border-[#1a1a1a]/5 gap-4">
             <div className="flex gap-3">
-              <a 
-                href={getFileUrl(submission.fileUrl)} 
-                target="_blank" 
+              <a
+                href={getFileUrl(submission.fileUrl)}
+                target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
               >
                 <Download className="w-4 h-4" /> Main File
               </a>
-              
+
               {submission.ethicsFileUrl && (
-                  <a 
-                    href={getFileUrl(submission.ethicsFileUrl)} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
-                  >
-                    <FileText className="w-4 h-4" /> Ethics Doc
-                  </a>
+                <a
+                  href={getFileUrl(submission.ethicsFileUrl)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                >
+                  <FileText className="w-4 h-4" /> Ethics Doc
+                </a>
               )}
 
               {submission.mediaFileUrl && (
-                  <a 
-                    href={getFileUrl(submission.mediaFileUrl)} 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
-                  >
-                    <Database className="w-4 h-4" /> Media/Data
-                  </a>
+                <a
+                  href={getFileUrl(submission.mediaFileUrl)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
+                >
+                  <Database className="w-4 h-4" /> Media/Data
+                </a>
               )}
             </div>
 
             {isPending && (
               <div className="flex gap-2">
-                <button 
-                    onClick={() => handleAction('approved')}
-                    className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
+                <button
+                  onClick={() => handleAction('approved')}
+                  className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
                 >
                   <CheckCircle className="w-4 h-4" /> Approve
                 </button>
-                <button 
-                    onClick={() => handleAction('revision')}
-                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors"
+                <button
+                  onClick={() => handleAction('revision')}
+                  className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors"
                 >
                   Request Revision
                 </button>
-                <button 
-                    onClick={() => handleAction('rejected')}
-                    className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
+                <button
+                  onClick={() => handleAction('rejected')}
+                  className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
                 >
                   <XCircle className="w-4 h-4" /> Reject
                 </button>

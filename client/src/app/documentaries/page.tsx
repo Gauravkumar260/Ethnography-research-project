@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Play, Loader2, AlertCircle, ChevronLeft } from 'lucide-react';
+import { Play, Loader2, AlertCircle, ChevronLeft, X } from 'lucide-react';
 import api from '@/lib/api'; 
 
 type FilterType = 'all' | 'craft' | 'tribal' | 'nomadic' | 'heritage';
@@ -22,12 +22,12 @@ export default function DocumentaryPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [documentaries, setDocumentaries] = useState<Documentary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   // --- 1. FETCH DATA ---
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        // Fetches from http://localhost:5000/api/docs
         const { data } = await api.get('/docs'); 
         setDocumentaries(data);
       } catch (error) {
@@ -41,10 +41,12 @@ export default function DocumentaryPage() {
   }, []);
 
   // Helper: Handle local vs remote images
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  
   const getFileUrl = (path: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path; 
-    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
+    return `${API_BASE_URL}/${path.replace(/\\/g, "/")}`;
   };
 
   const filters: { id: FilterType; label: string }[] = [
@@ -85,7 +87,7 @@ export default function DocumentaryPage() {
               <button
                 key={filter.id}
                 onClick={() => setActiveFilter(filter.id)}
-                className={`px-5 py-2 text-sm transition-all rounded-full border ${
+                className={`px-5 py-2 text-sm transition-all rounded-full border ${ 
                   activeFilter === filter.id
                     ? 'bg-[#99302A] text-[#E3E1DB] border-[#99302A] font-medium shadow-md'
                     : 'bg-white text-[#1a1a1a] border-[#1a1a1a]/10 hover:border-[#99302A] hover:text-[#99302A]'
@@ -114,7 +116,7 @@ export default function DocumentaryPage() {
                   <div 
                     key={doc._id}
                     className="group cursor-pointer bg-white overflow-hidden hover:shadow-xl transition-all duration-300 rounded-lg border border-[#1a1a1a]/5 flex flex-col h-full"
-                    onClick={() => window.open(getFileUrl(doc.videoUrl), '_blank')}
+                    onClick={() => setSelectedVideo(doc.videoUrl)}
                   >
                     {/* Thumbnail Container */}
                     <div className="relative h-56 overflow-hidden bg-gray-100">
@@ -168,6 +170,29 @@ export default function DocumentaryPage() {
           )}
         </div>
       </section>
+
+      {/* VIDEO MODAL */}
+      {selectedVideo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="relative w-full max-w-5xl bg-black rounded-lg overflow-hidden shadow-2xl border border-white/10">
+                <button 
+                    onClick={() => setSelectedVideo(null)}
+                    className="absolute top-4 right-4 z-10 p-2 bg-black/50 text-white rounded-full hover:bg-[#99302A] transition-colors"
+                >
+                    <X className="w-6 h-6" />
+                </button>
+                <video 
+                    src={getFileUrl(selectedVideo)} 
+                    controls 
+                    autoPlay 
+                    className="w-full h-auto max-h-[85vh] outline-none"
+                    preload="metadata"
+                >
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+      )}
     </div>
   );
 }

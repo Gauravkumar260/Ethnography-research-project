@@ -150,11 +150,24 @@ const updateStatus = async (req, res) => {
 // @access  Public
 const getResearchStats = async (req, res) => {
   try {
+    // Aggregation: Count approved items by type
+    const typeStats = await Research.aggregate([
+      { $match: { status: 'approved' } }, 
+      { $group: { _id: "$type", count: { $sum: 1 } } }
+    ]);
+
+    // Format as key-value pairs
+    const countsByType = {};
+    typeStats.forEach(item => {
+        if (item._id) countsByType[item._id.toLowerCase()] = item.count;
+    });
+
     const totalCount = await Research.countDocuments();
-    const approvedCount = await Research.countDocuments({ status: 'Approved' });
+    const approvedCount = await Research.countDocuments({ status: 'approved' });
     
     // Mock stats for visualization (can be replaced with real aggregations)
     const stats = {
+      byType: countsByType,
       settlement: [
         { label: 'Permanent', value: 45, icon: '🏠' },
         { label: 'Nomadic', value: 25, icon: '🚶' }

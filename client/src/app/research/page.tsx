@@ -18,21 +18,15 @@ export default function ResearchHubPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data: response } = await api.get('/research');
-
-        // Ensure array
-        const allItems = Array.isArray(response.data) ? response.data : [];
-
-        // ✅ Helper for safe, case-insensitive comparison
-        const countType = (type: string) =>
-          allItems.filter((i: any) => i.type?.toLowerCase() === type.toLowerCase()).length;
+        const { data: response } = await api.get('/research/stats');
+        const byType = response.data?.byType || {};
 
         setStats({
-          thesis: countType('Thesis'),
-          publications: countType('Publication'),
-          patents: countType('Patent'),
-          conferences: countType('Conference'),
-          datasets: countType('dataset')
+          thesis: byType['thesis'] || 0,
+          publications: byType['publication'] || 0,
+          patents: byType['patent'] || 0,
+          conferences: byType['conference'] || 0,
+          datasets: byType['dataset'] || 0
         });
 
       } catch (error) {

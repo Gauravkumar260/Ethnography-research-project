@@ -558,7 +558,7 @@ function SidebarMenuAction({
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+        "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
         className,
       )}
       {...props}
@@ -595,9 +595,18 @@ function SidebarMenuSkeleton({
 }: React.ComponentProps<"div"> & {
   showIcon?: boolean;
 }) {
+  const id = React.useId();
   const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`;
-  }, []);
+    // Deterministic random-like width based on ID
+    // Simplistic hash of the ID to get a number between 50 and 90
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+      hash |= 0;
+    }
+    const safeHash = Math.abs(hash);
+    return `${(safeHash % 40) + 50}%`;
+  }, [id]);
 
   return (
     <div
