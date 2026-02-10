@@ -17,6 +17,9 @@ interface Documentary {
   category: string[];
   thumbnailUrl: string;
   videoUrl: string;
+  studentName?: string;
+  createdAt?: string;
+  status?: string;
 }
 
 export default function DocumentaryPage() {
