@@ -15,9 +15,9 @@ const connectDB = require('./config/db');
 
 // --- ROUTES IMPORTS ---
 const authRoutes = require('./routes/authRoutes');
-const researchRoutes = require('./routes/researchRoutes'); 
+const researchRoutes = require('./routes/researchRoutes');
 const communityRoutes = require('./routes/communityRoutes');
-const docRoutes = require('./routes/docRoutes'); 
+const docRoutes = require('./routes/docRoutes');
 const { errorHandler } = require('./middlewares/errorMiddleware');
 
 // --- DEBUGGING CHECKS ---
@@ -33,7 +33,7 @@ const startServer = async () => {
   try {
     dotenv.config();
     await connectDB();  // Wait for DB before starting server
-    
+
     const app = express();
 
     // ==========================================
@@ -49,25 +49,31 @@ const startServer = async () => {
     const allowedOrigins = [
       "http://localhost:3000",      // Local Frontend
       "http://localhost:5173",      // Vite
-      "http://127.0.0.1:3000",  
-      "https://ethnography-research-project.vercel.app",    
+      "http://127.0.0.1:3000",
+      "https://ethnography-research-project.vercel.app",
       process.env.CLIENT_URL        // Production URL
     ].filter(Boolean);
 
     app.use(cors({
       origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
+
+        // Check if origin is in the allowed list OR is a vercel preview deployment
+        const isAllowed = allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app');
+
+        if (isAllowed) {
+          return callback(null, true);
+        } else {
           const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
           return callback(new Error(msg), false);
         }
-        return callback(null, true);
       },
       credentials: true
     }));
 
     // C. Parsers
-    app.use(express.json({ limit: '10kb' })); 
+    app.use(express.json({ limit: '10kb' }));
     app.use(express.urlencoded({ extended: false }));
 
     // D. Data Sanitization
@@ -78,7 +84,7 @@ const startServer = async () => {
     // ==========================================
     // 2. STATIC FILES & ROUTES
     // ==========================================
-    
+
     // Serve uploaded images/videos
     app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -86,12 +92,12 @@ const startServer = async () => {
     app.use('/api/auth', authRoutes);
     app.use('/api/research', researchRoutes);
     app.use('/api/communities', communityRoutes);
-    app.use('/api/docs', docRoutes); 
+    app.use('/api/docs', docRoutes);
 
     // Health Check
     app.get('/', (req, res) => {
-      res.json({ 
-        message: 'Unheard India API is running...', 
+      res.json({
+        message: 'Unheard India API is running...',
         status: 'healthy',
         timestamp: new Date().toISOString()
       });
@@ -110,7 +116,7 @@ const startServer = async () => {
 
     // Global Error Handler
     if (errorHandler) {
-        app.use(errorHandler);
+      app.use(errorHandler);
     }
 
     // ==========================================
