@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Shield, Lock, ArrowRight, FileText, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner"; 
 import api from "@/lib/api"; 
 
 export default function FacultyLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -35,8 +33,9 @@ export default function FacultyLoginPage() {
       // Note: We use window.location to ensure a full refresh of the admin state
       window.location.href = "/admin";
 
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Invalid credentials.";
+    } catch (error: unknown) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const message = (error as any).response?.data?.message || "Invalid credentials.";
       toast.error(message);
     } finally {
       setIsLoading(false);

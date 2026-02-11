@@ -9,7 +9,7 @@ export function Footer() {
 
         {/* Admin Quick Action (Merged from Admin Panel) */}
         <div className="flex justify-center mb-16">
-          <Link href="/admin-panel/upload">
+          <Link href="/admin">
              Upload New  Documentary
           </Link>
         </div>
@@ -108,7 +108,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/admin-panel/security/login" className="hover:text-white hover:underline transition-all">
+                <Link href="/login" className="hover:text-white hover:underline transition-all">
                   Faculty Login
                 </Link>
               </li>

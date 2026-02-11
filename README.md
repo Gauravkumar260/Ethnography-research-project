@@ -133,7 +133,7 @@ Ethnography-research-project/
 │   ├── src/
 │   │   ├── app/                  # Next.js App Router pages
 │   │   │   ├── about/            # About page
-│   │   │   ├── admin-panel/      # Admin dashboard
+│   │   │   ├── admin/            # Admin dashboard
 │   │   │   ├── communities/      # Communities listing
 │   │   │   ├── contact/          # Contact form
 │   │   │   ├── documentaries/    # Documentary showcase
@@ -426,7 +426,7 @@ http://localhost:5000/api
 | `/contact` | Contact | Contact form for inquiries | No |
 | `/ethics-guidelines` | Ethics | Research ethics guidelines | No |
 | `/login` | Login/Register | User authentication | No |
-| `/admin-panel` | Admin Dashboard | Content management (CRUD operations) | Yes (Admin) |
+| `/admin` | Admin Dashboard | Content management (CRUD operations) | Yes (Admin) |
 
 ---
 

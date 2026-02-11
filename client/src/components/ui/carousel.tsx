@@ -51,7 +51,7 @@ function Carousel({
   children,
   ...props
 }: React.ComponentProps<"div"> & CarouselProps) {
-  const [api, setApiInternal] = React.useState<CarouselApi>();
+  const [api] = React.useState<CarouselApi>();
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);
 
@@ -108,7 +108,7 @@ function Carousel({
     };
   }, [api, onSelect]);
 
-  const [carouselRef, apiObj] = useEmblaCarousel(
+  const [carouselRef] = useEmblaCarousel(
     {
       ...opts,
       axis: orientation === "horizontal" ? "x" : "y",

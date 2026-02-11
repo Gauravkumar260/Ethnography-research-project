@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -10,14 +11,12 @@ import {
   Database,
   FileText,
   Download,
-  Eye,
   BookOpen,
   File,
   AlertCircle,
   Loader2,
   RefreshCw
 } from 'lucide-react';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import api from '@/lib/api';
 
@@ -64,7 +63,7 @@ export default function AdminDashboard() {
       console.error("Error fetching submissions:", error);
       toast.error("Failed to load submissions.");
       if (error.response?.status === 401 || error.response?.status === 403) {
-        router.push('/admin-panel/security/login');
+        router.push('/login');
       }
     } finally {
       setRefreshing(false);
@@ -75,7 +74,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      router.push('/admin-panel/security/login');
+      router.push('/login');
     } else {
       setIsAuthorized(true);
       fetchSubmissions();
@@ -85,7 +84,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    router.push('/admin-panel/security/login');
+    router.push('/login');
   };
 
   const handleStatusUpdate = async (id: string, newStatus: SubmissionStatus, reason?: string) => {
@@ -117,6 +116,7 @@ export default function AdminDashboard() {
   const pendingCount = submissions.filter(s => s.status === 'pending').length;
   const approvedCount = submissions.filter(s => s.status === 'approved').length;
   const rejectedCount = submissions.filter(s => s.status === 'rejected').length;
+  const revisionCount = submissions.filter(s => s.status === 'revision').length;
   const totalCount = submissions.length;
 
   if (loading) {
@@ -209,7 +209,12 @@ export default function AdminDashboard() {
             label={`Rejected (${rejectedCount})`}
             activeClass="bg-red-100 text-red-800 border-red-200"
           />
-          {/* We can add Revision tab if needed, but let's stick to these 3 for now */}
+          <TabButton
+            active={activeTab === 'revision'}
+            onClick={() => setActiveTab('revision')}
+            label={`Revision (${revisionCount})`}
+            activeClass="bg-orange-100 text-orange-800 border-orange-200"
+          />
         </div>
 
         {/* --- SUBMISSIONS LIST --- */}
@@ -400,6 +405,11 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
           {submission.status === 'rejected' && (
             <div className="bg-red-50 text-red-800 text-xs p-3 rounded-sm border border-red-100">
               <strong>Rejection Reason:</strong> {submission.rejectionReason}
+            </div>
+          )}
+          {submission.status === 'revision' && (
+            <div className="bg-orange-50 text-orange-800 text-xs p-3 rounded-sm border border-orange-100">
+              <strong>Revision Instructions:</strong> {submission.rejectionReason}
             </div>
           )}
           {submission.status === 'approved' && submission.reviewedDate && (

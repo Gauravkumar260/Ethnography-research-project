@@ -31,6 +31,10 @@ const communities = [
     population: '~10 Million',
     language: 'Gor-boli',
     primaryLivelihood: 'Trade & Crafts',
+    mapCoordinates: {
+      latitude: 17.3850,
+      longitude: 78.4867
+    },
 
     // --- IMAGERY ---
     // Realistic Photo for Hero Banner
@@ -122,6 +126,10 @@ const communities = [
     population: '~80,000',
     language: 'Bhoksa',
     primaryLivelihood: 'Agriculture & Labor',
+    mapCoordinates: {
+      latitude: 29.2104,
+      longitude: 79.5126
+    },
 
     heroImage: 'https://images.unsplash.com/photo-1759738103333-1c836a32f848?auto=format&fit=crop&w=1080',
     thumbnail: 'https://images.unsplash.com/photo-1759738103333-1c836a32f848?auto=format&fit=crop&w=400',
@@ -206,6 +214,10 @@ const communities = [
     population: '~15,000 families',
     language: 'Marwari-influenced dialects',
     primaryLivelihood: 'Traditional Ironworking',
+    mapCoordinates: {
+      latitude: 24.5854,
+      longitude: 73.7125
+    },
 
     heroImage: 'https://images.unsplash.com/photo-1748640773152-a5c24b000d98?auto=format&fit=crop&w=1080',
     thumbnail: 'https://images.unsplash.com/photo-1748640773152-a5c24b000d98?auto=format&fit=crop&w=400',
@@ -293,6 +305,10 @@ const communities = [
     population: '~1,50,000',
     language: 'Jaunsari',
     primaryLivelihood: 'Horticulture & Agriculture',
+    mapCoordinates: {
+      latitude: 30.6045,
+      longitude: 77.8584
+    },
 
     heroImage: 'https://images.unsplash.com/photo-1626621341517-4c9da036e2e5?auto=format&fit=crop&w=1080',
     thumbnail: 'https://images.unsplash.com/photo-1626621341517-4c9da036e2e5?auto=format&fit=crop&w=400',
@@ -377,6 +393,10 @@ const communities = [
     population: '~1,00,000',
     language: 'Gojri',
     primaryLivelihood: 'Buffalo Herding',
+    mapCoordinates: {
+      latitude: 29.9560,
+      longitude: 78.1700
+    },
 
     heroImage: 'https://images.unsplash.com/photo-1601850642139-0d29d477ff51?auto=format&fit=crop&w=1080',
     thumbnail: 'https://images.unsplash.com/photo-1601850642139-0d29d477ff51?auto=format&fit=crop&w=400',

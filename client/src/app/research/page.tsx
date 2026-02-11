@@ -224,7 +224,7 @@ export default function ResearchHubPage() {
             Review student submissions and manage the research repository
           </p>
           <Link
-            href="/admin-panel/security/login"
+            href="/login"
             className="px-8 py-3 bg-[#99302A] text-[#E3E1DB] hover:bg-[#E3E1DB] hover:text-[#99302A] transition-all text-sm rounded font-semibold inline-block"
           >
             Faculty Login

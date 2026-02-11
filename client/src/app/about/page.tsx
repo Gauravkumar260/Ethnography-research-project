@@ -28,7 +28,7 @@ export default function AboutPage() {
                 Not every history is written in textbooks. Some histories live in people — in their hands, their homes, their songs, their struggles, and their survival.
               </p>
               <p>
-                This platform exists to document, preserve, and present the lived experiences of India's culturally rich yet socially marginalized communities. Communities like the Gadia Lohar, Bhoksa, Jaunsar, Banjara, and Van Gujjar carry centuries of heritage, craft, and knowledge — yet their narratives rarely reach mainstream spaces.
+                This platform exists to document, preserve, and present the lived experiences of India&apos;s culturally rich yet socially marginalized communities. Communities like the Gadia Lohar, Bhoksa, Jaunsar, Banjara, and Van Gujjar carry centuries of heritage, craft, and knowledge — yet their narratives rarely reach mainstream spaces.
               </p>
               <p>
                 Through rigorous ethnographic research, visual documentation, and respectful storytelling, we aim to create a digital archive that honours their dignity, preserves their stories, and challenges the erasure of marginalized voices from our collective memory.
@@ -171,10 +171,10 @@ export default function AboutPage() {
       <section className="py-16 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-xl italic mb-6 font-serif">
-            "We are not preserving stories. We are preserving dignity."
+            &quot;We are not preserving stories. We are preserving dignity.&quot;
           </p>
           <p className="text-sm text-[#E3E1DB]/70">
-            Preserving stories today, so history doesn't lose them tomorrow.
+            Preserving stories today, so history doesn&apos;t lose them tomorrow.
           </p>
         </div>
       </section>

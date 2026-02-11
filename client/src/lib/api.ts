@@ -74,7 +74,7 @@ api.interceptors.response.use(
 
         // Only redirect if we aren't already on the login page to avoid loops
         if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/admin-panel/security/login';
+          window.location.href = '/login';
         }
       }
     }

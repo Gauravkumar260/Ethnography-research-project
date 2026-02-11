@@ -29,7 +29,7 @@ export default function EthicsPage() {
           <Badge className="mb-4 bg-[#99302A] text-white border-none">Institutional Protocol</Badge>
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#1a1a1a] mb-6">Ethics & Privacy Guidelines</h1>
           <p className="text-[#1a1a1a]/60 text-lg leading-relaxed max-w-2xl mx-auto">
-            Our research framework is built on the principle of 'Dignity over Documentation'. 
+            Our research framework is built on the principle of &apos;Dignity over Documentation&apos;.
             We follow strict anthropological ethics to protect marginalized voices.
           </p>
         </div>
@@ -53,11 +53,11 @@ export default function EthicsPage() {
               <ScrollText className="w-6 h-6 text-[#99302A]" />
               <h2 className="text-2xl font-serif font-bold">Research Governance</h2>
             </div>
-            
+
             <div className="prose prose-slate max-w-none text-[#1a1a1a]/80 space-y-4">
               <p>
-                As an aspiring Full-Stack Developer and researcher, ensuring data integrity is paramount. 
-                The <strong>Ethnography Research Documentation Project</strong> operates under the following 
+                As an aspiring Full-Stack Developer and researcher, ensuring data integrity is paramount.
+                The <strong>Ethnography Research Documentation Project</strong> operates under the following
                 governance structure:
               </p>
               <ul className="list-disc pl-5 space-y-2">

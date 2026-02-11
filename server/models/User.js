@@ -20,8 +20,8 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'editor'], // Security: Restrict roles to specific values
-      default: 'admin',
+      enum: ['admin', 'editor', 'student'], // Security: Restrict roles to specific values
+      default: 'student',
     },
   },
   {

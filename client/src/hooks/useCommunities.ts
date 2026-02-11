@@ -11,6 +11,10 @@ export interface Community {
   heroImage?: string;
   description: string;
   subtitle?: string;
+  mapCoordinates?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 interface UseCommunitiesResult {
@@ -31,8 +35,9 @@ export const useCommunities = (): UseCommunitiesResult => {
       setError(null);
       const response = await api.get('/communities');
       setCommunities(response.data.data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch communities');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch communities';
+      setError(message);
     } finally {
       setLoading(false);
     }

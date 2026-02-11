@@ -1,0 +1,14 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "communities": "Communities",
+    "about": "About",
+    "research": "Research",
+    "login": "Login"
+  },
+  "Hero": {
+    "title": "Unheard India",
+    "subtitle": "Documenting the diverse cultural heritage of India's marginalized communities.",
+    "cta": "Explore Communities"
+  }
+}

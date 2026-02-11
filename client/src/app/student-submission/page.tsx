@@ -2,11 +2,11 @@
 
 // IMPORTS
 // ------------------------------------------------------------------
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Upload, FileText, Database, BookOpen, Award, 
-  CheckCircle, ArrowLeft, Image as ImageIcon, AlertCircle 
+import {
+  Upload, FileText, Database, BookOpen, Award,
+  CheckCircle, ArrowLeft, Image as ImageIcon, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/api'; // Ensure this path matches your project
@@ -22,7 +22,7 @@ export default function SubmissionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
-  
+
   // FILE STATE (Separate states for different upload slots)
   const [mainFile, setMainFile] = useState<File | null>(null);
   const [mediaFile, setMediaFile] = useState<File | null>(null); // Only for Field Data
@@ -34,12 +34,12 @@ export default function SubmissionPage() {
     studentId: '',
     email: '',
     program: 'PhD',
-    batch: '', 
+    batch: '',
     mentor: '',
     title: '',
     abstract: '',
     community: '',
-    keywords: '', 
+    keywords: '',
   });
 
   // HANDLERS
@@ -91,9 +91,12 @@ export default function SubmissionPage() {
       toast.success("Research submitted successfully!");
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      const message = error.response?.data?.message || "Submission failed.";
+      const message = error instanceof Error
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ? (error as any).response?.data?.message || error.message
+        : "Submission failed.";
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -136,8 +139,8 @@ export default function SubmissionPage() {
             Thank you for contributing to Unheard India. Your research has been sent for faculty review.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => { 
+            <button
+              onClick={() => {
                 setSubmitted(false); setSubmissionType(''); setMainFile(null); setMediaFile(null); setEthicsFile(null); setAgreed(false);
                 setFormData({ studentName: '', studentId: '', email: '', program: 'PhD', batch: '', mentor: '', title: '', abstract: '', community: '', keywords: '' });
               }}
@@ -158,7 +161,7 @@ export default function SubmissionPage() {
   // ----------------------------------------------------------------
   return (
     <div className="min-h-screen bg-[#Eae9e5] text-[#1a1a1a] font-sans">
-      
+
       {/* SELECTION GRID (Step 1) */}
       {!submissionType && (
         <>
@@ -177,10 +180,10 @@ export default function SubmissionPage() {
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Options */}
                 {[
-                   { id: 'thesis', icon: BookOpen, title: 'Thesis / Dissertation', desc: 'Submit your completed thesis or dissertation.' },
-                   { id: 'publication', icon: FileText, title: 'Publication / Paper', desc: 'Share your journal articles or conference papers.' },
-                   { id: 'dataset', icon: Database, title: 'Field Data / Dataset', desc: 'Contribute primary research data or raw field notes.' },
-                   { id: 'patent', icon: Award, title: 'Patent / Innovation', desc: 'Submit documentation of research innovations.' }
+                  { id: 'thesis', icon: BookOpen, title: 'Thesis / Dissertation', desc: 'Submit your completed thesis or dissertation.' },
+                  { id: 'publication', icon: FileText, title: 'Publication / Paper', desc: 'Share your journal articles or conference papers.' },
+                  { id: 'dataset', icon: Database, title: 'Field Data / Dataset', desc: 'Contribute primary research data or raw field notes.' },
+                  { id: 'patent', icon: Award, title: 'Patent / Innovation', desc: 'Submit documentation of research innovations.' }
                 ].map((item) => (
                   <button key={item.id} onClick={() => setSubmissionType(item.id as SubmissionType)} className="group bg-white p-10 border border-[#1a1a1a]/10 hover:border-[#99302A] hover:shadow-xl transition-all text-left rounded-sm flex flex-col items-start">
                     <div className="w-14 h-14 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-6 group-hover:bg-[#99302A] transition-colors">
@@ -209,7 +212,7 @@ export default function SubmissionPage() {
 
           <div className="bg-white p-10 md:p-14 shadow-sm border border-[#1a1a1a]/5 rounded-sm">
             <form onSubmit={handleSubmit} className="space-y-10">
-              
+
               {/* Header */}
               <h2 className="text-xl font-serif font-bold text-[#1a1a1a] border-b border-[#1a1a1a]/10 pb-4">
                 {getPageTitle()}
@@ -222,31 +225,31 @@ export default function SubmissionPage() {
                   {/* Name */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Full Name *</label>
-                    <input type="text" name="studentName" value={formData.studentName} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="Enter your full name" 
+                    <input type="text" name="studentName" value={formData.studentName} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="Enter your full name"
                     />
                   </div>
                   {/* ID */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Student ID *</label>
-                    <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="e.g., PhD2018001" 
+                    <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="e.g., PhD2018001"
                     />
                   </div>
                   {/* Email */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Email *</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="your.email@university.edu" 
+                    <input type="email" name="email" value={formData.email} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="your.email@university.edu"
                     />
                   </div>
                   {/* Program */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Program *</label>
-                    <select name="program" value={formData.program} onChange={handleChange} 
+                    <select name="program" value={formData.program} onChange={handleChange}
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                     >
                       <option value="PhD">PhD</option>
@@ -257,17 +260,17 @@ export default function SubmissionPage() {
                   {/* Batch */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Batch *</label>
-                    <input type="text" name="batch" value={formData.batch} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="e.g., 2019-2024" 
+                    <input type="text" name="batch" value={formData.batch} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="e.g., 2019-2024"
                     />
                   </div>
                   {/* Mentor */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Research Mentor/Advisor *</label>
-                    <input type="text" name="mentor" value={formData.mentor} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="Dr. Name" 
+                    <input type="text" name="mentor" value={formData.mentor} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="Dr. Name"
                     />
                   </div>
                 </div>
@@ -280,34 +283,34 @@ export default function SubmissionPage() {
                   {/* Title */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Title *</label>
-                    <input type="text" name="title" value={formData.title} onChange={handleChange} required 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="Full title of your research work" 
+                    <input type="text" name="title" value={formData.title} onChange={handleChange} required
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="Full title of your research work"
                     />
                   </div>
                   {/* Abstract */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Abstract *</label>
-                    <textarea name="abstract" value={formData.abstract} onChange={handleChange} required rows={5} 
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm resize-none transition-colors" 
-                      placeholder="Provide a comprehensive abstract (200-300 words)" 
+                    <textarea name="abstract" value={formData.abstract} onChange={handleChange} required rows={5}
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm resize-none transition-colors"
+                      placeholder="Provide a comprehensive abstract (200-300 words)"
                     />
                   </div>
-                  
+
                   {/* Community & Type Row */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-[#1a1a1a]/70">Community Studied *</label>
-                      <input type="text" name="community" value={formData.community} onChange={handleChange} required 
-                        className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                        placeholder="e.g. Van Gujjar" 
+                      <input type="text" name="community" value={formData.community} onChange={handleChange} required
+                        className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                        placeholder="e.g. Van Gujjar"
                       />
                     </div>
                     {/* Read-only Research Type */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-[#1a1a1a]/70">Research Type *</label>
                       <input type="text" value={submissionType === 'dataset' ? 'Field Data' : submissionType} disabled
-                        className="w-full px-4 py-3 bg-[#FAFAF9] border border-[#E5E5E5] rounded-sm text-sm capitalize text-[#1a1a1a]/60 cursor-not-allowed" 
+                        className="w-full px-4 py-3 bg-[#FAFAF9] border border-[#E5E5E5] rounded-sm text-sm capitalize text-[#1a1a1a]/60 cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -316,8 +319,8 @@ export default function SubmissionPage() {
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#1a1a1a]/70">Keywords (comma separated) *</label>
                     <input type="text" name="keywords" value={formData.keywords} onChange={handleChange} required
-                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors" 
-                      placeholder="e.g., nomadic communities, craft heritage, cultural identity" 
+                      className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
+                      placeholder="e.g., nomadic communities, craft heritage, cultural identity"
                     />
                   </div>
                 </div>
@@ -327,7 +330,7 @@ export default function SubmissionPage() {
               <div>
                 <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">Upload Files</h3>
                 <div className="space-y-4">
-                  
+
                   {/* 1. MAIN FILE (Always Visible) */}
                   <div className="border border-[#E5E5E5] p-8 text-center bg-white rounded-sm hover:shadow-sm transition-shadow">
                     <div className="flex flex-col items-center">
@@ -404,9 +407,9 @@ export default function SubmissionPage() {
 
               {/* Declaration Checkbox */}
               <div className="bg-[#F5F5F4] p-6 flex gap-3 items-start border border-[#E5E5E5] rounded-sm">
-                <input 
+                <input
                   type="checkbox" id="declaration" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
-                  className="mt-1 accent-[#99302A] cursor-pointer w-4 h-4" 
+                  className="mt-1 accent-[#99302A] cursor-pointer w-4 h-4"
                 />
                 <label htmlFor="declaration" className="text-xs text-[#1a1a1a]/80 leading-relaxed cursor-pointer select-none">
                   I declare that this research was conducted in accordance with ethical guidelines, all participants provided informed consent, and the data is accurate to the best of my knowledge. I understand that this submission will undergo faculty review before publication.
@@ -415,13 +418,13 @@ export default function SubmissionPage() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 pt-2">
-                <button 
-                  type="submit" disabled={isLoading} 
+                <button
+                  type="submit" disabled={isLoading}
                   className="px-10 py-3.5 bg-[#99302A] text-white hover:bg-[#7a2621] transition-colors font-bold tracking-wider uppercase text-xs rounded-sm disabled:opacity-50 min-w-[180px]"
                 >
                   {isLoading ? "Submitting..." : "Submit for Review"}
                 </button>
-                <button 
+                <button
                   type="button" onClick={() => setSubmissionType('')}
                   className="px-10 py-3.5 bg-white border border-[#E5E5E5] text-[#1a1a1a] hover:bg-gray-50 transition-colors font-bold tracking-wider uppercase text-xs rounded-sm"
                 >
