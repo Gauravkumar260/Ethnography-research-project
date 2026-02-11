@@ -22,11 +22,12 @@ export function Navbar() {
 
   // Updated to match Header.jpg exactly
   const navLinks = [
+    { name: "Home", path: "/" },
     { name: "Communities", path: "/communities" },
     { name: "Documentaries", path: "/documentaries" },
     { name: "Research", path: "/research" },
-    { name: "About", path: "/about" },   // Added
-    { name: "Contact", path: "/contact" }, // Added
+    { name: "About", path: "/about" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
