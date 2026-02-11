@@ -70,7 +70,7 @@ export default function DocumentaryPage() {
       _id: 'static-4',
       title: 'Banjara: Lives That Speak',
       description: 'Nomadic traders whose vibrant culture moves with their journeys',
-      duration: '30 min',
+      duration: '6:09',
       category: ['nomadic', 'craft', 'heritage'],
       thumbnailUrl: '/assets/Banjara.svg',
       videoUrl: '', // No link provided
