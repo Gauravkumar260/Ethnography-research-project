@@ -8,11 +8,7 @@ export function Footer() {
       <div className="container mx-auto px-4">
 
         {/* Admin Quick Action (Merged from Admin Panel) */}
-        <div className="flex justify-center mb-16">
-          <Link href="/admin">
-             Upload New  Documentary
-          </Link>
-        </div>
+        
 
         <div className="grid md:grid-cols-4 gap-12 text-sm">
 
