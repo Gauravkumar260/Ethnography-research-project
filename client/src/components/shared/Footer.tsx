@@ -3,6 +3,8 @@
 import Link from "next/link";
 
 export function Footer() {
+
+  
   return (
     <footer className="bg-[#1a1a1a] text-[#E3E1DB] py-20 border-t border-[#E3E1DB]/10">
       <div className="container mx-auto px-4">
@@ -14,9 +16,11 @@ export function Footer() {
 
           {/* Brand Column */}
           <div className="space-y-4">
-            <h3 className="font-serif text-xl font-bold text-white">
-              Unheard India
-            </h3>
+            <Link href="/" className="hover:opacity-80 transition-opacity">
+              <h3 className="font-serif text-xl font-bold text-white">
+                Unheard India
+              </h3>
+            </Link>
             <p className="opacity-70 leading-relaxed max-w-xs">
               Preserving stories today, so history doesn&apos;t lose them tomorrow.
             </p>
@@ -36,16 +40,16 @@ export function Footer() {
                   Documentaries
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/research" className="hover:text-white hover:underline transition-all">
                   Research Hub
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
           {/* Research Column */}
-          <div className="space-y-4">
+          {/* <div className="space-y-4">
             <h4 className="font-serif text-lg text-white">Research</h4>
             <ul className="space-y-3 opacity-70">
               <li>
@@ -59,7 +63,6 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                {/* ✅ Fixed: Points to the correct nested route */}
                 <Link href="/research/field-data" className="hover:text-white hover:underline transition-all">
                   Field Data Repository
                 </Link>
@@ -77,6 +80,7 @@ export function Footer() {
 
             </ul>
           </div>
+          */}
 
           {/* Connect Column */}
           <div className="space-y-4">
