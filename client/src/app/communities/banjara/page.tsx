@@ -17,7 +17,7 @@ function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=1920&q=80"
+          src="/assets/home-image-banjara.png"
           alt="Banjara community"
           fill
           className="object-cover"

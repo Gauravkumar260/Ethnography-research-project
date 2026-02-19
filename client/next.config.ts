@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'localhost', // Allows images from local backend testing
       },
+      {
+        protocol: 'https',
+        hostname: 'i.ibb.co', // NEW: Added for ibb.co image hosting
+      },
     ],
   },
 

@@ -17,6 +17,7 @@ export default function MediaGallery({ images }: MediaGalleryProps) {
   const getUrl = (path: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
+    if (path.startsWith('/assets')) return path; // ✅ Serve local assets from Next.js public folder
 
     // Uses your environment variable
     const baseUrl = process.env.NEXT_PUBLIC_API_URL

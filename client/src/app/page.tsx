@@ -23,7 +23,7 @@ export default function HomePage() {
       <section className="relative h-[85vh] flex items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 w-full h-full">
           <Image
-            src="/assets/hero image.svg"
+            src="/assets/hero-image.png"
             alt="Hero Background"
             fill
             className="object-cover object-center"

@@ -61,6 +61,7 @@ export default function CommunityDetailPage() {
   const getUrl = (path?: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
+    if (path.startsWith('/assets')) return path; // ✅ Serve local assets from Next.js public folder
     const baseUrl = process.env.NEXT_PUBLIC_API_URL 
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
       : 'http://localhost:5000';

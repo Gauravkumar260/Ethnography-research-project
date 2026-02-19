@@ -33,8 +33,22 @@ export const useCommunities = (): UseCommunitiesResult => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/communities');
-      setCommunities(response.data.data);
+
+      // Use local data to ensure we have the latest images and content
+      const { communities: localData } = await import('@/lib/communityData');
+
+      const formattedCommunities: Community[] = Object.values(localData).map((c) => ({
+        _id: c.id,
+        name: c.name,
+        slug: c.id,
+        region: c.location.split(',')[0].trim(), // Extract primary region
+        location: c.location,
+        heroImage: c.heroImage,
+        description: c.description,
+        subtitle: c.subtitle,
+      }));
+
+      setCommunities(formattedCommunities);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to fetch communities';
       setError(message);

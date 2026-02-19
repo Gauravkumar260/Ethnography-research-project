@@ -16,7 +16,7 @@ function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1514222134-b57cbb8ce073?w=1920&q=80"
+          src="/assets/story-jaunsar.png"
           alt="Jaunsar community"
           fill
           className="object-cover"

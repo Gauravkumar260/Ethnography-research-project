@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { 
-  MapPin, Clock, Users, Briefcase, Heart, 
+import {
+  MapPin, Clock, Users, Briefcase, Heart,
   AlertTriangle, Target, ChevronRight, Flame, Home,
   Music, BookOpen, GraduationCap, Stethoscope,
   FileText, Award, TrendingUp
@@ -18,7 +18,7 @@ function HeroSection() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1595278069441-2cf29f8005a4?w=1920&q=80"
+          src="/assets/story-gadia-lohar.png"
           alt="Gadia Lohar blacksmith"
           fill
           className="object-cover"
@@ -47,7 +47,7 @@ function IntroductionSection() {
     <section className="py-16 px-4 bg-[#1a1a1a]">
       <div className="max-w-3xl mx-auto text-center">
         <p className="text-[#E3E1DB]/90 text-lg leading-relaxed font-serif">
-          The Gadia Lohar are one of India's most remarkable nomadic communities - iron artisans who have 
+          The Gadia Lohar are one of India's most remarkable nomadic communities - iron artisans who have
           carried the ancient craft of blacksmithing across states for over 500 years.
         </p>
       </div>
@@ -138,7 +138,7 @@ function LifestyleSection() {
                     <span className="text-[#99302A]">{item.value}%</span>
                   </div>
                   <div className="h-2 bg-[#1a1a1a] rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full rounded-full transition-all duration-1000"
                       style={{ width: `${item.value}%`, backgroundColor: item.color }}
                     ></div>
@@ -263,9 +263,9 @@ function CraftSection() {
           <h3 className="text-[#E3E1DB] font-semibold mb-8">Product Demand Distribution</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
             {productData.map((item, index) => (
-              <CircularProgress 
-                key={index} 
-                percentage={item.percentage} 
+              <CircularProgress
+                key={index}
+                percentage={item.percentage}
                 label={item.label}
                 sublabel={item.sublabel}
               />
@@ -363,8 +363,8 @@ function CultureSection() {
             </div>
             <div className="flex flex-wrap gap-3">
               {festivals.map((festival, index) => (
-                <span 
-                  key={index} 
+                <span
+                  key={index}
                   className="bg-[#99302A]/20 text-[#99302A] px-4 py-2 rounded-full text-sm hover:bg-[#99302A]/30 transition-colors cursor-default"
                 >
                   {festival}
@@ -379,10 +379,10 @@ function CultureSection() {
 }
 
 // Horizontal Bar Chart Component
-function HorizontalBarChart({ 
-  data, 
-  showPercentage = true 
-}: { 
+function HorizontalBarChart({
+  data,
+  showPercentage = true
+}: {
   data: { label: string; men?: number; women?: number; value?: number; color?: string }[];
   showPercentage?: boolean;
 }) {
@@ -394,7 +394,7 @@ function HorizontalBarChart({
             <span className="text-[#E3E1DB]/90">{item.label}</span>
             {showPercentage && (
               <span className="text-[#E3E1DB]/70">
-                {item.men !== undefined && item.women !== undefined 
+                {item.men !== undefined && item.women !== undefined
                   ? `${item.men}% Men / ${item.women}% Women`
                   : `${item.value}%`
                 }
@@ -404,21 +404,21 @@ function HorizontalBarChart({
           <div className="flex h-3 rounded-full overflow-hidden bg-[#1a1a1a]">
             {item.men !== undefined && item.women !== undefined ? (
               <>
-                <div 
+                <div
                   className="bg-[#D4763A] transition-all duration-1000"
                   style={{ width: `${item.men}%` }}
                 ></div>
-                <div 
+                <div
                   className="bg-[#99302A] transition-all duration-1000"
                   style={{ width: `${item.women}%` }}
                 ></div>
               </>
             ) : (
-              <div 
+              <div
                 className="transition-all duration-1000 rounded-full"
-                style={{ 
-                  width: `${item.value}%`, 
-                  backgroundColor: item.color || '#99302A' 
+                style={{
+                  width: `${item.value}%`,
+                  backgroundColor: item.color || '#99302A'
                 }}
               ></div>
             )}
@@ -566,7 +566,7 @@ function CTASection() {
       <div className="max-w-3xl mx-auto text-center">
         <h2 className="text-2xl font-serif text-[#E3E1DB] mb-4">Support Research & Documentation</h2>
         <p className="text-[#E3E1DB]/80 mb-8 text-lg">
-          These visual narratives are based on rigorous ethnographic fieldwork. Learn more about our research methodology, 
+          These visual narratives are based on rigorous ethnographic fieldwork. Learn more about our research methodology,
           access full datasets, and contribute to community-centered documentation.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">

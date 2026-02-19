@@ -24,7 +24,7 @@ function Hero() {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+          src="/assets/home-image-van-gujjar.png"
           alt="Van Gujjar community in Himalayan forests"
           fill
           className="object-cover"

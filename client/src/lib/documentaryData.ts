@@ -14,7 +14,7 @@ export const documentaries: Documentary[] = [
     description: 'Iron artisans carrying 500 years of heritage amidst instability and strength',
     duration: '28 min',
     category: ['craft', 'nomadic'],
-    thumbnail: 'https://images.unsplash.com/photo-1748640773152-a5c24b000d98?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBhcnRpc2FuJTIwYmxhY2tzbWl0aCUyMGZpcmV8ZW58MXx8fHwxNzY2MTUxMTk5fDA&ixlib=rb-4.1.0&q=80&w=1080',
+    thumbnail: 'https://i.ibb.co/KjkL7nDD/Story-Gadia-Lohar.png',
   },
   {
     id: 'bhoksa-doc',
@@ -22,7 +22,7 @@ export const documentaries: Documentary[] = [
     description: 'A tribal community navigating modern challenges while preserving ancestral wisdom',
     duration: '32 min',
     category: ['tribal', 'heritage'],
-    thumbnail: 'https://images.unsplash.com/photo-1759738103333-1c836a32f848?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmliYWwlMjBjb21tdW5pdHklMjBpbmRpYXxlbnwxfHx8fDE3NjYxNTExOTl8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    thumbnail: 'https://i.ibb.co/GfWM6s2n/Story-Bhoksa.png',
   },
   {
     id: 'jaunsar-doc',
@@ -30,7 +30,7 @@ export const documentaries: Documentary[] = [
     description: 'Himalayan communities with unique polyandrous traditions and rich folklore',
     duration: '35 min',
     category: ['heritage', 'tribal'],
-    thumbnail: 'https://images.unsplash.com/photo-1738482223848-008ac3110276?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaW1hbGF5YW4lMjB2aWxsYWdlJTIwY3VsdHVyZXxlbnwxfHx8fDE3NjYxNTEyMDF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    thumbnail: 'https://i.ibb.co/NggRrFk1/Story-jaunsar.png',
   },
   {
     id: 'banjara-doc',

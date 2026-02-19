@@ -18,6 +18,7 @@ export default function CommunitiesPage() {
   const getImageUrl = (path?: string) => {
     if (!path) return '/placeholder.jpg';
     if (path.startsWith('http')) return path; 
+    if (path.startsWith('/assets')) return path; // ✅ Serve local assets from Next.js public folder
     
     const baseUrl = process.env.NEXT_PUBLIC_API_URL 
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
