@@ -8,10 +8,10 @@ const getFieldData = async (req, res) => {
     let query = {};
 
     if (type && type !== 'all') {
-      query.type = type;
+      query.type = String(type);
     }
     if (community) {
-      query.community = community;
+      query.community = String(community);
     }
 
     const data = await FieldData.find(query).sort({ createdAt: -1 });
@@ -29,8 +29,17 @@ const uploadFieldData = async (req, res) => {
       return res.status(400).json({ message: 'Please upload a file' });
     }
 
+    const { title, type, community, description, researcher, batch, datasetSize, fileCount } = req.body;
+
     const newData = new FieldData({
-      ...req.body,
+      title,
+      type,
+      community,
+      description,
+      researcher,
+      batch,
+      datasetSize,
+      fileCount,
       fileUrl: req.file.path,
     });
 

@@ -2,11 +2,40 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
+// Helper: Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
+};
+
+// Helper: Set Cookie and Send Response
+const sendTokenResponse = (user, statusCode, res) => {
+  const token = generateToken(user._id);
+
+  const options = {
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+    httpOnly: true, // Prevents XSS attacks
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict', // Prevents CSRF attacks
+  };
+
+  res.status(statusCode).cookie('token', token, options).json({
+    success: true,
+    _id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    // Note: We still send token in JSON for backward compatibility during migration
+    token: token 
+  });
+};
+
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     if (!name || !email || !password) {
@@ -25,23 +54,15 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create user
-    // Note: If 'role' is passed, it will be validated by the Schema Enum.
-    // If not passed, it defaults to 'student'.
     const user = await User.create({
       name,
       email,
       password: hashedPassword,
-      role
+      role: 'student'
     });
 
     if (user) {
-      res.status(201).json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id),
-      });
+      sendTokenResponse(user, 201, res);
     } else {
       res.status(400).json({ message: 'Invalid user data' });
     }
@@ -63,13 +84,7 @@ const loginUser = async (req, res) => {
 
     // 2. Check password using Schema Method
     if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        token: generateToken(user._id), // Send the "Key" back to frontend
-      });
+      sendTokenResponse(user, 200, res);
     } else {
       res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -79,6 +94,17 @@ const loginUser = async (req, res) => {
   }
 };
 
+// @desc    Logout user / clear cookie
+// @route   POST /api/auth/logout
+// @access  Public
+const logoutUser = (req, res) => {
+  res.cookie('token', 'none', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ success: true, data: {} });
+};
+
 // @desc    Get user data
 // @route   GET /api/auth/me
 // @access  Private
@@ -86,15 +112,9 @@ const getMe = async (req, res) => {
   res.status(200).json(req.user);
 };
 
-// Helper: Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
-  });
-};
-
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser,
   getMe,
 };

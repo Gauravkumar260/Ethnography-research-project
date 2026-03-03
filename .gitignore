@@ -52,3 +52,7 @@ temp/
 Thumbs.db
 .DS_Store
 design/
+
+.gemini/
+gha-creds-*.json
+.gemini_security

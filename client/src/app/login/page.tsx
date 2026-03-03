@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Shield, Lock, ArrowRight, FileText, Loader2, Mail } from "lucide-react";
 import { toast } from "sonner"; 
-import api from "@/lib/api"; 
+import { AuthService } from "@/services/authService";
 
 export default function FacultyLoginPage() {
   const [email, setEmail] = useState("");
@@ -17,14 +17,10 @@ export default function FacultyLoginPage() {
     setIsLoading(true);
 
     try {
-      // 1. Send credentials to Backend
-      const { data } = await api.post('/auth/login', {
-        email,
-        password,
-      });
+      // 1. Send credentials via Service Layer
+      const data = await AuthService.login({ email, password });
 
-      // 2. Save Token
-      localStorage.setItem('token', data.token);
+      // 2. Save User Metadata (Token is handled safely via HTTP-only Cookie)
       localStorage.setItem('user', JSON.stringify(data));
 
       toast.success(`Welcome back! Access granted.`);

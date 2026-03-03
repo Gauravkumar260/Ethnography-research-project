@@ -10,39 +10,21 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,
-  // timeout: 0, // No timeout for large uploads
+  withCredentials: true, // ✅ CRITICAL: Required for sending/receiving HTTP-Only cookies
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // =================================================================
-// 3. REQUEST INTERCEPTOR (Attach Token Securely)
-// =================================================================
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    // Check if running in browser to avoid SSR errors (Snippet 2 Logic)
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error: AxiosError) => Promise.reject(error)
-);
-
-// =================================================================
-// 4. RESPONSE INTERCEPTOR (Retry Logic + Error Handling)
+// 3. RESPONSE INTERCEPTOR (Retry Logic + Error Handling)
 // =================================================================
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     const config = error.config as RetryConfig;
 
-    // A. RETRY LOGIC (Snippet 1 Feature)
-    // Only retry if config exists, we haven't hit the limit, and it's a Network Error
+    // A. RETRY LOGIC
     if (config && config.retryCount === undefined) {
       config.retryCount = 0;
     }
@@ -67,10 +49,11 @@ api.interceptors.response.use(
     // B. GLOBAL ERROR LOGGING
     console.error('API Error:', error.response?.data || error.message);
 
-    // C. AUTHENTICATION HANDLING (Snippet 2 Feature - Safer)
+    // C. AUTHENTICATION HANDLING (Redirect on 401)
     if (error.response?.status === 401) {
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
+        // Clear user metadata since cookie is dead/invalid
+        localStorage.removeItem('user'); 
 
         // Only redirect if we aren't already on the login page to avoid loops
         if (!window.location.pathname.includes('/login')) {

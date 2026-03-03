@@ -30,12 +30,22 @@ router.get('/stats', getResearchStats);
 // Public Gallery (Alternative URL)
 router.get('/public', getPublicResearch);
 
+// ==========================================
+// PROTECTED ROUTES (Student/Admin Only)
+// ==========================================
+
 // Submit Research (Student)
-router.post('/submit', dataUpload.fields([
-  { name: 'mainFile', maxCount: 1 },
-  { name: 'mediaFile', maxCount: 1 },
-  { name: 'ethicsFile', maxCount: 1 }
-]), submitResearch);
+// FIX: Added 'protect' and 'authorize' to prevent unauthenticated file uploads
+router.post('/submit', 
+  protect, 
+  authorize('student', 'admin'),
+  dataUpload.fields([
+    { name: 'mainFile', maxCount: 1 },
+    { name: 'mediaFile', maxCount: 1 },
+    { name: 'ethicsFile', maxCount: 1 }
+  ]), 
+  submitResearch
+);
 
 // ==========================================
 // ADMIN ROUTES

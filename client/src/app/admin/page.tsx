@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/lib/api';
+import { AuthService } from '@/services/authService';
 
 // --- Configuration ---
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
@@ -72,8 +73,8 @@ export default function AdminDashboard() {
   }, [router]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
+    const user = localStorage.getItem('user');
+    if (!user) {
       router.push('/login');
     } else {
       setIsAuthorized(true);
@@ -81,10 +82,15 @@ export default function AdminDashboard() {
     }
   }, [router, fetchSubmissions]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      localStorage.removeItem('user');
+      router.push('/login');
+    }
   };
 
   const handleStatusUpdate = async (id: string, newStatus: SubmissionStatus, reason?: string) => {

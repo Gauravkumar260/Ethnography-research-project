@@ -8,7 +8,7 @@ const getStories = async (req, res) => {
     let query = { status: 'published' };
 
     if (community) {
-      query.communityId = community;
+      query.communityId = String(community);
     }
 
     const stories = await Story.find(query).sort({ createdAt: -1 });
@@ -37,7 +37,20 @@ const getStoryById = async (req, res) => {
 // @route   POST /api/stories
 const createStory = async (req, res) => {
   try {
-    const story = new Story(req.body);
+    const { communityId, title, storyType, content, narrator, recordedBy, recordedDate, audioUrl, transcriptUrl, tags } = req.body;
+    
+    const story = new Story({
+      communityId,
+      title,
+      storyType,
+      content,
+      narrator,
+      recordedBy,
+      recordedDate,
+      audioUrl,
+      transcriptUrl,
+      tags
+    });
     const createdStory = await story.save();
     res.status(201).json(createdStory);
   } catch (error) {

@@ -7,11 +7,23 @@ const User = require('../models/User');
 const protect = async (req, res, next) => {
   let token;
 
+  // 1. Check Headers (Backward compatibility for mobile apps/external tools)
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    try {
-      // Get token from header
-      token = req.headers.authorization.split(' ')[1];
+    token = req.headers.authorization.split(' ')[1];
+  } 
+  // 2. Check Cookies (Primary method for Web Client)
+  else if (req.headers.cookie) {
+    // Manually parse cookies
+    const cookies = req.headers.cookie.split(';').reduce((acc, cookieStr) => {
+      const [key, value] = cookieStr.split('=').map(c => c.trim());
+      acc[key] = value;
+      return acc;
+    }, {});
+    token = cookies.token;
+  }
 
+  if (token) {
+    try {
       // Verify token
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
