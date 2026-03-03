@@ -18,21 +18,24 @@ export async function getCsrfToken(): Promise<{ token: string; cookie: string }>
 /**
  * Enhanced fetch wrapper that automatically handles CSRF if needed.
  */
-export async function apiFetch(path: string, options: RequestInit = {}) {
+export async function apiFetch(path: string, options: RequestInit & { bodyData?: any } = {}) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   
-  const defaultHeaders = {
+  const { bodyData, ...fetchOptions } = options;
+
+  const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
   const url = path.startsWith('http') ? path : `${apiUrl}/api${path}`;
 
   const response = await fetch(url, {
-    ...options,
+    ...fetchOptions,
     headers: {
       ...defaultHeaders,
-      ...options.headers,
+      ...fetchOptions.headers,
     },
+    body: bodyData ? JSON.stringify(bodyData) : fetchOptions.body,
   });
 
   if (!response.ok) {

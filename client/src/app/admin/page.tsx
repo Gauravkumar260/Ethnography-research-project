@@ -96,8 +96,11 @@ export default function AdminDashboard() {
   const handleStatusUpdate = async (id: string, newStatus: SubmissionStatus, reason?: string) => {
     try {
       await apiFetch(`/research/${id}/status`, {
-        status: newStatus,
-        comments: reason
+        method: 'PATCH',
+        bodyData: {
+          status: newStatus,
+          comments: reason
+        }
       });
 
       toast.success(`Submission marked as ${newStatus}`);
