@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Play, Loader2, AlertCircle, ChevronLeft, X } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 type FilterType = 'all' | 'craft' | 'tribal' | 'nomadic' | 'heritage';
 
@@ -96,7 +96,7 @@ export default function DocumentaryPage() {
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const { data } = await api.get('/docs');
+        const { data } = await apiFetch('/docs');
         setDocumentaries([...STATIC_DOCS, ...(data || [])]);
       } catch (error) {
         console.error("Failed to load documentaries", error);

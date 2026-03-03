@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { MapPin, ChevronLeft, BarChart3, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 // Assuming you have this component, otherwise I can provide it
 import MediaGallery from '@/components/features/MediaGallery';
 
@@ -46,7 +46,7 @@ export default function CommunityDetailPage() {
     const fetchCommunity = async () => {
       try {
         if (!slug) return;
-        const { data: responseData } = await api.get(`/communities/${slug}`);
+        const { data: responseData } = await apiFetch(`/communities/${slug}`);
         setCommunity(responseData.data); 
       } catch (error) {
         console.error("Failed to fetch community data", error);

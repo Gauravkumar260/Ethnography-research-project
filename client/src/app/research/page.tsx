@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, FileText, Award, Users, Database, ArrowRight, Upload, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 export default function ResearchHubPage() {
   const [stats, setStats] = useState({
@@ -18,7 +18,7 @@ export default function ResearchHubPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const { data: response } = await api.get('/research/stats');
+        const { data: response } = await apiFetch('/research/stats');
         const byType = response.data?.byType || {};
 
         setStats({

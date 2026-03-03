@@ -9,7 +9,7 @@ import {
   CheckCircle, ArrowLeft, Image as ImageIcon, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/api'; // Ensure this path matches your project
+import { apiFetch } from '@/lib/api'; // Ensure this path matches your project
 
 // TYPES
 // ------------------------------------------------------------------
@@ -83,7 +83,7 @@ export default function SubmissionPage() {
       if (mediaFile) data.append('mediaFile', mediaFile);
       data.append('ethicsFile', ethicsFile);
 
-      await api.post('/research/submit', data, {
+      await apiFetch('/research/submit', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

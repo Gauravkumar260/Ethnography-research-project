@@ -13,7 +13,7 @@ import {
   FileText, 
   FileSpreadsheet 
 } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
@@ -30,7 +30,7 @@ export default function FieldDataPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: response } = await api.get('/research/public');
+        const { data: response } = await apiFetch('/research/public');
         // Fix: Use response.data to get the array
         setAllData(response.data || []);
       } catch (error) {

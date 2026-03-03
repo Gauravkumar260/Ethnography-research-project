@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FileText, Download, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
@@ -15,7 +15,7 @@ export default function PublicationsPage() {
     const fetchData = async () => {
       try {
         // ✅ Fix 1: Get the response object correctly
-        const { data: response } = await api.get('/research/public');
+        const { data: response } = await apiFetch('/research/public');
         
         // ✅ Fix 2: Extract the array safely (response.data is the array)
         const allItems = response.data || [];

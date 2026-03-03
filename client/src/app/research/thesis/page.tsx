@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Download, Calendar, User, ChevronLeft, GraduationCap, Loader2, AlertCircle } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
@@ -15,7 +15,7 @@ export default function ThesisPage() {
     const fetchData = async () => {
       try {
         // ✅ FIX 1: Correctly extract the array from response.data
-        const { data: response } = await api.get('/research/public');
+        const { data: response } = await apiFetch('/research/public');
         const allItems = response.data || [];
         
         // ✅ FIX 2: Case-insensitive filtering

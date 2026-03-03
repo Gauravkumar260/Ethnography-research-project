@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Lightbulb, FileCheck, Calendar, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
@@ -14,7 +14,7 @@ export default function PatentsPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: response } = await api.get('/research/public');
+        const { data: response } = await apiFetch('/research/public');
         const allItems = response.data || [];
         setPatents(allItems.filter((item: any) => item.type?.toLowerCase() === 'patent'));
       } catch (error) {

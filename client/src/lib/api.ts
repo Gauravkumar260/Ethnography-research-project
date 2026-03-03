@@ -6,8 +6,6 @@ export async function getCsrfToken(): Promise<{ token: string; cookie: string }>
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   const response = await fetch(`${apiUrl}/api/csrf-token`, {
     method: 'GET',
-    // Ensure cookies are sent/received
-    // credentials: 'include' is important for CSRF cookies
   });
   
   const data = await response.json();
@@ -23,18 +21,35 @@ export async function getCsrfToken(): Promise<{ token: string; cookie: string }>
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
   
-  // For mutating methods, we should ideally have the token already
-  // or fetch it if missing.
-  
   const defaultHeaders = {
     'Content-Type': 'application/json',
   };
 
-  return fetch(`${apiUrl}${path}`, {
+  const url = path.startsWith('http') ? path : `${apiUrl}/api${path}`;
+
+  const response = await fetch(url, {
     ...options,
     headers: {
       ...defaultHeaders,
       ...options.headers,
     },
   });
+
+  if (!response.ok) {
+    const error = new Error(`HTTP error! status: ${response.status}`);
+    (error as any).status = response.status;
+    (error as any).response = response;
+    // Try to get error message from body
+    try {
+      const data = await response.json();
+      (error as any).data = data;
+      error.message = data.message || error.message;
+    } catch (e) {
+      // ignore
+    }
+    throw error;
+  }
+
+  const data = await response.json();
+  return { data };
 }

@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 export interface LoginCredentials {
   email: string;
@@ -10,7 +10,7 @@ export const AuthService = {
    * Authenticate user and receive HTTP-Only cookie.
    */
   login: async (credentials: LoginCredentials) => {
-    const response = await api.post('/auth/login', credentials);
+    const response = await apiFetch('/auth/login', credentials);
     return response.data;
   },
 
@@ -18,7 +18,7 @@ export const AuthService = {
    * Log out user and clear HTTP-Only cookie.
    */
   logout: async () => {
-    const response = await api.post('/auth/logout');
+    const response = await apiFetch('/auth/logout');
     return response.data;
   },
 
@@ -26,7 +26,7 @@ export const AuthService = {
    * Get current user profile.
    */
   getCurrentUser: async () => {
-    const response = await api.get('/auth/me');
+    const response = await apiFetch('/auth/me');
     return response.data;
   }
 };

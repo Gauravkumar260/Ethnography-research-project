@@ -18,7 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { toast } from 'sonner';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 import { AuthService } from '@/services/authService';
 
 // --- Configuration ---
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
   const fetchSubmissions = React.useCallback(async () => {
     try {
       setRefreshing(true);
-      const { data: response } = await api.get('/research/admin');
+      const { data: response } = await apiFetch('/research/admin');
       setSubmissions(response.data || []);
     } catch (error: any) {
       console.error("Error fetching submissions:", error);
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
 
   const handleStatusUpdate = async (id: string, newStatus: SubmissionStatus, reason?: string) => {
     try {
-      await api.patch(`/research/${id}/status`, {
+      await apiFetch(`/research/${id}/status`, {
         status: newStatus,
         comments: reason
       });

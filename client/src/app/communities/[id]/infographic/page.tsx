@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { ChevronLeft, Clock, Home, Heart, Loader2, TrendingUp } from 'lucide-react';
-import api from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 // 1. Strict Types for Data Visualization
 interface TimelineItem {
@@ -55,7 +55,7 @@ export default function InfographicPage() {
     const fetchData = async () => {
       try {
         if (!slug) return;
-        const response = await api.get(`/communities/${slug}`);
+        const response = await apiFetch(`/communities/${slug}`);
         setData(response.data.data); 
       } catch (error) {
         console.error("Failed to load infographic data", error);
