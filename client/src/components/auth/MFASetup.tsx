@@ -27,8 +27,7 @@ export function MFASetup({ secret, qrCodeUrl, backupCodes, onVerify }: MFASetupP
 
   const handleDownloadBackupCodes = () => {
     const element = document.createElement("a");
-    const file = new Blob([backupCodes.join('
-')], { type: 'text/plain' });
+    const file = new Blob([backupCodes.join('\n')], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = "backup-codes.txt";
     document.body.appendChild(element); // Required for this to work in FireFox
@@ -90,7 +89,7 @@ export function MFASetup({ secret, qrCodeUrl, backupCodes, onVerify }: MFASetupP
             {showBackupCodes ? 'Hide' : 'Show'}
           </button>
         </div>
-        
+
         {showBackupCodes && (
           <div className="mt-4">
             <p className="text-xs text-gray-500 mb-3">
