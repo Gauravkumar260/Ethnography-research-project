@@ -211,6 +211,31 @@ export function LoginForm() {
           </Button>
         </form>
       </Form>
+
+      {!requiresMfa && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-slate-500">Or continue with</span>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <SSOButton />
+            <OAuthButtons />
+          </div>
+
+          <p className="text-center text-sm text-slate-600">
+            Don&apos;t have an account?{" "}
+            <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-800">
+              Register here
+            </Link>
+          </p>
+        </>
+      )}
     </div>
   );
 }
