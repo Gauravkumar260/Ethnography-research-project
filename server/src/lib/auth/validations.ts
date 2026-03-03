@@ -14,8 +14,9 @@ const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1),
   mfaToken: z.string().optional(),
-  deviceFingerprint: z.string().optional()
-}).strict();
+  deviceFingerprint: z.string().optional(),
+  rememberMe: z.boolean().optional()
+});
 
 export { 
   registerSchema,

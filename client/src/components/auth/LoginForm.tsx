@@ -19,10 +19,13 @@ import {
 import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
+import { useAuthStore } from "@/lib/auth/store";
+import { getDeviceFingerprint } from "@/lib/auth/fingerprint";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,25 +46,42 @@ export function LoginForm() {
     setError(null);
     
     try {
-      // TODO: Replace with actual API call to your backend
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/login`, {
+      // 1. Fetch CSRF token first (mandatory for mutating routes)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const csrfRes = await fetch(`${apiUrl}/api/csrf-token`);
+      const { csrfToken } = await csrfRes.json();
+
+      // 2. Generate Device Fingerprint
+      const deviceFingerprint = await getDeviceFingerprint();
+
+      // 3. Perform Login
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken 
+        },
+        body: JSON.stringify({
+          ...data,
+          deviceFingerprint
+        })
       });
 
       const result = await response.json();
 
+      if (response.status === 200 && result.requiresMfa) {
+        setRequiresMfa(true);
+        setIsLoading(false);
+        return;
+      }
+
       if (!response.ok) {
-        if (response.status === 200 && result.requiresMfa) {
-          setRequiresMfa(true);
-          return;
-        }
         throw new Error(result.message || "Failed to login");
       }
 
-      // Handle successful login (store token, redirect to dashboard)
-      // e.g., router.push('/dashboard')
+      // Handle successful login
+      setAuth(result.user, result.accessToken);
+      
       window.location.href = '/dashboard';
 
     } catch (err: any) {

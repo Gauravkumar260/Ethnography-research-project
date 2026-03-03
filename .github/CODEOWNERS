@@ -1,0 +1,6 @@
+# Auth code requires review from a senior/security-aware team member
+/server/src/lib/auth/          @senior-dev-username
+/server/src/api/auth/          @senior-dev-username
+/.github/workflows/            @senior-dev-username
+/server/Dockerfile             @senior-dev-username
+/client/Dockerfile             @senior-dev-username
