@@ -83,8 +83,16 @@ export default function SubmissionPage() {
       if (mediaFile) data.append('mediaFile', mediaFile);
       data.append('ethicsFile', ethicsFile);
 
-      await apiFetch('/research/submit', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // If we're sending FormData, we should let the browser set the Content-Type header
+      // automatically so it includes the proper boundary. In our apiFetch wrapper,
+      // providing 'body' instead of 'bodyData' skips stringification. We also override
+      // the default Content-Type header (which is application/json) by passing undefined.
+      await apiFetch('/research/submit', {
+        method: 'POST',
+        body: data,
+        headers: {
+          'Content-Type': undefined as unknown as string
+        }
       });
 
       setSubmitted(true);

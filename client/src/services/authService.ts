@@ -10,7 +10,10 @@ export const AuthService = {
    * Authenticate user and receive HTTP-Only cookie.
    */
   login: async (credentials: LoginCredentials) => {
-    const response = await apiFetch('/auth/login', credentials);
+    const response = await apiFetch('/auth/login', {
+      method: 'POST',
+      bodyData: credentials
+    });
     return response.data;
   },
 
@@ -18,7 +21,7 @@ export const AuthService = {
    * Log out user and clear HTTP-Only cookie.
    */
   logout: async () => {
-    const response = await apiFetch('/auth/logout');
+    const response = await apiFetch('/auth/logout', { method: 'POST' });
     return response.data;
   },
 

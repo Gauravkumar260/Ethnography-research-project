@@ -21,6 +21,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import { useAuthStore } from "@/lib/auth/store";
 import { getDeviceFingerprint } from "@/lib/auth/fingerprint";
+import { SSOButton } from "./SSOButton";
+import { OAuthButtons } from "./OAuthButtons";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
