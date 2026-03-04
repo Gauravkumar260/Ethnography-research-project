@@ -26,6 +26,21 @@ export async function createSession(
   // Get location (Mocking geo-lookup for now)
   const location = null; 
 
+  // Concurrent session limit check: revoke oldest if > 3
+  const activeSessions = await Session.find({ userId, isActive: true }).sort({ createdAt: 1 });
+  if (activeSessions.length >= 3) {
+    const oldest = activeSessions[0];
+    await revokeSession(oldest._id.toString());
+    await logAuthEvent({
+      userId,
+      eventType: 'SESSION_REVOKED',
+      ipAddress,
+      userAgent,
+      success: true,
+      metadata: { reason: 'Concurrent session limit reached' }
+    });
+  }
+
   const session = await Session.create({
     userId,
     refreshTokenHash: hash,

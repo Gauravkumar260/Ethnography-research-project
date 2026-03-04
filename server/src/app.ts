@@ -16,7 +16,16 @@ import storyRoutes from './routes/storyRoutes';
 import fieldDataRoutes from './routes/fieldDataRoutes';
 import {  errorHandler  } from './middlewares/errorMiddleware';
 
+import { v4 as uuidv4 } from 'uuid';
+
 const app = express();
+
+// Correlation ID for distributed tracing and audit logs
+app.use((req: any, res, next) => {
+  req.correlationId = req.headers['x-request-id'] || uuidv4();
+  res.setHeader('X-Request-ID', req.correlationId);
+  next();
+});
 
 import csurf from 'csurf';
 

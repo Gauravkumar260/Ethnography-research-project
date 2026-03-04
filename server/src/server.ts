@@ -1,7 +1,11 @@
 import dotenv from 'dotenv';
 import 'colors';
+import otelSDK from './lib/otel';
 import connectDB from './config/db';
 import app from './app';
+
+// Initialize OTEL before anything else
+otelSDK.start();
 
 // Load environment variables
 dotenv.config({ path: '../.env' }); // Adjust path if .env is in server root

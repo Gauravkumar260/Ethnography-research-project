@@ -33,6 +33,11 @@ import {  logAuthEvent  } from '../lib/auth/audit';
 const UAParser = require('ua-parser-js');
 
 import * as crypto from 'crypto';
+import * as React from 'react';
+import mongoose from 'mongoose';
+import { sendEmail } from '../lib/email/sender';
+import { VerifyEmailTemplate } from '../lib/email/templates/verify-email';
+import { ResetPasswordTemplate } from '../lib/email/templates/reset-password';
 // Helper to get client IP reliably
 const getIp = (req) => req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
@@ -71,37 +76,56 @@ const register = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: 'Password has appeared in a data breach. Please choose another.' });
   }
 
-  // 5. Hash & Create
+  // 5. Hash & Create with Transaction
   const hashedPassword = await hashPassword(password);
-  const user = await User.create({
-    name,
-    email,
-    passwordHash: hashedPassword,
-    role,
-    departmentId
-  });
+  
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-  // 6. Generate Verification Token
-  const { token, hash } = generateEmailToken();
-  await EmailVerification.create({
-    userId: user._id,
-    tokenHash: hash,
-    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
-  });
+    const [user] = await User.create([{
+      name,
+      email,
+      passwordHash: hashedPassword,
+      role,
+      departmentId
+    }], { session });
 
-  // TODO: Send Email (Integrate Resend here)
-  console.log(`[DEV] Verification Token for ${email}: ${token}`);
+    // 6. Generate Verification Token
+    const { token, hash } = generateEmailToken();
+    await EmailVerification.create([{
+      userId: user._id,
+      tokenHash: hash,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
+    }], { session });
 
-  // 7. Audit Log
-  await logAuthEvent({
-    userId: user._id,
-    eventType: 'REGISTER',
-    ipAddress: ip,
-    userAgent: req.headers['user-agent'],
-    success: true
-  });
+    await session.commitTransaction();
 
-  res.status(201).json({ message: 'Registration successful. Please check your email to verify your account.' });
+    // Send Email (Fire-and-forget but logged)
+    const verificationUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/verify-email?token=${token}`;
+    sendEmail({
+      to: email,
+      subject: 'Verify your university research portal account',
+      template: React.createElement(VerifyEmailTemplate, { url: verificationUrl })
+    });
+
+    // 7. Audit Log
+    await logAuthEvent({
+      userId: user._id,
+      eventType: 'REGISTER',
+      ipAddress: ip,
+      userAgent: req.headers['user-agent'],
+      success: true
+    });
+
+    res.status(201).json({ message: 'Registration successful. Please check your email to verify your account.' });
+
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
 });
 
 // -----------------------------------------------------------------------------
@@ -340,8 +364,13 @@ const forgotPassword = asyncHandler(async (req, res) => {
     ipAddress: ip
   });
 
-  // TODO: Send email
-  console.log(`[DEV] Password Reset Token for ${email}: ${token}`);
+  // Send email
+  const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/auth/reset-password?token=${token}`;
+  sendEmail({
+    to: email,
+    subject: 'Password reset request — University Research Portal',
+    template: React.createElement(ResetPasswordTemplate, { url: resetUrl })
+  });
 
   res.status(200).json({ message: 'If that email exists, a reset link was sent' });
 });
