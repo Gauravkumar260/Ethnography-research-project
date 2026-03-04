@@ -42,7 +42,6 @@ const SessionSchema: Schema<ISession> = new Schema({
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
 SessionSchema.index({ userId: 1 });
-SessionSchema.index({ refreshTokenHash: 1 }, { unique: true });
 SessionSchema.index({ tokenFamily: 1 });
 SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL Index
 

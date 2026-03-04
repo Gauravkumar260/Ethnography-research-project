@@ -1,4 +1,5 @@
 // @ts-nocheck
+import 'colors';
 const errorHandler = (err, req, res, next) => {
   // console.error('Error Stack:', err.stack); // Use for deep debugging
 

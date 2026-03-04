@@ -16,7 +16,6 @@ const DepartmentSchema: Schema<IDepartment> = new Schema({
   isActive: { type: Boolean, default: true }
 }, { timestamps: true });
 
-DepartmentSchema.index({ code: 1 }, { unique: true });
 DepartmentSchema.index({ institutionDomain: 1 });
 
 

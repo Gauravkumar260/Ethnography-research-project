@@ -50,10 +50,8 @@ const UserSchema: Schema<IUser> = new Schema({
   lastLoginIp: { type: String, default: null }
 }, { timestamps: true });
 
-UserSchema.index({ email: 1 }, { unique: true });
 UserSchema.index({ departmentId: 1 });
 UserSchema.index({ role: 1 });
-UserSchema.index({ studentId: 1 }, { sparse: true, unique: true });
 
 UserSchema.methods.isLocked = function(): boolean {
   return this.lockedUntil ? this.lockedUntil > new Date() : false;

@@ -17,7 +17,6 @@ const PasswordResetSchema: Schema<IPasswordReset> = new Schema({
   ipAddress: { type: String, required: true }
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
-PasswordResetSchema.index({ tokenHash: 1 }, { unique: true });
 PasswordResetSchema.index({ userId: 1 });
 PasswordResetSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 

@@ -15,7 +15,6 @@ const EmailVerificationSchema: Schema<IEmailVerification> = new Schema({
   usedAt: { type: Date, default: null }
 }, { timestamps: { createdAt: true, updatedAt: false } });
 
-EmailVerificationSchema.index({ tokenHash: 1 }, { unique: true });
 EmailVerificationSchema.index({ userId: 1 });
 EmailVerificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 

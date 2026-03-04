@@ -32,7 +32,5 @@ const MfaConfigSchema: Schema<IMfaConfig> = new Schema({
   lastUsedAt: { type: Date, default: null }
 }, { timestamps: true });
 
-MfaConfigSchema.index({ userId: 1 }, { unique: true });
-
 
 export default (mongoose.models.MfaConfig as any) || mongoose.model('MfaConfig', MfaConfigSchema);
