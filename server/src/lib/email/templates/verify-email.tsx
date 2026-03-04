@@ -30,8 +30,6 @@ export const VerifyEmailTemplate = ({ url }: VerifyEmailTemplateProps) => (
             You're almost ready. Click the button below to verify your institutional email and activate your account.
           </Text>
           <Button
-            pX={20}
-            pY={12}
             style={button}
             href={url}
           >
@@ -110,6 +108,7 @@ const button = {
   display: 'block',
   width: '210px',
   margin: '30px auto',
+  padding: '12px 20px',
 };
 
 const noteBox = {

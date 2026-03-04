@@ -33,8 +33,6 @@ export const ResetPasswordTemplate = ({ url }: ResetPasswordTemplateProps) => (
             We received a request to reset the password for this account. If this was you, click below.
           </Text>
           <Button
-            pX={20}
-            pY={12}
             style={button}
             href={url}
           >
@@ -130,6 +128,7 @@ const button = {
   display: 'block',
   width: '210px',
   margin: '30px auto',
+  padding: '12px 20px',
 };
 
 const noteBox = {
