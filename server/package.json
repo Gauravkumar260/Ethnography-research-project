@@ -6,11 +6,12 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
-    "prestart": "ts-node scripts/check-env.ts",
+    "prestart": "npm run build && npx ts-node scripts/check-env.ts",
     "start": "node dist/server.js",
-    "predev": "ts-node scripts/check-env.ts",
+    "predev": "npx ts-node scripts/check-env.ts",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc && tsc-alias",
+    "postinstall": "npm run build",
     "seed:communities": "ts-node scripts/seedCommunities.ts",
     "seed:admin": "ts-node scripts/seedAdmin.ts"
   },
@@ -41,7 +42,11 @@
     "ua-parser-js": "^2.0.9",
     "xss-clean": "^0.1.4",
     "zod": "^4.3.6",
-    "zxcvbn": "^4.4.2"
+    "zxcvbn": "^4.4.2",
+    "typescript": "^5.9.3",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -54,10 +59,6 @@
     "mongodb-memory-server": "^11.0.1",
     "nodemon": "^3.1.9",
     "supertest": "^7.2.2",
-    "ts-node": "^10.9.2",
-    "tsc-alias": "^1.8.16",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
 }
