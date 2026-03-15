@@ -11,6 +11,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 
 const assets = {
@@ -108,23 +109,26 @@ export function Navbar() {
           <SheetContent side="right" className="w-[280px] bg-background pt-12">
             <nav className="flex flex-col gap-6 mt-4">
               {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  href={link.path}
-                  className={cn(
-                    "block text-lg font-medium py-2 transition-colors hover:text-secondary",
-                    isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
-                  )}
-                >
-                  {link.name}
-                </Link>
+                <SheetClose asChild key={link.path}>
+                  <Link
+                    href={link.path}
+                    className={cn(
+                      "block text-lg font-medium py-2 transition-colors hover:text-secondary",
+                      isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
+                    )}
+                  >
+                    {link.name}
+                  </Link>
+                </SheetClose>
               ))}
               <div className="pt-2">
-                <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
-                  <Link href="/student-submission">
-                    Submit Research
-                  </Link>
-                </Button>
+                <SheetClose asChild>
+                  <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                    <Link href="/student-submission">
+                      Submit Research
+                    </Link>
+                  </Button>
+                </SheetClose>
               </div>
             </nav>
           </SheetContent>

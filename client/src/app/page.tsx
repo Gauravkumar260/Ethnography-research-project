@@ -20,7 +20,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative min-h-[85svh] flex items-center justify-center overflow-hidden bg-black">
+      <section className="relative min-h-[85svh] flex items-center justify-center overflow-hidden bg-background">
         <div className="absolute inset-0 w-full h-full">
           <Image
             src="/assets/hero-image.png"
@@ -30,7 +30,7 @@ export default function HomePage() {
             className="object-cover object-center"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/70"></div>
         </div>
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -139,11 +139,12 @@ export default function HomePage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {communities.map((community) => (
+            {communities.map((community, index) => (
               <Link
                 key={community.id}
                 href={`/communities/${community.id}`}
-                className="group cursor-pointer bg-card overflow-hidden hover:shadow-xl transition-all duration-300 rounded border border-primary/5 block"
+                className="group cursor-pointer bg-card overflow-hidden hover:shadow-xl transition-all duration-300 rounded border border-primary/5 block animate-fade-in-up"
+                style={{ animationDelay: `${index * 100}ms`, animationFillMode: "forwards" }}
               >
                 <div className="relative h-64 overflow-hidden">
                   <Image
@@ -153,8 +154,8 @@ export default function HomePage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"></div>
+                  <div className="absolute bottom-4 left-4 text-primary-foreground">
                     <h3 className="mb-1 text-xl font-bold">
                       {community.name}
                     </h3>
@@ -179,12 +180,11 @@ export default function HomePage() {
               Watch Their Stories
             </h2>
             {/* ✅ CORRECTED LINK 2: Section Header */}
-            <Link
-              href="/documentaries"
-              className="text-secondary hover:underline text-sm font-semibold"
-            >
-              View All →
-            </Link>
+            <Button asChild variant="link" className="text-secondary hover:underline text-sm font-semibold p-0 h-auto">
+              <Link href="/documentaries">
+                View All →
+              </Link>
+            </Button>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -203,7 +203,7 @@ export default function HomePage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 bg-background/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
                       <Play className="w-8 h-8 text-primary-foreground" fill="currentColor" />
                     </div>

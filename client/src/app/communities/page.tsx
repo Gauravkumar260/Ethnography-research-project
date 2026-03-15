@@ -62,7 +62,7 @@ export default function CommunitiesPage() {
         <p className="text-primary/60 max-w-md">{error}</p>
         <button
           onClick={() => refetch()}
-          className="mt-6 px-6 py-2 bg-secondary text-white rounded hover:bg-secondary/90 transition-colors"
+          className="mt-6 px-6 py-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary/90 transition-colors"
         >
           {t('tryAgain')}
         </button>
@@ -141,19 +141,19 @@ export default function CommunitiesPage() {
                       priority={index < 4}
                     />
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity z-10"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity z-10"></div>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-20">
+                    <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 z-20">
                       <h2 className="mb-1 text-2xl font-bold font-serif tracking-wide">
                         {community.name}
                       </h2>
                       {community.subtitle && (
-                        <p className="text-sm text-white/90 mb-3 font-medium uppercase tracking-wider text-[11px]">
+                        <p className="text-sm text-primary-foreground/90 mb-3 font-medium uppercase tracking-wider text-[11px]">
                           {community.subtitle}
                         </p>
                       )}
 
-                      <div className="flex items-center gap-2 text-xs text-white/70 border-t border-white/20 pt-3 mt-3">
+                      <div className="flex items-center gap-2 text-xs text-primary-foreground/70 border-t border-primary-foreground/20 pt-3 mt-3">
                         <MapPin className="w-3 h-3 flex-shrink-0" />
                         <span className="truncate">{community.location || community.region}</span>
                       </div>
