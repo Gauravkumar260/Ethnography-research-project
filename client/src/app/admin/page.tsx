@@ -20,6 +20,7 @@ import {
 import { toast } from 'sonner';
 import { apiFetch } from '@/lib/api';
 import { AuthService } from '@/services/authService';
+import { useTranslations } from 'next-intl';
 
 // --- Configuration ---
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
@@ -48,6 +49,7 @@ interface Submission {
 }
 
 export default function AdminDashboard() {
+  const t = useTranslations('Admin');
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -61,10 +63,10 @@ export default function AdminDashboard() {
       const { data: response } = await apiFetch('/research/admin');
       setSubmissions(response.data || []);
     } catch (error: any) {
-      console.error("Error fetching submissions:", error);
-      toast.error("Failed to load submissions.");
+      // fetch error handled silently
+      toast.error(t('loadFailed'));
       if (error.response?.status === 401 || error.response?.status === 403) {
-        router.push('/login');
+        router.push('/auth/login');
       }
     } finally {
       setRefreshing(false);
@@ -75,7 +77,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
-      router.push('/login');
+      router.push('/auth/login');
     } else {
       setIsAuthorized(true);
       fetchSubmissions();
@@ -86,10 +88,10 @@ export default function AdminDashboard() {
     try {
       await AuthService.logout();
     } catch (error) {
-      console.error("Logout failed", error);
+      // logout error handled silently
     } finally {
       localStorage.removeItem('user');
-      router.push('/login');
+      router.push('/auth/login');
     }
   };
 
@@ -103,7 +105,7 @@ export default function AdminDashboard() {
         }
       });
 
-      toast.success(`Submission marked as ${newStatus}`);
+      toast.success(t('statusUpdated', { status: newStatus }));
 
       // Update local state to reflect change immediately
       setSubmissions(prev => prev.map(sub =>
@@ -113,8 +115,8 @@ export default function AdminDashboard() {
       ));
 
     } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("Failed to update status.");
+      // status update error handled silently
+      toast.error(t('updateFailed'));
     }
   };
 
@@ -143,15 +145,15 @@ export default function AdminDashboard() {
       {/* --- HEADER --- */}
       <header className="bg-[#1a1a1a] text-[#E3E1DB] py-4 px-8 flex justify-between items-center shadow-md">
         <div>
-          <h1 className="text-lg font-serif tracking-wide">Faculty Administration Panel</h1>
-          <p className="text-xs opacity-60">Review and manage research submissions</p>
+          <h1 className="text-lg font-serif tracking-wide">{t('panelTitle')}</h1>
+          <p className="text-xs opacity-60">{t('panelDesc')}</p>
         </div>
         <div className="flex items-center gap-4">
           <button
             onClick={fetchSubmissions}
             disabled={refreshing}
             className="p-2 text-[#E3E1DB]/70 hover:text-white transition-colors"
-            title="Refresh Data"
+            title="{t('refreshData')}"
           >
             <RefreshCw className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} />
           </button>
@@ -159,7 +161,7 @@ export default function AdminDashboard() {
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 border border-[#99302A] text-[#E3E1DB] bg-[#99302A] hover:bg-[#7a2621] rounded-sm text-sm transition-colors"
           >
-            <LogOut className="w-4 h-4" /> Logout
+            <LogOut className="w-4 h-4" /> {t('logout')}
           </button>
         </div>
       </header>
@@ -169,28 +171,28 @@ export default function AdminDashboard() {
         {/* --- STATS CARDS --- */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <StatCard
-            label="Pending Review"
+            label={t('pendingReview')}
             count={pendingCount}
             icon={Clock}
             color="text-yellow-600"
             borderColor="border-l-4 border-yellow-500"
           />
           <StatCard
-            label="Approved"
+            label={t('approved')}
             count={approvedCount}
             icon={CheckCircle}
             color="text-green-600"
             borderColor="border-l-4 border-green-500"
           />
           <StatCard
-            label="Rejected"
+            label={t('rejected')}
             count={rejectedCount}
             icon={XCircle}
             color="text-red-500"
             borderColor="border-l-4 border-red-500"
           />
           <StatCard
-            label="Total Submissions"
+            label={t('totalSubmissions')}
             count={totalCount}
             icon={Database}
             color="text-[#99302A]"
@@ -203,25 +205,25 @@ export default function AdminDashboard() {
           <TabButton
             active={activeTab === 'pending'}
             onClick={() => setActiveTab('pending')}
-            label={`Pending (${pendingCount})`}
+            label={`${t('pending')} (${pendingCount})`}
             activeClass="bg-yellow-100 text-yellow-800 border-yellow-200"
           />
           <TabButton
             active={activeTab === 'approved'}
             onClick={() => setActiveTab('approved')}
-            label={`Approved (${approvedCount})`}
+            label={`${t('approved')} (${approvedCount})`}
             activeClass="bg-green-100 text-green-800 border-green-200"
           />
           <TabButton
             active={activeTab === 'rejected'}
             onClick={() => setActiveTab('rejected')}
-            label={`Rejected (${rejectedCount})`}
+            label={`${t('rejected')} (${rejectedCount})`}
             activeClass="bg-red-100 text-red-800 border-red-200"
           />
           <TabButton
             active={activeTab === 'revision'}
             onClick={() => setActiveTab('revision')}
-            label={`Revision (${revisionCount})`}
+            label={`${t('revision')} (${revisionCount})`}
             activeClass="bg-orange-100 text-orange-800 border-orange-200"
           />
         </div>
@@ -238,7 +240,7 @@ export default function AdminDashboard() {
           {filteredSubmissions.length === 0 && (
             <div className="text-center py-20 text-[#1a1a1a]/40">
               <div className="flex justify-center mb-4"><File className="w-12 h-12 opacity-50" /></div>
-              <p>No submissions in this category.</p>
+              <p>{t('noSubmissions')}</p>
             </div>
           )}
         </div>
@@ -247,33 +249,33 @@ export default function AdminDashboard() {
 
       {/* --- FOOTER GUIDELINES --- */}
       <footer className="max-w-7xl mx-auto px-8 py-12 mt-12 bg-[#Eae9e5]">
-        <h3 className="text-center font-serif text-[#1a1a1a] mb-8 text-lg">Review Guidelines</h3>
+        <h3 className="text-center font-serif text-[#1a1a1a] mb-8 text-lg">{t('reviewGuidelines')}</h3>
         <div className="grid md:grid-cols-3 gap-8">
           <GuidelineColumn
-            title="Quality Criteria"
+            title={t('qualityCriteria')}
             items={[
-              "Methodological rigor",
-              "Complete documentation",
-              "Clear research questions",
-              "Proper citations"
+              t('qualityItem1'),
+              t('qualityItem2'),
+              t('qualityItem3'),
+              t('qualityItem4')
             ]}
           />
           <GuidelineColumn
-            title="Ethics Requirements"
+            title={t('ethicsRequirements')}
             items={[
-              "IRB/Ethics approval",
-              "Informed consent forms",
-              "Community permissions",
-              "Data anonymization"
+              t('ethicsItem1'),
+              t('ethicsItem2'),
+              t('ethicsItem3'),
+              t('ethicsItem4')
             ]}
           />
           <GuidelineColumn
-            title="Technical Standards"
+            title={t('technicalStandards')}
             items={[
-              "Metadata completeness",
-              "File format compliance",
-              "Proper categorization",
-              "Keyword tagging"
+              t('techItem1'),
+              t('techItem2'),
+              t('techItem3'),
+              t('techItem4')
             ]}
           />
         </div>
@@ -331,16 +333,17 @@ interface SubmissionCardProps {
 }
 
 function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
+  const t = useTranslations('Admin');
   const isPending = submission.status === 'pending';
 
   const handleAction = (status: SubmissionStatus) => {
     let reason = '';
     if (status === 'rejected') {
-      reason = prompt("Please provide a reason for rejection:") || '';
+      reason = prompt(t('rejectPrompt')) || '';
       if (!reason) return; // Cancel if no reason provided
     }
     if (status === 'revision') {
-      reason = prompt("Please provide instructions for revision:") || '';
+      reason = prompt(t('revisionPrompt')) || '';
       if (!reason) return;
     }
 
@@ -376,7 +379,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
             <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm flex items-center gap-1 ${submission.ethicsFileUrl ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}>
               {submission.ethicsFileUrl ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
-              Ethics {submission.ethicsFileUrl ? 'Uploaded' : 'Missing'}
+              Ethics {submission.ethicsFileUrl ? t('ethicsUploaded').split(' ').pop() : t('ethicsMissing').split(' ').pop()}
             </span>
           </div>
 
@@ -387,43 +390,43 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
             </h2>
             <div className="grid md:grid-cols-2 gap-y-1 gap-x-8 text-sm text-[#1a1a1a]/70">
               <div className="flex items-center gap-2">
-                <span className="text-[#1a1a1a]">By:</span> {submission.studentName} ({submission.studentId})
+                <span className="text-[#1a1a1a]">{t('by')}</span> {submission.studentName} ({submission.studentId})
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Program:</span> {submission.program}
+                <span className="text-[#1a1a1a]">{t('programLabel')}</span> {submission.program}
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Mentor:</span> {submission.mentor}
+                <span className="text-[#1a1a1a]">{t('mentorLabel')}</span> {submission.mentor}
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Submitted:</span> {new Date(submission.createdAt).toLocaleDateString()}
+                <span className="text-[#1a1a1a]">{t('submittedLabel')}</span> {new Date(submission.createdAt).toLocaleDateString()}
               </div>
               <div>
-                <span className="text-[#1a1a1a]">Batch:</span> {submission.batch}
+                <span className="text-[#1a1a1a]">{t('batchLabel')}</span> {submission.batch}
               </div>
             </div>
           </div>
 
           {/* Abstract */}
           <p className="text-sm bg-[#FAFAF9] p-4 border border-[#1a1a1a]/5 rounded-sm italic text-[#1a1a1a]/80">
-            <span className="font-bold not-italic text-[#1a1a1a]">Abstract: </span>
+            <span className="font-bold not-italic text-[#1a1a1a]">{t('abstractLabel')} </span>
             {submission.abstract}
           </p>
 
           {/* Status Messages (if not pending) */}
           {submission.status === 'rejected' && (
             <div className="bg-red-50 text-red-800 text-xs p-3 rounded-sm border border-red-100">
-              <strong>Rejection Reason:</strong> {submission.rejectionReason}
+              <strong>{t('rejectionReason')}</strong> {submission.rejectionReason}
             </div>
           )}
           {submission.status === 'revision' && (
             <div className="bg-orange-50 text-orange-800 text-xs p-3 rounded-sm border border-orange-100">
-              <strong>Revision Instructions:</strong> {submission.rejectionReason}
+              <strong>{t('revisionInstructions')}</strong> {submission.rejectionReason}
             </div>
           )}
           {submission.status === 'approved' && submission.reviewedDate && (
             <div className="bg-green-50 text-green-800 text-xs p-3 rounded-sm border border-green-100">
-              Approved on {new Date(submission.reviewedDate).toLocaleDateString()}
+              {t('approvedOn')} {new Date(submission.reviewedDate).toLocaleDateString()}
             </div>
           )}
 
@@ -436,7 +439,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
                 rel="noreferrer"
                 className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
               >
-                <Download className="w-4 h-4" /> Main File
+                <Download className="w-4 h-4" /> {t('mainFile')}
               </a>
 
               {submission.ethicsFileUrl && (
@@ -446,7 +449,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
                   rel="noreferrer"
                   className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
                 >
-                  <FileText className="w-4 h-4" /> Ethics Doc
+                  <FileText className="w-4 h-4" /> {t('ethicsDoc')}
                 </a>
               )}
 
@@ -457,7 +460,7 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
                   rel="noreferrer"
                   className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm transition-colors"
                 >
-                  <Database className="w-4 h-4" /> Media/Data
+                  <Database className="w-4 h-4" /> {t('mediaData')}
                 </a>
               )}
             </div>
@@ -468,19 +471,19 @@ function SubmissionCard({ submission, onUpdateStatus }: SubmissionCardProps) {
                   onClick={() => handleAction('approved')}
                   className="px-6 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
                 >
-                  <CheckCircle className="w-4 h-4" /> Approve
+                  <CheckCircle className="w-4 h-4" /> {t('approve')}
                 </button>
                 <button
                   onClick={() => handleAction('revision')}
                   className="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors"
                 >
-                  Request Revision
+                  {t('requestRevision')}
                 </button>
                 <button
                   onClick={() => handleAction('rejected')}
                   className="px-6 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm transition-colors flex items-center gap-2"
                 >
-                  <XCircle className="w-4 h-4" /> Reject
+                  <XCircle className="w-4 h-4" /> {t('reject')}
                 </button>
               </div>
             )}

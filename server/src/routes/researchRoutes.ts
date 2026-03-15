@@ -3,6 +3,8 @@ const router = express.Router();
 
 // 1. Import Middleware
 import {  protect, authorize  } from '../middlewares/authMiddleware';
+import { validate } from '../middlewares/validateMiddleware';
+import { researchSchema } from '../lib/validations';
 
 // File Upload Middleware
 import {  dataUpload  } from '../middlewares/uploadMiddleware'; 
@@ -44,6 +46,7 @@ router.post('/submit',
     { name: 'mediaFile', maxCount: 1 },
     { name: 'ethicsFile', maxCount: 1 }
   ]), 
+  validate(researchSchema),
   submitResearch
 );
 

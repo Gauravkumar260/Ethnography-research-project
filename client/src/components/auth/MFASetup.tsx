@@ -1,115 +1,170 @@
+"use client";
+
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
+import { Input } from '@/components/ui/input';
+import { Check, Copy, Download, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
-interface MFASetupProps {
-  secret: string;
-  qrCodeUrl: string;
-  backupCodes: string[];
-  onVerify: (token: string) => Promise<void>;
-}
-
-export function MFASetup({ secret, qrCodeUrl, backupCodes, onVerify }: MFASetupProps) {
+export function MFASetup() {
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [showBackupCodes, setShowBackupCodes] = useState(false);
+  
+  // Mock data for UI demonstration
+  const secret = "JBSWY3DPEHPK3PXP";
+  const qrCodeUrl = "otpauth://totp/ResearchPortal:user@university.edu?secret=JBSWY3DPEHPK3PXP&issuer=ResearchPortal";
+  const backupCodes = ["AB12C34D", "EF56G78H", "IJ90K12L", "MN34O56P", "QR78S90T", "UV12W34X"];
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      await onVerify(token);
-    } catch (err) {
-      console.error(err);
-    } finally {
+    setTimeout(() => {
       setLoading(false);
-    }
+      setStep(3);
+      toast.success("MFA successfully enabled");
+    }, 1000);
   };
 
-  const handleDownloadBackupCodes = () => {
+  const downloadCodes = () => {
     const element = document.createElement("a");
     const file = new Blob([backupCodes.join('\n')], { type: 'text/plain' });
     element.href = URL.createObjectURL(file);
-    element.download = "backup-codes.txt";
-    document.body.appendChild(element); // Required for this to work in FireFox
+    element.download = "mfa-backup-codes.txt";
+    document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
+    toast.success("Codes downloaded");
+  };
+
+  const copyCodes = () => {
+    navigator.clipboard.writeText(backupCodes.join('\n'));
+    toast.success("Codes copied to clipboard");
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-lg font-medium">Set up Two-Factor Authentication</h3>
-        <p className="text-sm text-gray-500">Scan the QR code with your authenticator app.</p>
+    <div className="space-y-8">
+      {/* Progress Dots */}
+      <div className="flex justify-center gap-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className={`w-2.5 h-2.5 rounded-full ${step >= i ? 'bg-[#99302A]' : 'bg-[#1a1a1a]/10'}`} />
+        ))}
       </div>
 
-      <div className="flex justify-center bg-white p-4 rounded-md">
-        <QRCodeSVG value={qrCodeUrl} size={200} />
-      </div>
-
-      <div className="text-center text-sm">
-        <p>Or enter this code manually:</p>
-        <code className="bg-gray-100 p-2 rounded block mt-2 tracking-widest font-mono">
-          {secret}
-        </code>
-      </div>
-
-      <form onSubmit={handleVerify} className="space-y-4">
-        <div>
-          <label htmlFor="token" className="block text-sm font-medium text-gray-700">
-            Verification Code
-          </label>
-          <input
-            type="text"
-            id="token"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-4 py-2 border"
-            placeholder="000000"
-            maxLength={6}
-            required
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading || token.length !== 6}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-        >
-          {loading ? 'Verifying...' : 'Verify & Enable'}
-        </button>
-      </form>
-
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <div className="flex items-center justify-between">
-          <h4 className="text-sm font-medium text-gray-900">Backup Codes</h4>
-          <button
-            type="button"
-            onClick={() => setShowBackupCodes(!showBackupCodes)}
-            className="text-sm text-indigo-600 hover:text-indigo-500"
+      {step === 1 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+          <div className="text-center">
+            <h3 className="text-xl font-bold font-serif text-[#1a1a1a]">Scan QR Code</h3>
+            <p className="text-[#1a1a1a]/70 mt-2 font-sans text-sm">Open your authenticator app and scan the code below.</p>
+          </div>
+          <div className="flex justify-center bg-white p-6 rounded-sm border border-[#1a1a1a]/10 shadow-sm mx-auto w-fit">
+            <QRCodeSVG value={qrCodeUrl} size={200} />
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-[#1a1a1a]/50 mb-2">Can't scan the code? Use this setup key:</p>
+            <code className="bg-[#FAFAF9] px-4 py-2 rounded-sm border border-[#1a1a1a]/10 font-mono tracking-widest text-[#1a1a1a] font-medium">{secret}</code>
+          </div>
+          <button 
+            className="w-full mt-4 bg-[#1a1a1a] hover:bg-[#333] text-white py-4 text-sm font-bold tracking-widest uppercase transition-all rounded-sm shadow-md"
+            onClick={() => setStep(2)}
           >
-            {showBackupCodes ? 'Hide' : 'Show'}
+            Next Step
           </button>
         </div>
+      )}
 
-        {showBackupCodes && (
-          <div className="mt-4">
-            <p className="text-xs text-gray-500 mb-3">
-              Save these backup codes in a secure place. They can be used to log in if you lose access to your authenticator app.
+      {step === 2 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+          <div className="text-center">
+            <h3 className="text-xl font-bold font-serif text-[#1a1a1a]">Verify Code</h3>
+            <p className="text-[#1a1a1a]/70 mt-2 font-sans text-sm">Enter the 6-digit code from your authenticator app.</p>
+          </div>
+          <form onSubmit={handleVerify} className="space-y-6">
+            <Input
+              type="text"
+              value={token}
+              onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              maxLength={6}
+              className="h-16 text-center tracking-[1em] text-3xl font-mono bg-[#FAFAF9] focus:bg-white border-[#1a1a1a]/20 focus:border-[#99302A] focus:ring-1 focus:ring-[#99302A] rounded-sm transition-all"
+              required
+            />
+            <div className="flex gap-3">
+              <button 
+                type="button" 
+                className="flex-1 bg-transparent hover:bg-[#1a1a1a]/5 text-[#1a1a1a] border border-[#1a1a1a]/20 py-4 text-sm font-bold tracking-widest uppercase transition-all rounded-sm"
+                onClick={() => setStep(1)}
+              >
+                Back
+              </button>
+              <button 
+                type="submit" 
+                className="flex-[2] bg-[#99302A] hover:bg-[#7a2621] text-white py-4 text-sm font-bold tracking-widest uppercase transition-all rounded-sm shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
+                disabled={token.length !== 6 || loading}
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify & Enable"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-green-50 border border-green-200 rounded-full flex items-center justify-center mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-xl font-bold font-serif text-[#1a1a1a]">Save Backup Codes</h3>
+            <p className="text-[#1a1a1a]/70 mt-2 text-sm leading-relaxed">
+              If you lose your device, these codes are the only way to access your account. Keep them safe.
             </p>
-            <div className="grid grid-cols-2 gap-2 bg-gray-50 p-4 rounded-md font-mono text-sm">
-              {backupCodes.map((code, index) => (
-                <div key={index} className="text-gray-800">{code}</div>
+          </div>
+
+          <div className="relative group">
+            <div className={`grid grid-cols-2 gap-3 p-6 bg-[#FAFAF9] rounded-sm font-mono text-center tracking-widest border border-[#1a1a1a]/5 ${!showBackupCodes && 'blur-md select-none'}`}>
+              {backupCodes.map((code, i) => (
+                <div key={i} className="bg-white py-3 rounded-sm border border-[#1a1a1a]/10 shadow-sm text-sm text-[#1a1a1a] font-bold">{code}</div>
               ))}
             </div>
-            <button
-              type="button"
-              onClick={handleDownloadBackupCodes}
-              className="mt-3 text-xs text-indigo-600 hover:text-indigo-500 flex items-center gap-1"
+            {!showBackupCodes && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button 
+                  onClick={() => setShowBackupCodes(true)} 
+                  className="bg-white hover:bg-gray-50 text-[#1a1a1a] border border-[#1a1a1a]/20 py-2 px-4 text-sm font-bold tracking-widest uppercase transition-all rounded-sm shadow-md flex items-center gap-2"
+                >
+                  <Eye className="w-4 h-4" /> Reveal Codes
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3">
+            <button 
+              className="flex-1 bg-transparent hover:bg-[#1a1a1a]/5 text-[#1a1a1a] border border-[#1a1a1a]/20 py-3 text-sm font-bold tracking-widest uppercase transition-all rounded-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              onClick={copyCodes} 
+              disabled={!showBackupCodes}
             >
-              Download Codes
+              <Copy className="w-4 h-4" /> Copy
+            </button>
+            <button 
+              className="flex-1 bg-transparent hover:bg-[#1a1a1a]/5 text-[#1a1a1a] border border-[#1a1a1a]/20 py-3 text-sm font-bold tracking-widest uppercase transition-all rounded-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              onClick={downloadCodes} 
+              disabled={!showBackupCodes}
+            >
+              <Download className="w-4 h-4" /> Download
             </button>
           </div>
-        )}
-      </div>
+          
+          <button 
+            className="w-full mt-2 bg-[#99302A] hover:bg-[#7a2621] text-white py-4 text-sm font-bold tracking-widest uppercase transition-all rounded-sm shadow-md"
+            onClick={() => window.location.href = '/dashboard'}
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      )}
     </div>
   );
 }

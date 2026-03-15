@@ -21,8 +21,9 @@ export async function scoreLoginRisk(
   ipAddress: string,
   userAgent: string,
   deviceFingerprint: string
-): Promise<number> {
+): Promise<RiskScore> {
   let score = 0.0;
+  const reasons: string[] = [];
 
   try {
     const pastSessions = await getUserActiveSessions(userId);
@@ -31,26 +32,43 @@ export async function scoreLoginRisk(
     const hasSeenIp = pastSessions.some(s => s.ipAddress === ipAddress);
     if (!hasSeenIp) {
       score += 0.3;
+      reasons.push('New IP address');
     }
 
     // New User Agent
     const hasSeenUserAgent = pastSessions.some(s => s.userAgent === userAgent);
     if (!hasSeenUserAgent) {
       score += 0.3;
+      reasons.push('New browser/device');
+    }
+
+    // Geo Location Check
+    const geo = await getIpGeoLocation(ipAddress);
+    if (geo && pastSessions.length > 0) {
+      const lastSessionWithGeo = pastSessions.find(s => s.location && s.location.country);
+      if (lastSessionWithGeo && lastSessionWithGeo.location) {
+        if (lastSessionWithGeo.location.country !== geo.country) {
+          score += 0.4;
+          reasons.push('New country');
+        }
+      }
     }
 
     // Recent failed attempts
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     const recentFailures = await getFailedLoginAttempts(userId, oneHourAgo);
-    score += Math.min(0.4, recentFailures * 0.1);
+    if (recentFailures > 0) {
+      score += Math.min(0.4, recentFailures * 0.1);
+      reasons.push(`Recent failed attempts: \${recentFailures}`);
+    }
 
     // Unknown/Suspicious IP (Mock integration)
     // if (await isMaliciousIp(ipAddress)) score += 0.5;
 
-    return Math.min(1.0, score);
+    return { score: Math.min(1.0, score), reasons };
   } catch (error) {
     logger.error({ error, userId }, 'Error scoring login risk');
-    return score; // Default to calculated score on error
+    return { score, reasons }; // Default to calculated score on error
   }
 }
 

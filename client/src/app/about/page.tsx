@@ -1,16 +1,21 @@
+"use client";
+
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 export default function AboutPage() {
+  const t = useTranslations('About');
+
   return (
     <div className="min-h-screen font-sans">
       {/* Header */}
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="mb-6 text-4xl font-bold font-serif tracking-wide">
-            The School of Design at DIT University
+            {t('title')}
           </h1>
           <p className="text-[#E3E1DB]/80 text-lg leading-relaxed max-w-2xl mx-auto">
-            A multidisciplinary creative space where ideas, research, and innovation come together.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -22,7 +27,7 @@ export default function AboutPage() {
           {/* Introduction */}
           <div>
             <p className="text-xl text-[#1a1a1a] leading-relaxed mb-8 font-medium">
-              The department brings together diverse design domains including:
+              {t('introText')}
             </p>
 
             {/* Programs List */}
@@ -77,40 +82,30 @@ export default function AboutPage() {
           {/* Philosophy Quote */}
           <div className="bg-[#E3E1DB]/30 p-8 md:p-12 border-l-4 border-[#99302A]">
             <p className="text-[#1a1a1a] text-2xl font-serif italic leading-relaxed">
-              &quot;At SOD, design is not just about aesthetics; it is about understanding people, contexts, cultures, and systems before creating meaningful solutions.&quot;
+              &quot;{t('quote')}&quot;
             </p>
           </div>
 
           {/* Ethnographic Research */}
           <div>
             <h2 className="text-[#1a1a1a] mb-6 text-3xl font-bold font-serif">
-              Ethnographic Research
+              {t('ethnoTitle')}
             </h2>
             <div className="space-y-4 text-[#1a1a1a]/80 leading-relaxed text-lg">
-              <p>
-                The ethnographic research showcased on this platform has been conducted by students of the UX Department, where human behavior, lived experiences, and contextual inquiry form the foundation of the design process.
-              </p>
-              <p>
-                Through field immersion, interviews, observation, and documentation, students explore real-world narratives and translate them into actionable insights and impactful design interventions.
-              </p>
+              <p>{t('ethnoP1')}</p>
+              <p>{t('ethnoP2')}</p>
             </div>
           </div>
 
           {/* Disclaimer */}
           <div className="bg-[#99302A]/5 p-8 text-sm text-[#1a1a1a]/70 leading-relaxed border border-[#99302A]/10 rounded-sm">
             <h3 className="text-[#99302A] mb-4 text-lg font-bold font-serif uppercase tracking-widest">
-              Disclaimer
+              {t('disclaimerTitle')}
             </h3>
             <div className="space-y-3">
-              <p>
-                This website showcases academic work developed by students of the School of Design (SOD), DIT University, as part of their coursework and research requirements under faculty supervision.
-              </p>
-              <p>
-                All documentaries, research findings, and visual documentation presented here are created solely for academic and educational purposes. The interpretations, narratives, and representations reflect students’ research-based exploration within a structured academic framework.
-              </p>
-              <p>
-                The content does not represent official institutional statements, endorsements, or policy positions of DIT University. It is intended to document and present student-led academic research and learning outcomes.
-              </p>
+              <p>{t('disclaimerP1')}</p>
+              <p>{t('disclaimerP2')}</p>
+              <p>{t('disclaimerP3')}</p>
             </div>
           </div>
 
@@ -120,7 +115,7 @@ export default function AboutPage() {
       {/* Footer Branding */}
       <section className="py-12 px-4 bg-[#1a1a1a] text-[#E3E1DB] border-t border-[#E3E1DB]/10">
         <div className="max-w-4xl mx-auto text-center opacity-60 text-sm font-light tracking-wide">
-          School of Design | DIT University
+          {t('footerBrand')}
         </div>
       </section>
     </div>

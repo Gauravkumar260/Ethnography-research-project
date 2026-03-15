@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Lightbulb, FileCheck, Calendar, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function PatentsPage() {
+  const t = useTranslations('Patents');
   const [patents, setPatents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,7 +20,7 @@ export default function PatentsPage() {
         const allItems = response.data || [];
         setPatents(allItems.filter((item: any) => item.type?.toLowerCase() === 'patent'));
       } catch (error) {
-        console.error("Error:", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -31,11 +33,11 @@ export default function PatentsPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back to Research
+            <ChevronLeft className="w-5 h-5" /> {t('backToResearch')}
           </Link>
-          <h1 className="mb-4 text-4xl font-bold font-serif">Patents & Innovations</h1>
+          <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            Technological innovations supporting ethical ethnographic research and documentation.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -46,8 +48,8 @@ export default function PatentsPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>
           ) : patents.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg p-10">
-               <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> 
-               <p>No patents found.</p>
+              <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+              <p>{t('noResults')}</p>
             </div>
           ) : (
             <div className="space-y-8">
@@ -59,29 +61,29 @@ export default function PatentsPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <span className="text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide bg-blue-100 text-blue-700">Published</span>
+                        <span className="text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wide bg-blue-100 text-blue-700">{t('published')}</span>
                         <span className="text-xs text-[#1a1a1a]/60 font-mono bg-[#E3E1DB] px-2 py-1 rounded">{patent._id.substring(0, 8).toUpperCase()}</span>
                       </div>
                       <h3 className="text-[#1a1a1a] mb-3 text-xl font-bold font-serif leading-tight">{patent.title}</h3>
                       <div className="grid md:grid-cols-2 gap-4 text-sm text-[#1a1a1a]/70 mb-4 bg-[#FAFAF9] p-4 rounded border border-[#1a1a1a]/5">
                         <div>
-                          <span className="block text-xs uppercase text-[#1a1a1a]/40 font-bold mb-1">Inventor</span>
+                          <span className="block text-xs uppercase text-[#1a1a1a]/40 font-bold mb-1">{t('inventor')}</span>
                           <span className="font-medium text-[#1a1a1a]">{patent.studentName}</span>
                         </div>
                         <div>
-                          <span className="block text-xs uppercase text-[#1a1a1a]/40 font-bold mb-1">Filing Date</span>
+                          <span className="block text-xs uppercase text-[#1a1a1a]/40 font-bold mb-1">{t('filingDate')}</span>
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             <span>{new Date(patent.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
-                      <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6"><span className="font-bold text-[#1a1a1a]">Abstract: </span>{patent.abstract}</p>
+                      <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6"><span className="font-bold text-[#1a1a1a]">{t('abstractLabel')} </span>{patent.abstract}</p>
                       {patent.fileUrl && (
                         <div className="flex items-center gap-4">
-                            <a href={`${API_BASE_URL}/${patent.fileUrl.replace(/\\/g, "/")}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
-                            <FileCheck className="w-4 h-4" /> View Full Documentation
-                            </a>
+                          <a href={`${API_BASE_URL}/${patent.fileUrl.replace(/\\/g, "/")}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline">
+                            <FileCheck className="w-4 h-4" /> {t('viewDocs')}
+                          </a>
                         </div>
                       )}
                     </div>

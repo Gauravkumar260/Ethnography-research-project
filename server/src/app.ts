@@ -1,3 +1,4 @@
+import { config } from './config/env';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -60,7 +61,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:3000",
   "https://ethnography-research-project.vercel.app",
-  process.env.CLIENT_URL
+  config.CLIENT_URL
 ].filter(Boolean);
 
 app.use(cors({
@@ -87,7 +88,7 @@ const csrfProtection = csurf({
     key: '_csrf',
     path: '/',
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: config.NODE_ENV === 'production',
     sameSite: 'strict'
   } 
 });
@@ -109,8 +110,7 @@ app.use((req, res, next) => {
 // ==========================================
 // 2. STATIC FILES & ROUTES
 // ==========================================
-// Serve uploads from the parent directory (server/uploads)
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+// Static files route removed for security (files stored outside web root)
 
 app.use('/api/auth', authRoutes);
 app.use('/api/research', researchRoutes);

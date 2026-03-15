@@ -1,5 +1,5 @@
+import { config } from '../../config/env';
 import jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 // @ts-ignore
 import { authenticator } from 'otplib';
@@ -12,8 +12,8 @@ export interface AccessTokenPayload {
   jti?: string;
 }
 
-const getPrivateKey = () => process.env.RS256_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
-const getPublicKey = () => process.env.RS256_PUBLIC_KEY?.replace(/\\n/g, '\n') || '';
+const getPrivateKey = () => config.RS256_PRIVATE_KEY?.replace(/\\n/g, '\n') || '';
+const getPublicKey = () => config.RS256_PUBLIC_KEY?.replace(/\\n/g, '\n') || '';
 
 export function generateAccessToken(payload: AccessTokenPayload): string {
   const jti = crypto.randomUUID();
@@ -25,7 +25,7 @@ export function generateAccessToken(payload: AccessTokenPayload): string {
 
 export async function generateRefreshToken(): Promise<{ token: string, hash: string }> {
   const token = crypto.randomBytes(64).toString('hex');
-  const hash = await bcrypt.hash(token, 10);
+  const hash = await argon2.hash(token, { type: argon2.argon2id });
   return { token, hash };
 }
 
@@ -56,7 +56,7 @@ export async function generateBackupCodes(count = 8): Promise<{ codes: string[],
   const hashes: string[] = [];
 
   for (let i = 0; i < count; i++) {
-    const code = crypto.randomBytes(5).toString('hex').toUpperCase(); // 10 chars
+    const code = crypto.randomBytes(5).toString('hex').toUpperCase();
     codes.push(code);
     const hash = await argon2.hash(code, { type: argon2.argon2id });
     hashes.push(hash);

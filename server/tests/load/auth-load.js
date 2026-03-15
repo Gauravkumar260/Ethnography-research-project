@@ -2,28 +2,41 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export const options = {
-  stages: [
-    { duration: '1m', target: 50 }, // ramp up to 50 users
-    { duration: '3m', target: 50 }, // stay at 50 users
-    { duration: '1m', target: 0 },  // ramp down
-  ],
+  scenarios: {
+    // 500 concurrent logins
+    steady_state: {
+      executor: 'constant-vus',
+      vus: 500,
+      duration: '5m',
+    },
+    // 2000 deadline rush
+    deadline_rush: {
+      executor: 'ramping-vus',
+      startVUs: 0,
+      stages: [
+        { duration: '2m', target: 2000 },
+        { duration: '3m', target: 2000 },
+        { duration: '1m', target: 0 },
+      ],
+      startTime: '5m', // start after steady state
+    },
+  },
   thresholds: {
-    http_req_duration: ['p(95)<300', 'p(99)<500'], // 95% of requests must be below 300ms
-    http_req_failed: ['rate<0.01'], // error rate must be less than 1%
+    http_req_duration: ['p(95)<300', 'p(99)<500'], // 95% < 300ms, 99% < 500ms
+    http_req_failed: ['rate<0.001'], // error rate < 0.1%
   },
 };
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:5000/api';
 
 export default function () {
-  const email = `test-user-${__VU}@university.edu`;
+  const email = \`test-user-\${__VU}@university.edu\`;
   const password = 'SuperSecurePassword123!';
 
-  // 1. Login Attempt
-  const loginRes = http.post(`${BASE_URL}/auth/login`, JSON.stringify({
+  const loginRes = http.post(\`\${BASE_URL}/auth/login\`, JSON.stringify({
     email: email,
     password: password,
-    deviceFingerprint: `k6-test-device-${__VU}`
+    deviceFingerprint: \`k6-test-device-\${__VU}\`
   }), {
     headers: { 'Content-Type': 'application/json' },
   });

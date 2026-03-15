@@ -1,0 +1,419 @@
+# Elite Auth System Upgrade — Implementation Plan
+
+## Current State Assessment
+
+The project is a **split-architecture** app:
+- **Client**: Next.js 16 (App Router) + Tailwind CSS + shadcn/ui + React 19  
+- **Server**: Express.js + Mongoose + Redis + argon2 + Pino + OpenTelemetry
+
+**Already in place** (substantial existing work):
+
+| Area | What Exists |
+|------|-------------|
+| DB Models | 9 models: User, Session, AuthEvent, MfaConfig, OAuthAccount, Department, EmailVerification, PasswordReset, index |
+| Auth Library | 7 files: tokens, sessions, passwords, rateLimit, riskEngine, audit, validations |
+| Email | sender.ts + 2 templates (verify-email, reset-password) |
+| Auth Components | LoginForm, RegisterForm, MFASetup, PasswordStrengthMeter, SessionsTable, OAuthButtons, SSOButton |
+| Auth Pages | login, register, verify-email, forgot-password, reset-password, mfa, sessions |
+| Middleware | Client: security headers + RBAC via jose; Server: authMiddleware, errorMiddleware, uploadMiddleware |
+| CI/CD | ci.yml, security-audit.yml, deploy-staging.yml, deploy-production.yml + Gemini workflows |
+| Docker | docker-compose.yml, docker-compose.prod.yml, .dockerignore, client/Dockerfile, server/Dockerfile |
+| Docs | ONBOARDING.md, AUTH_ARCHITECTURE.md, INCIDENT_RESPONSE.md, SECURITY_CHECKLIST.md, REDIS_KEYS.md |
+| Tests | 2 unit (passwords, tokens), 1 integration (auth), 1 load (k6), 1 setup |
+| Scripts | generate-keys.ts, check-env.ts, seedAdmin.ts, seedCommunities.ts, seedFieldData.ts, seedStories.ts |
+
+## User Review Required
+
+> [!IMPORTANT]
+> **Architecture Decision: Keep Split Architecture vs Migrate to Unified Next.js**
+> 
+> The spec calls for Next.js 14 API Routes. Your current project uses **Express as a separate backend** (Next.js 16 on the client). This plan **keeps the split Express + Next.js architecture** and upgrades within it, because:
+> 1. Migrating all Express routes to Next.js API Routes is a full rewrite (~6000+ lines)
+> 2. Your existing auth controller (524 lines) and middleware are Express-specific
+> 3. The split architecture actually gives better horizontal scaling (separate server instances)
+> 4. All spec features (MFA, CSRF, riskEngine, etc.) can be implemented identically on Express
+>
+> If you want to migrate to a unified Next.js 14 App Router instead, say so and I'll revise this plan.
+
+> [!WARNING]
+> **Next.js Version**: Your client uses **Next.js 16.1.1** (latest). The spec says Next.js 14. This plan keeps Next.js 16 since downgrading would be destructive. All features work the same way.
+
+> [!CAUTION]
+> **Scope**: This is a massive upgrade (~80+ files to create or modify). Estimated effort: 60–100 tool calls across multiple sessions. I recommend we proceed phase-by-phase, verifying each before moving on.
+
+---
+
+## Proposed Changes
+
+### Phase 1 — MongoDB Schema Upgrades
+
+Summary: Upgrade all 9 existing models to match the spec. Add missing fields, indexes, methods, and immutability guards.
+
+---
+
+#### [MODIFY] [User.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/User.ts)
+- Add fields: `fullName`, `avatarUrl`, `bannedReason`, `mustChangePwd`, rename `name` → `fullName`
+- Add `studentId` (unique sparse index)
+- Add instance methods: `isLocked()`, `incrementFailedAttempts()`, `resetFailedAttempts()`, `toSafeObject()`
+- Add compound indexes: `{ departmentId, role }`
+
+#### [MODIFY] [Session.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/Session.ts)
+- Add `tokenFamily` field for reuse detection
+- Add typed `location` sub-document `{ country, city, region }`
+- Add `deviceInfo.deviceType` enum constraint
+- Add TTL index on `expiresAt` (`expireAfterSeconds: 0`)
+- Add compound index `{ userId, tokenFamily }`
+
+#### [MODIFY] [AuthEvent.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/AuthEvent.ts)
+- Add `riskScore` field (Number, nullable)
+- Add immutability pre-hooks (disable `updateOne`, `updateMany`, `findOneAndUpdate`, `deleteOne`, `deleteMany`)
+- Add compound index `{ userId: 1, createdAt: -1 }`
+- Set `timestamps: { createdAt: true, updatedAt: false }`
+
+#### [MODIFY] [Department.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/Department.ts)
+- Add `institutionDomain` field
+- Add index on `institutionDomain`
+
+#### [MODIFY] [MfaConfig.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/MfaConfig.ts)
+- Add `phoneNumber` field (encrypted, for SMS)
+- Add `enabledAt`, `lastUsedAt` fields
+
+#### [MODIFY] [OAuthAccount.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/models/OAuthAccount.ts)
+- Verify AES-256-GCM encryption on `accessToken` and `refreshToken`
+- Add `GITHUB` to provider enum
+
+#### [MODIFY] [mongoose.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/mongoose.ts)
+- Enable Mongoose strict mode globally
+- Add Pino logging for connection events
+
+#### [MODIFY] [seed.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/db/seed.ts)
+- Add default departments (CS, Engineering, Arts) with `institutionDomain`
+- Use upsert pattern for idempotency
+
+---
+
+### Phase 2 — Core Auth Library Upgrades
+
+Summary: Harden all auth library modules. Add missing modules (CSRF, fingerprint).
+
+---
+
+#### [MODIFY] [passwords.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/passwords.ts)
+- Set explicit argon2id params: `memoryCost: 65536`, `timeCost: 3`, `parallelism: 4`
+- Add `checkPasswordStrength()` using zxcvbn (already installed)
+- Add `checkBreachedPassword()` via HaveIBeenPwned k-anonymity API
+- Add minimum password rules validation (12 chars, upper, lower, digit, special)
+
+#### [MODIFY] [tokens.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/tokens.ts)
+- Ensure `jti` (unique token id) is always generated (already partially done)
+- Replace bcrypt hash of refresh tokens with proper crypto comparison
+
+#### [MODIFY] [sessions.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/sessions.ts)
+- Add `cleanExpiredSessions()` function for cron jobs
+- Improve token family reuse detection logic
+
+#### [MODIFY] [rateLimit.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/rateLimit.ts)
+- Add all rate limit profiles from spec (LOGIN, REGISTER, PASSWORD_RESET, EMAIL_VERIFY_RESEND, MFA_ATTEMPT, API_GLOBAL)
+- Add `recordFailedAttempt()` and `resetRateLimit()` functions
+- Add Redis Lua script for atomic increment+check
+
+#### [NEW] [csrf.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/csrf.ts)
+- Generate CSRF token on session creation, store in Redis
+- Double-submit cookie pattern implementation
+- Validate `X-CSRF-Token` header on mutating requests
+
+#### [NEW] [fingerprint.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/fingerprint.ts)
+- Device fingerprint generation from request headers
+- Canvas fingerprint hash comparison
+
+#### [MODIFY] [riskEngine.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/riskEngine.ts)
+- Full scoring implementation: new device (+0.3), new country (+0.4), failed attempts, unusual hour, malicious IP
+- `getIpGeoLocation()` via ip-api.com
+- Score thresholds: ≥0.6 require MFA, ≥0.8 block + alert
+
+#### [MODIFY] [audit.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/audit.ts)
+- Make fire-and-forget (never throws, logs errors internally)
+- Add `getAuthEvents()` with filter support
+- Add `getFailedLoginAttempts()` helper
+
+#### [NEW] [REDIS_KEYS.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/auth/REDIS_KEYS.md)
+- Document all Redis keys: `session:*`, `ratelimit:*`, `token_blacklist:*`, `csrf:*`, `otp_attempt:*`
+
+---
+
+### Phase 3 — API Route Upgrades
+
+Summary: Upgrade existing auth controller and routes. Add missing endpoints.
+
+---
+
+#### [MODIFY] [authController.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/controllers/authController.ts)
+- Remove `@ts-nocheck` — fix all type issues
+- Register: add Zod validation with department domain check, breached password check
+- Login: add timing attack prevention (dummy hash), risk scoring flow, MFA conditional
+- Refresh: improve reuse detection
+- Forgot-password: constant-time response pattern
+- Reset-password: check breached, revoke all sessions
+- Add MFA enable/verify/backup-codes handlers
+- Add sessions CRUD handlers
+- Add magic-link handler
+- Add `/me` handler
+
+#### [MODIFY] [authRoutes.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/routes/authRoutes.ts)
+- Add routes for: `/mfa/enable`, `/mfa/verify`, `/mfa/backup-codes`, `/sessions`, `/sessions/:id`, `/magic-link`, `/oauth/:provider`, `/me`
+
+#### [MODIFY] [authMiddleware.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/middlewares/authMiddleware.ts)
+- Add CSRF validation middleware for POST/PUT/DELETE
+- Add Helmet headers
+- Add request correlation ID (X-Request-ID)
+
+#### [MODIFY] [errorMiddleware.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/middlewares/errorMiddleware.ts)
+- Never leak stack traces to client
+- Include correlationId in error responses
+
+---
+
+### Phase 4 — Frontend UI/UX Overhaul
+
+Summary: Implement the full "Institutional Authority" design system and upgrade all auth components.
+
+---
+
+#### [MODIFY] [globals.css or index.css](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/styles)
+- Implement full CSS variable design system (navy, gold, stone palette)
+- Typography scale (EB Garamond display, IBM Plex Sans body, IBM Plex Mono)
+- Button styles, input styles, spacing system
+
+#### [MODIFY] [tailwind.config.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/tailwind.config.ts)
+- Extend with custom colors, typography, spacing from design system
+
+#### [MODIFY] [layout.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/app/layout.tsx)
+- Add Google Fonts: EB Garamond, IBM Plex Sans, IBM Plex Mono
+
+#### [MODIFY] [LoginForm.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/components/auth/LoginForm.tsx)
+- Split-panel layout (40/60)
+- SSO button as primary action
+- MFA step (6-digit OTP input with auto-advance)
+- Risk warning banner
+- Admin-specific error messages with lockout times
+
+#### [MODIFY] [RegisterForm.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/components/auth/RegisterForm.tsx)
+- Sectioned form (Personal Info, Account Access, Security)
+- Live domain validation
+- Post-submit email verification state
+
+#### [MODIFY] [PasswordStrengthMeter.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/components/auth/PasswordStrengthMeter.tsx)
+- 4-segment bar with animated fill
+- Requirements checklist with progressive validation
+- Async breached password check indicator
+
+#### [MODIFY] [MFASetup.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/components/auth/MFASetup.tsx)
+- 3-step flow with progress dots
+- QR code with manual entry toggle
+- Blurred backup codes with reveal
+- Download/copy actions
+
+#### [MODIFY] [SessionsTable.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/components/auth/SessionsTable.tsx)
+- Full admin table: Device, Location, IP, Last Active, Status, Actions
+- Inline confirmation for revoke (no modal)
+- Skeleton loading state
+
+#### [NEW] [mfa/setup/page.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/app/auth/mfa/setup/page.tsx)
+- Dedicated MFA setup page wrapper
+
+#### [NEW] [magic-link/page.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/app/auth/magic-link/page.tsx)
+- Magic link auth page
+
+#### [NEW] [sso/page.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/app/auth/sso/page.tsx)
+- SSO callback page
+
+#### Email Templates (3 new):
+
+#### [NEW] [suspicious-login.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/email/templates/suspicious-login.tsx)
+#### [NEW] [magic-link.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/email/templates/magic-link.tsx)
+#### [NEW] [mfa-backup-codes.tsx](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/email/templates/mfa-backup-codes.tsx)
+
+---
+
+### Phase 5 — Security Hardening
+
+Summary: Layer on pen-test level security across both client and server.
+
+---
+
+#### [MODIFY] [middleware.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/client/src/middleware.ts)
+- Add time-gated examiner access (only after submission deadline)
+- Block missing/invalid Origin headers on API routes
+- Tighten CSP policy
+
+#### [MODIFY] [authMiddleware.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/middlewares/authMiddleware.ts)
+- Token blacklist check via Redis (jti)
+- Escalating lockout (5 → 15min → 1hr → 24hr)
+- Session idle timeout enforcement
+
+#### [MODIFY] [app.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/app.ts)
+- Add Helmet.js configuration
+- Add CSRF middleware globally for mutating routes
+- Add mongo-sanitize with `.strict()` Zod validation
+
+#### [MODIFY] [SECURITY_CHECKLIST.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docs/SECURITY_CHECKLIST.md)
+- Full OWASP Top 10 (2021) coverage with MITIGATED/PARTIAL status
+- University-specific threat model scenarios
+
+---
+
+### Phase 6 — Scalability & Observability
+
+Summary: Add production-grade monitoring, load testing, and disaster recovery.
+
+---
+
+#### [MODIFY] [auth-load.js](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/load/auth-load.js)
+- Full k6 script: 500 concurrent logins, 2000 deadline rush
+- Assert p95 < 300ms, p99 < 500ms, error < 0.1%
+
+#### [MODIFY] [otel.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/src/lib/otel.ts)
+- Add auth-specific span attributes: `auth.operation`, `auth.risk_score`, `auth.mfa_used`
+- Add correlation ID propagation
+
+#### [MODIFY] [REDIS_KEYS.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docs/REDIS_KEYS.md)
+- Full Redis key schema with TTLs and format
+
+#### [MODIFY] [INCIDENT_RESPONSE.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docs/INCIDENT_RESPONSE.md)
+- Add runbooks: mass breach, JWT key compromise, Redis failure, mass login from single IP
+
+#### [NEW] [grafana-dashboard.json](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/scripts/grafana-dashboard.json)
+- Dashboard + alert rules
+
+---
+
+### Phase 7 — Docker & CI/CD
+
+Summary: Upgrade all Docker and CI/CD infrastructure.
+
+---
+
+#### [MODIFY] [Dockerfile (server)](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/Dockerfile)
+- Multi-stage build (deps → builder → runner)
+- Non-root user, HEALTHCHECK
+
+#### [MODIFY] [docker-compose.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docker-compose.yml)
+- Add mongo-init service for replica set
+- Add mongo-express for dev
+- Add healthchecks on all services
+- Add instructional comment block at top
+
+#### [MODIFY] [docker-compose.prod.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docker-compose.prod.yml)
+- Remove mongo-express
+- Add replicas, resource limits, health checks
+
+#### [MODIFY] [ci.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/workflows/ci.yml)
+- Add MongoDB + Redis services for test job
+- Add typecheck step
+- Add coverage upload
+
+#### [MODIFY] [security-audit.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/workflows/security-audit.yml)
+- Add Snyk, Semgrep, Gitleaks, Trivy steps
+
+#### [MODIFY] [deploy-staging.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/workflows/deploy-staging.yml)
+- Add GHCR push + smoke tests
+
+#### [MODIFY] [deploy-production.yml](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/workflows/deploy-production.yml)
+- Manual trigger with confirmation input
+- Pre-deploy checks, rollback on failure
+
+#### [MODIFY] [CODEOWNERS](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/CODEOWNERS)
+- Add auth paths requiring senior review
+
+#### [MODIFY] [pull_request_template.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.github/pull_request_template.md)
+- Add security checklist with checkboxes
+
+#### [MODIFY] [ONBOARDING.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docs/ONBOARDING.md)
+- 5-minute quickstart with test accounts
+- Docker setup instructions
+
+#### [MODIFY] [AUTH_ARCHITECTURE.md](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/docs/AUTH_ARCHITECTURE.md)
+- Full system overview
+
+#### [NEW] [.env.example](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/.env.example)
+- All env vars with descriptions (commit-safe)
+
+---
+
+### Phase 8 — Testing
+
+Summary: Achieve 90%+ coverage on auth modules.
+
+---
+
+#### [MODIFY] [passwords.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/passwords.test.ts)
+- Add tests for: HIBP check, strength scoring, minimum rules
+
+#### [MODIFY] [tokens.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/tokens.test.ts)
+- Add tests for: jti uniqueness, OTP generation/verification, backup codes
+
+#### [NEW] [rateLimit.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/rateLimit.test.ts)
+- Test all profiles, atomic operations
+
+#### [NEW] [riskEngine.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/riskEngine.test.ts)
+- Test scoring with various device/location/time scenarios
+
+#### [MODIFY] [auth.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/integration/auth.test.ts)
+- Full flow: register → verify → login → MFA → refresh → logout
+
+#### [NEW] [security/brute-force.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/security/brute-force.test.ts)
+#### [NEW] [security/token-reuse.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/security/token-reuse.test.ts)
+#### [NEW] [security/csrf.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/security/csrf.test.ts)
+
+#### [NEW] [e2e/login.spec.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/e2e/login.spec.ts)
+#### [NEW] [e2e/register.spec.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/e2e/register.spec.ts)
+#### [NEW] [e2e/mfa.spec.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/e2e/mfa.spec.ts)
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+**Existing tests** (verify nothing breaks):
+```bash
+cd server && npx vitest run
+```
+This runs the existing [passwords.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/passwords.test.ts) and [tokens.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/unit/tokens.test.ts) + [auth.test.ts](file:///c:/Users/DELL-IN/Desktop/Projects/Ethnography-research-project/server/tests/integration/auth.test.ts).
+
+**After each phase**, run:
+```bash
+cd server && npx vitest run --reporter=verbose
+```
+
+**After Phase 8 (testing phase)**, run full suite with coverage:
+```bash
+cd server && npx vitest run --coverage
+```
+
+**Build verification** (client):
+```bash
+cd client && npm run build
+```
+
+**Lint check** (client):
+```bash
+cd client && npm run lint
+```
+
+### Manual Verification
+
+After Phase 4 (Frontend):
+1. Start both client and server locally
+2. Open `http://localhost:3000/auth/login` — verify split-panel layout renders with navy/gold design
+3. Open `http://localhost:3000/auth/register` — verify sectioned form, domain validation indicator
+4. Test MFA setup flow visually at `/auth/mfa`
+
+After Phase 7 (Docker):
+1. Run `docker compose up -d` from project root
+2. Verify all services start: `docker compose ps`
+3. Check `http://localhost:8081` for mongo-express (if included)
+4. Run `docker compose exec server npm run seed`
+
+> [!TIP]
+> I recommend we tackle this phase-by-phase. After approving this plan, tell me which phase to start with — or I'll begin with Phase 1 (schemas) since everything depends on it.

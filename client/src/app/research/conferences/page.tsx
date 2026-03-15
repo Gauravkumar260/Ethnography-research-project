@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Users, Calendar, MapPin, ChevronLeft, Mic, Download, Loader2, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function ConferencesPage() {
+  const t = useTranslations('Conferences');
   const [conferences, setConferences] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,15 +18,15 @@ export default function ConferencesPage() {
       try {
         const { data: response } = await apiFetch('/research/public');
         const allItems = response.data || [];
-        
+
         // Filter case-insensitive
-        const confData = allItems.filter((item: any) => 
-            item.type?.toLowerCase() === 'conference' || 
-            item.type?.toLowerCase() === 'presentation'
+        const confData = allItems.filter((item: any) =>
+          item.type?.toLowerCase() === 'conference' ||
+          item.type?.toLowerCase() === 'presentation'
         );
         setConferences(confData);
       } catch (error) {
-        console.error("Error fetching conferences:", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -38,11 +40,11 @@ export default function ConferencesPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back to Research
+            <ChevronLeft className="w-5 h-5" /> {t('backToResearch')}
           </Link>
-          <h1 className="mb-4 text-4xl font-bold font-serif">Conference Presentations</h1>
+          <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            International symposiums, academic conferences, and research presentations sharing our ethnographic findings.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -53,19 +55,19 @@ export default function ConferencesPage() {
           <div className="grid md:grid-cols-4 gap-6 text-center">
             <div className="p-6 bg-white rounded shadow-sm border border-[#1a1a1a]/5">
               <div className="text-3xl text-[#99302A] mb-2 font-bold font-serif">3</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Keynote Speeches</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('keynoteSpeeches')}</p>
             </div>
             <div className="p-6 bg-white rounded shadow-sm border border-[#1a1a1a]/5">
               <div className="text-3xl text-[#99302A] mb-2 font-bold font-serif">12</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Guest Lectures</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('guestLectures')}</p>
             </div>
             <div className="p-6 bg-white rounded shadow-sm border border-[#1a1a1a]/5">
               <div className="text-3xl text-[#99302A] mb-2 font-bold font-serif">20+</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Universities Reached</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('universitiesReached')}</p>
             </div>
             <div className="p-6 bg-white rounded shadow-sm border border-[#1a1a1a]/5">
               <div className="text-3xl text-[#99302A] mb-2 font-bold font-serif">5</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Best Paper Awards</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('bestPaperAwards')}</p>
             </div>
           </div>
         </div>
@@ -78,7 +80,7 @@ export default function ConferencesPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>
           ) : conferences.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg">
-                <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> No presentations found.
+              <AlertCircle className="w-10 h-10 mb-2 opacity-20" /> {t('noResults')}
             </div>
           ) : (
             conferences.map((conf: any) => (
@@ -91,7 +93,7 @@ export default function ConferencesPage() {
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3 mb-3">
                       <span className="text-xs px-2.5 py-1 bg-[#99302A]/10 text-[#99302A] rounded-full font-semibold uppercase tracking-wide">
-                        Presentation
+                        {t('presentation')}
                       </span>
                       <div className="flex items-center gap-1 text-xs text-[#1a1a1a]/60">
                         <Calendar className="w-3 h-3" />
@@ -107,7 +109,7 @@ export default function ConferencesPage() {
                       {conf.title}
                     </h3>
                     <p className="text-sm text-[#1a1a1a]/70 font-medium mb-3">
-                      Topic: {conf.community} Community
+                      {t('topic')} {conf.community} {t('community')}
                     </p>
                     <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-4">
                       {conf.abstract}
@@ -116,11 +118,11 @@ export default function ConferencesPage() {
                     <div className="flex items-center justify-between pt-4 border-t border-[#1a1a1a]/5">
                       <div className="flex items-center gap-2 text-xs font-semibold text-[#1a1a1a]/80">
                         <Users className="w-3 h-3" />
-                        Presenter: {conf.studentName}
+                        {t('presenter')} {conf.studentName}
                       </div>
                       {conf.fileUrl && (
                         <a href={`${API_BASE_URL}/${conf.fileUrl.replace(/\\/g, "/")}`} target="_blank" rel="noreferrer" className="text-sm text-[#99302A] font-medium hover:underline flex items-center gap-1">
-                            <Download className="w-4 h-4" /> Download Abstract
+                          <Download className="w-4 h-4" /> {t('downloadAbstract')}
                         </a>
                       )}
                     </div>

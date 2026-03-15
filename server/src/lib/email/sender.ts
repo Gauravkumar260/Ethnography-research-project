@@ -1,9 +1,10 @@
+import { config } from '../../config/env';
 import { Resend } from 'resend';
 import { render } from '@react-email/render';
 import pino from 'pino';
 
 const logger = pino();
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(config.RESEND_API_KEY);
 
 interface SendEmailOptions {
   to: string;
@@ -12,12 +13,12 @@ interface SendEmailOptions {
 }
 
 export async function sendEmail({ to, subject, template }: SendEmailOptions) {
-  if (process.env.NODE_ENV === 'test') {
+  if (config.NODE_ENV === 'test') {
     logger.info({ to, subject }, 'Mock email sent in test environment');
     return;
   }
 
-  if (!process.env.RESEND_API_KEY) {
+  if (!config.RESEND_API_KEY) {
     logger.warn('RESEND_API_KEY not set. Skipping email send.');
     return;
   }
@@ -26,7 +27,7 @@ export async function sendEmail({ to, subject, template }: SendEmailOptions) {
     const html = await render(template);
     
     const { data, error } = await resend.emails.send({
-      from: process.env.EMAIL_FROM || 'noreply@university.edu',
+      from: config.EMAIL_FROM || 'noreply@university.edu',
       to,
       subject,
       html,

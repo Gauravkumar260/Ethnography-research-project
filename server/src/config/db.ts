@@ -1,33 +1,34 @@
+import { config } from './env';
+import { logger } from '../lib/logger';
 import mongoose from 'mongoose';
-import 'colors';
 
 const connectDB = async () => {
-  const MONGO_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
+  const MONGO_URI = config.MONGODB_URI;
 
   if (!MONGO_URI) {
-    console.error('❌ MONGO_URI or MONGODB_URI is not defined'.red.bold);
+    logger.error('MONGO_URI is not defined in config');
     process.exit(1);
   }
 
   try {
     const conn = await mongoose.connect(MONGO_URI, {
-      serverSelectionTimeoutMS: 10000, 
-      socketTimeoutMS: 45000, 
-      maxPoolSize: 10, 
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 100,
     });
 
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`.cyan.underline.bold);
+    logger.info(`MongoDB Connected: ${conn.connection.host}`);
 
     mongoose.connection.on('error', (err) => {
-      console.error(`❌ MongoDB Runtime Error: ${err.message}`.red);
+      logger.error(`MongoDB Runtime Error: ${err.message}`);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️  MongoDB Disconnected. Attempting to reconnect...'.yellow);
+      logger.warn('MongoDB Disconnected. Attempting to reconnect...');
     });
 
   } catch (error: any) {
-    console.error(`❌ Critical Database Connection Fail: ${error.message}`.red.bold);
+    logger.error(`Critical Database Connection Fail: ${error.message}`);
     process.exit(1);
   }
 };

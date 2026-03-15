@@ -1,6 +1,7 @@
 import * as argon2 from 'argon2';
 import zxcvbn from 'zxcvbn';
 import * as crypto from 'crypto';
+import { logger } from '../logger';
 
 /**
  * Hashes a password using argon2id.
@@ -54,7 +55,7 @@ export async function checkBreachedPassword(password: string): Promise<boolean> 
     const hashes = data.split('\n').map(line => line.split(':')[0].trim());
     return hashes.includes(suffix);
   } catch (error) {
-    console.error('HIBP API error:', error);
+    logger.error('HIBP API error:', error);
     return false;
   }
 }

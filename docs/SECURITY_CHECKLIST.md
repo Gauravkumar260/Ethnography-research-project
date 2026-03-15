@@ -1,18 +1,29 @@
-# Security Checklist
+# Security Checklist & Threat Model
 
-## OWASP Top 10 (2021) Compliance
-- [x] **A01:2021-Broken Access Control** (MITIGATED): Role-based middleware, explicit checks for object ownership.
-- [x] **A02:2021-Cryptographic Failures** (MITIGATED): argon2id for passwords, RS256 for JWTs, HTTPS enforced via HSTS.
-- [x] **A03:2021-Injection** (MITIGATED): Mongoose ODM prevents NoSQL injection, input validation via Zod.
-- [x] **A04:2021-Insecure Design** (MITIGATED): Stateless architecture, minimal trust boundaries.
-- [x] **A05:2021-Security Misconfiguration** (MITIGATED): Helmet security headers, cookie properties (HttpOnly, Secure, SameSite).
-- [x] **A06:2021-Vulnerable and Outdated Components** (MITIGATED): Snyk & npm audit CI steps.
-- [x] **A07:2021-Identification and Authentication Failures** (MITIGATED): 15m account lockout after 5 failed attempts, breached password checks.
-- [x] **A08:2021-Software and Data Integrity Failures** (MITIGATED): Dependencies locked, Trivy scans.
-- [x] **A09:2021-Security Logging and Monitoring Failures** (MITIGATED): Comprehensive auth event logging via Pino.
-- [x] **A10:2021-Server-Side Request Forgery (SSRF)** (NOT_APPLICABLE): No external fetching from user input in auth paths.
+## OWASP Top 10 (2021) Coverage
 
-## Threat Model (University Context)
-- **Thesis unauthorized access**: Access tokens bound to specific roles and validated strictly.
-- **Impersonation**: Risk engine + MFA + anomaly detection.
-- **Session Hijack on shared computers**: Refresh token reuse detection revokes entire token family automatically. 
+| Category | Status | Mitigations in Place |
+| :--- | :--- | :--- |
+| **A01: Broken Access Control** | ✅ MITIGATED | RBAC middleware with Edge-compatible JWT verification (`jose`), strict domain isolation. |
+| **A02: Cryptographic Failures** | ✅ MITIGATED | Argon2id for passwords, RS256 for JWTs, AES-256-GCM for MFA secrets, TLS enforced via Helmet. |
+| **A03: Injection** | ✅ MITIGATED | Mongoose strict mode, `express-mongo-sanitize`, Zod input validation, parameterized queries. |
+| **A04: Insecure Design** | ✅ MITIGATED | Institutional Auth architecture, strict threat modeling, split-architecture boundaries. |
+| **A05: Security Misconfiguration** | ✅ MITIGATED | Helmet.js headers, strict CORS, missing default accounts (except seeded Admin). |
+| **A06: Vulnerable and Outdated Components** | 🟡 PARTIAL | Automated Snyk/Trivy scans in CI/CD, dependency pinning required. |
+| **A07: Identification and Authentication Failures** | ✅ MITIGATED | Token rotation, session limits (max 3), Risk Engine scoring, HaveIBeenPwned checks, robust MFA. |
+| **A08: Software and Data Integrity Failures** | 🟡 PARTIAL | Signed commits required, immutable AuthEvent logs, strict Docker image tags. |
+| **A09: Security Logging and Monitoring Failures** | ✅ MITIGATED | OpenTelemetry tracing, Pino structured logging, robust audit trail (`AuthEvent`). |
+| **A10: Server-Side Request Forgery (SSRF)** | ✅ MITIGATED | Network isolation in Docker, strictly controlled outbound requests (e.g., HIBP, ip-api). |
+
+## University-Specific Threat Scenarios
+
+1. **Mass Credential Stuffing**
+   - **Mitigation:** IP-based and Email-based rate limiting via Redis Lua scripts + account lockout (escalating up to 24h).
+2. **Session Hijacking / Device Theft**
+   - **Mitigation:** Refresh token rotation with family reuse detection. Any reuse revokes all active sessions. Global concurrent session limits (3 max per user).
+3. **Examiner Pre-Release Access**
+   - **Mitigation:** Time-gated access in Next.js `middleware.ts` preventing Examiners from accessing thesis data before the official submission deadline.
+4. **Data Exfiltration by Compromised Admin**
+   - **Mitigation:** `AuthEvent` is immutable. Bulk downloads trigger alerts. IP geofencing and Device Fingerprinting track anomalies.
+5. **Cross-Site Request Forgery (CSRF)**
+   - **Mitigation:** Double-submit cookie pattern. `X-CSRF-Token` headers verified on all mutating routes via custom Redis-backed CSRF middleware and `csurf`.

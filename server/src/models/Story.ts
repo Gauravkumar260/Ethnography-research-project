@@ -32,4 +32,4 @@ const storySchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default (mongoose.models.Story as any) || mongoose.model('Story', storySchema);
+export default mongoose.model('Story', storySchema);

@@ -49,6 +49,7 @@ const researchSchema = new mongoose.Schema(
     type: { 
       type: String, 
       required: true,
+      index: true,
       // Combined Enum: Supports all your frontend filters
       enum: [
         'thesis', 
@@ -85,7 +86,8 @@ const researchSchema = new mongoose.Schema(
     status: { 
       type: String, 
       enum: ['pending', 'approved', 'rejected', 'revision'], 
-      default: 'pending' 
+      default: 'pending',
+      index: true
     },
     ethicsApproved: { 
       type: Boolean, 
@@ -105,4 +107,4 @@ const researchSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default (mongoose.models.Research as any) || mongoose.model('Research', researchSchema);
+export default mongoose.model('Research', researchSchema);

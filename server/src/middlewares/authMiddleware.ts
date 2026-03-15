@@ -1,22 +1,40 @@
+import { logger } from '../lib/logger';
 import { Request, Response, NextFunction } from 'express';
 import User from '../lib/db/models/User';
 import { verifyAccessToken } from '../lib/auth/tokens';
+import { validateCsrfToken } from '../lib/auth/csrf';
+import { randomUUID } from 'crypto';
+
+export const correlationIdMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const reqId = req.headers['x-request-id'] || randomUUID();
+  (req as any).correlationId = reqId;
+  res.setHeader('X-Request-ID', reqId as string);
+  next();
+};
+
+export const csrfProtection = async (req: Request, res: Response, next: NextFunction) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  
+  const token = req.headers['x-csrf-token'];
+  const sessionId = req.headers['x-session-id'] || (req.cookies && req.cookies.__rt ? req.cookies.__rt.split('.')[0] : null);
+  
+  if (!token || !sessionId) {
+    return res.status(403).json({ message: 'CSRF token missing or invalid' });
+  }
+
+  const isValid = await validateCsrfToken(sessionId as string, token as string);
+  if (!isValid) {
+    return res.status(403).json({ message: 'CSRF token invalid' });
+  }
+  
+  next();
+};
 
 export const protect = async (req: Request, res: Response, next: NextFunction) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
-  } 
-  else if (req.headers.cookie) {
-    const cookies = req.headers.cookie.split(';').reduce((acc: any, cookieStr: string) => {
-      const [key, value] = cookieStr.split('=').map(c => c.trim());
-      acc[key] = value;
-      return acc;
-    }, {});
-    // Assuming the access token might not be in a cookie in this new architecture,
-    // usually it's in Authorization header, but just in case:
-    token = cookies.token || cookies.accessToken; 
   }
 
   if (token) {
@@ -27,18 +45,21 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
          return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
       }
 
-      req.user = await User.findById(decoded.sub).select('-passwordHash');
+      const user = await User.findById(decoded.sub).select('-passwordHash');
 
-      if (!req.user) {
+      if (!user) {
         return res.status(401).json({ success: false, message: 'User not found' });
       }
 
-      // We can also attach the session info
-      // req.session = ...
+      (req as any).user = user;
+      // Assume the decoded token payload has sessionId if needed
+      if (decoded.sessionId) {
+        (req as any).session = { _id: decoded.sessionId };
+      }
 
       next();
     } catch (error: any) {
-      console.error('Token verification failed:', error.message);
+      logger.error('Token verification failed:', error.message);
       return res.status(401).json({ success: false, message: 'Not authorized, token failed' });
     }
   } else {
@@ -48,11 +69,12 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
 
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
+    const user = (req as any).user;
+    if (!user) {
         return res.status(401).json({ success: false, message: 'User not authenticated' });
     }
 
-    const userRole = req.user.role.toLowerCase();
+    const userRole = user.role.toLowerCase();
     const normalizedAllowedRoles = roles.map(role => role.toLowerCase());
 
     const isAuthorized = normalizedAllowedRoles.some(role => {
@@ -65,7 +87,7 @@ export const authorize = (...roles: string[]) => {
     if (!isAuthorized) {
       return res.status(403).json({
         success: false,
-        message: `User role '${req.user.role}' is not authorized to access this route`
+        message: `User role '${user.role}' is not authorized to access this route`
       });
     }
     next();

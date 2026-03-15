@@ -132,7 +132,8 @@ const communitySchema = new mongoose.Schema(
     status: { 
       type: String, 
       enum: ['active', 'inactive'], 
-      default: 'active' 
+      default: 'active',
+      index: true
     }
   },
   { timestamps: true }
@@ -149,4 +150,4 @@ communitySchema.pre('save', function (next) {
   next();
 });
 
-export default (mongoose.models.Community as any) || mongoose.model('Community', communitySchema);
+export default mongoose.model('Community', communitySchema);

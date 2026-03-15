@@ -4,8 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Menu } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTranslations } from 'next-intl';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const assets = {
   LOGO: {
@@ -15,23 +21,35 @@ const assets = {
 }
 
 export function Navbar() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const t = useTranslations('Navigation');
+  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isActive = (path: string) => pathname === path;
 
   // Updated to match Header.jpg exactly
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Communities", path: "/communities" },
+    { name: t('home'), path: "/" },
+    { name: t('communities'), path: "/communities" },
     { name: "Documentaries", path: "/documentaries" },
-    // { name: "Research", path: "/research" },
-    { name: "About", path: "/about" },
+    // { name: t('research'), path: "/research" },
+    { name: t('about'), path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-[#1a1a1a]/5 bg-[#FAFAF9]/95 backdrop-blur-md">
+    <nav className={cn(
+      "sticky top-0 z-50 w-full transition-all duration-300",
+      isScrolled
+        ? "shadow-md bg-background/95 backdrop-blur-sm border-b border-border"
+        : "bg-transparent border-b border-transparent"
+    )}>
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
 
        <div className="flex items-center gap-4">
@@ -65,8 +83,8 @@ export function Navbar() {
               key={link.path}
               href={link.path}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-[#99302A] uppercase tracking-wide",
-                isActive(link.path) ? "text-[#99302A] font-semibold" : "text-[#1a1a1a]/70"
+                "text-sm font-medium transition-colors hover:text-secondary uppercase tracking-wide",
+                isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
               )}
             >
               {link.name}
@@ -77,40 +95,41 @@ export function Navbar() {
 
         </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden text-[#1a1a1a]"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </button>
-      </div>
-
-      {/* Mobile Menu Dropdown */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-[#FAFAF9] border-b border-[#1a1a1a]/10 p-4 space-y-4 shadow-lg absolute w-full left-0">
-          {navLinks.map((link) => (
-            <Link
-              key={link.path}
-              href={link.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={cn(
-                "block text-sm font-medium py-2",
-                isActive(link.path) ? "text-[#99302A]" : "text-[#1a1a1a]/70"
-              )}
+        {/* Mobile Nav — Sheet Drawer */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button
+              aria-label="Toggle Navigation Menu"
+              className="md:hidden p-2 rounded-md text-primary hover:bg-muted transition-colors"
             >
-              {link.name}
-            </Link>
-          ))}
-          <div className="pt-2">
-            <Link href="/student-submission" onClick={() => setIsMobileMenuOpen(false)}>
-              <Button className="w-full bg-[#99302A] text-white hover:bg-[#99302A]/90">
-                Submit Research
-              </Button>
-            </Link>
-          </div>
-        </div>
-      )}
+              <Menu size={24} aria-hidden="true" />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[280px] bg-background pt-12">
+            <nav className="flex flex-col gap-6 mt-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  href={link.path}
+                  className={cn(
+                    "block text-lg font-medium py-2 transition-colors hover:text-secondary",
+                    isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
+                  )}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <div className="pt-2">
+                <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/90">
+                  <Link href="/student-submission">
+                    Submit Research
+                  </Link>
+                </Button>
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
+      </div>
     </nav>
   );
 }

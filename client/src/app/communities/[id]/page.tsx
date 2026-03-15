@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { MapPin, ChevronLeft, BarChart3, Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
-// Assuming you have this component, otherwise I can provide it
 import MediaGallery from '@/components/features/MediaGallery';
+import { useTranslations } from 'next-intl';
 
 // 1. Strict Types
 interface Section {
@@ -35,9 +35,10 @@ interface Community {
 }
 
 export default function CommunityDetailPage() {
+  const t = useTranslations('CommunityDetail');
   const params = useParams();
   const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
-  
+
   const [community, setCommunity] = useState<Community | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -47,9 +48,9 @@ export default function CommunityDetailPage() {
       try {
         if (!slug) return;
         const { data: responseData } = await apiFetch(`/communities/${slug}`);
-        setCommunity(responseData.data); 
+        setCommunity(responseData.data);
       } catch (error) {
-        console.error("Failed to fetch community data", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -62,8 +63,8 @@ export default function CommunityDetailPage() {
     if (!path) return '';
     if (path.startsWith('http')) return path;
     if (path.startsWith('/assets')) return path; // ✅ Serve local assets from Next.js public folder
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL 
-      ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') 
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL
+      ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '')
       : 'http://localhost:5000';
     return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path.replace(/\\/g, "/")}`;
   };
@@ -79,9 +80,9 @@ export default function CommunityDetailPage() {
   if (!community) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FAFAF9]">
-        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2 font-serif">Community Not Found</h2>
+        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-2 font-serif">{t('notFound')}</h2>
         <Link href="/communities" className="text-[#99302A] hover:underline flex items-center gap-2">
-          <ChevronLeft className="w-4 h-4" /> Return to directory
+          <ChevronLeft className="w-4 h-4" /> {t('returnToDirectory')}
         </Link>
       </div>
     );
@@ -92,54 +93,54 @@ export default function CommunityDetailPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF9]">
-      
+
       {/* HERO SECTION */}
       <section className="relative h-[85vh] flex items-end overflow-hidden group">
         {/* Next.js Optimized Background Image */}
         <div className="absolute inset-0">
-            <Image 
-                src={getUrl(community.heroImage)}
-                alt={community.name}
-                fill
-                priority
-                className="object-cover transition-transform duration-1000 group-hover:scale-105"
-            />
-            {/* Gradient Overlay for Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+          <Image
+            src={getUrl(community.heroImage)}
+            alt={community.name}
+            fill
+            priority
+            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+          />
+          {/* Gradient Overlay for Readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
         </div>
-        
+
         <div className="relative z-10 w-full px-4 pb-20">
           <div className="max-w-7xl mx-auto">
-            <Link 
+            <Link
               href="/communities"
               className="flex items-center gap-2 text-[#E3E1DB]/80 hover:text-white transition-colors mb-8 w-fit backdrop-blur-sm bg-black/20 px-4 py-2 rounded-full text-sm border border-white/10"
             >
-              <ChevronLeft className="w-4 h-4" /> Back to Communities
+              <ChevronLeft className="w-4 h-4" /> {t('backToCommunities')}
             </Link>
-            
+
             <div className="animate-fade-in-up">
-                <h1 className="text-[#E3E1DB] mb-2 text-5xl md:text-8xl font-bold font-serif leading-tight">
+              <h1 className="text-[#E3E1DB] mb-2 text-5xl md:text-8xl font-bold font-serif leading-tight">
                 {community.name}
-                </h1>
-                <p className="text-[#E3E1DB]/90 text-xl md:text-3xl mb-8 font-light max-w-3xl font-serif italic">
-                    {community.subtitle}
-                </p>
-                
-                <div className="flex flex-wrap items-center gap-6">
-                    <div className="flex items-center gap-2 text-[#E3E1DB]">
-                        <MapPin className="w-5 h-5 text-[#99302A]" />
-                        <span className="text-lg font-medium tracking-wide">{community.location}</span>
-                    </div>
-                    
-                    {/* Link to Infographic Page */}
-                    <Link 
-                        href={`/communities/${community.slug}/infographic`}
-                        className="flex items-center gap-2 bg-[#99302A] hover:bg-[#7a2621] text-white px-8 py-3 rounded-sm text-sm font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
-                    >
-                        <BarChart3 className="w-4 h-4" />
-                        View Data Insights
-                    </Link>
+              </h1>
+              <p className="text-[#E3E1DB]/90 text-xl md:text-3xl mb-8 font-light max-w-3xl font-serif italic">
+                {community.subtitle}
+              </p>
+
+              <div className="flex flex-wrap items-center gap-6">
+                <div className="flex items-center gap-2 text-[#E3E1DB]">
+                  <MapPin className="w-5 h-5 text-[#99302A]" />
+                  <span className="text-lg font-medium tracking-wide">{community.location}</span>
                 </div>
+
+                {/* Link to Infographic Page */}
+                <Link
+                  href={`/communities/${community.slug}/infographic`}
+                  className="flex items-center gap-2 bg-[#99302A] hover:bg-[#7a2621] text-white px-8 py-3 rounded-sm text-sm font-bold uppercase tracking-wider transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  View Data Insights
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -166,7 +167,7 @@ export default function CommunityDetailPage() {
                 <div key={key} className={`flex flex-col ${index % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} gap-12 md:gap-24 items-start`}>
                   <div className="flex-1">
                     <span className="text-[#99302A] font-bold tracking-widest uppercase text-xs mb-3 block">
-                        PART 0{index + 1}
+                      {t('part')} 0{index + 1}
                     </span>
                     <h3 className="text-[#1a1a1a] mb-6 text-4xl font-bold font-serif capitalize">
                       {section.title}
@@ -176,11 +177,11 @@ export default function CommunityDetailPage() {
                       {section.content}
                     </p>
                   </div>
-                  
+
                   {/* Decorative Letter */}
                   <div className="hidden md:flex flex-1 justify-center items-center opacity-5 select-none pointer-events-none">
                     <div className="text-[12rem] font-serif font-bold text-[#1a1a1a]">
-                        {key[0].toUpperCase()}
+                      {key[0].toUpperCase()}
                     </div>
                   </div>
                 </div>
@@ -192,12 +193,12 @@ export default function CommunityDetailPage() {
 
       {/* GALLERY (Safe Render) */}
       {community.galleryImages && community.galleryImages.length > 0 && (
-          <section className="py-24 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
-            <div className="max-w-7xl mx-auto">
-                <h2 className="mb-12 text-3xl font-serif text-center">Visual Documentation</h2>
-                <MediaGallery images={community.galleryImages.map(img => getUrl(img))} />
-            </div>
-          </section>
+        <section className="py-24 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="mb-12 text-3xl font-serif text-center">{t('visualDocumentation')}</h2>
+            <MediaGallery images={community.galleryImages.map(img => getUrl(img))} />
+          </div>
+        </section>
       )}
 
       {/* FUTURE DIRECTION */}
@@ -206,7 +207,7 @@ export default function CommunityDetailPage() {
           <div className="max-w-3xl mx-auto text-center relative">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#99302A]/10 text-9xl font-serif">”</div>
             <h2 className="text-[#1a1a1a] mb-8 text-xs font-bold uppercase tracking-widest text-[#99302A]">
-              Future Direction
+              {t('futureDirection')}
             </h2>
             <p className="text-[#1a1a1a]/80 leading-relaxed text-2xl md:text-3xl font-serif italic relative z-10">
               {community.futureDirection}

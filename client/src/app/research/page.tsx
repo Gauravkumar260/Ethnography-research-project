@@ -4,8 +4,10 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, FileText, Award, Users, Database, ArrowRight, Upload, Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 export default function ResearchHubPage() {
+  const t = useTranslations('Research');
   const [stats, setStats] = useState({
     thesis: 0,
     publications: 0,
@@ -30,7 +32,7 @@ export default function ResearchHubPage() {
         });
 
       } catch (error) {
-        console.error("Error fetching research stats:", error);
+        // stats fetch failed silently
       } finally {
         setLoading(false);
       }
@@ -83,10 +85,10 @@ export default function ResearchHubPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="mb-4 text-4xl font-bold font-serif">
-            Research & Academic Work
+            {t('title')}
           </h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl mx-auto text-lg font-light">
-            A collection of scholarly work documenting, analyzing, and preserving the cultural heritage and lived experiences of marginalized communities through rigorous ethnographic research
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -130,7 +132,7 @@ export default function ResearchHubPage() {
                       {area.description}
                     </p>
                     <span className="text-sm text-[#99302A] group-hover:underline flex items-center gap-2 font-semibold">
-                      Explore Research
+                      {t('exploreResearch')}
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
@@ -145,23 +147,23 @@ export default function ResearchHubPage() {
       <section className="py-20 px-4 bg-[#E3E1DB]/30 border-y border-[#1a1a1a]/5">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-[#1a1a1a] mb-6 text-2xl font-bold font-serif">
-            Research Impact
+            {t('impactTitle')}
           </h2>
           <p className="text-[#1a1a1a]/80 leading-relaxed mb-12 text-lg font-serif italic">
-            "Our research contributes to academic discourse on cultural anthropology, social justice, and heritage preservation while directly supporting community visibility, policy advocacy, and dignified representation."
+            "{t('impactQuote')}"
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-6 bg-white rounded shadow-sm">
               <div className="text-4xl text-[#99302A] mb-2 font-bold font-serif">50+</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Research Citations</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('citations')}</p>
             </div>
             <div className="text-center p-6 bg-white rounded shadow-sm">
               <div className="text-4xl text-[#99302A] mb-2 font-bold font-serif">12</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">International Conferences</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('conferences')}</p>
             </div>
             <div className="text-center p-6 bg-white rounded shadow-sm">
               <div className="text-4xl text-[#99302A] mb-2 font-bold font-serif">5</div>
-              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">Communities Documented</p>
+              <p className="text-xs uppercase tracking-wider text-[#1a1a1a]/60">{t('communitiesDocs')}</p>
             </div>
           </div>
         </div>
@@ -181,14 +183,14 @@ export default function ResearchHubPage() {
                   <Database className="w-7 h-7 text-[#99302A] group-hover:text-[#E3E1DB]" />
                 </div>
                 <h3 className="text-[#1a1a1a] mb-3 text-2xl font-bold font-serif">
-                  Field Data Repository
+                  {t('fieldDataTitle')}
                 </h3>
                 <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6">
-                  Access {loading ? <Loader2 className="inline w-3 h-3 animate-spin" /> : stats.datasets} primary datasets, interviews, photographs, and field documentation. Open for academic use.
+                  Access {loading ? <Loader2 className="inline w-3 h-3 animate-spin" /> : stats.datasets} {t('fieldDataDesc')}
                 </p>
               </div>
               <span className="text-sm text-[#99302A] group-hover:underline font-semibold flex items-center gap-2">
-                Browse Datasets <ArrowRight className="w-4 h-4" />
+                {t('browseDatasets')} <ArrowRight className="w-4 h-4" />
               </span>
             </Link>
 
@@ -202,14 +204,14 @@ export default function ResearchHubPage() {
                   <Upload className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="mb-3 text-2xl font-bold font-serif text-white">
-                  Submit Your Research
+                  {t('submitTitle')}
                 </h3>
                 <p className="text-sm text-white/90 leading-relaxed mb-6">
-                  Share your thesis, publications, or field data with the academic community. Contribute to the growing body of knowledge.
+                  {t('submitDesc')}
                 </p>
               </div>
               <span className="text-sm text-white group-hover:underline font-semibold flex items-center gap-2">
-                Upload Work <ArrowRight className="w-4 h-4" />
+                {t('uploadWork')} <ArrowRight className="w-4 h-4" />
               </span>
             </Link>
           </div>
@@ -219,15 +221,15 @@ export default function ResearchHubPage() {
       {/* Faculty Access */}
       <section className="py-12 px-4 bg-[#1a1a1a] text-[#E3E1DB] border-t border-[#E3E1DB]/10">
         <div className="max-w-4xl mx-auto text-center">
-          <h3 className="mb-4 text-xl font-bold font-serif">Faculty & Administrators</h3>
+          <h3 className="mb-4 text-xl font-bold font-serif">{t('facultyTitle')}</h3>
           <p className="text-[#E3E1DB]/70 mb-8 text-sm">
-            Review student submissions and manage the research repository
+            {t('facultyDesc')}
           </p>
           <Link
-            href="/login"
+            href="/auth/login"
             className="px-8 py-3 bg-[#99302A] text-[#E3E1DB] hover:bg-[#E3E1DB] hover:text-[#99302A] transition-all text-sm rounded font-semibold inline-block"
           >
-            Faculty Login
+            {t('facultyLogin')}
           </Link>
         </div>
       </section>

@@ -1,869 +1,267 @@
 # Unheard India - Ethnography Research Platform
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Gauravkumar260/Ethnography-research-project)
-[![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black)](https://nextjs.org/)
-[![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-8.21-green)](https://www.mongodb.com/)
-[![Express](https://img.shields.io/badge/Express-4.22-lightgrey)](https://expressjs.com/)
+A comprehensive, scalable digital platform dedicated to documenting the rich heritage, cultural practices, and untold stories of India's marginalized and overlooked communities, including the Gadia Lohar nomadic blacksmiths and Bhoksa tribes.
 
-> A comprehensive digital platform documenting the rich heritage, cultural practices, and untold stories of India's marginalized and overlooked communities, including the Gadia Lohar nomadic blacksmiths and Bhoksa tribes.
-
----
-
-## 📋 Table of Contents
-
-- [About](#about)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Running the Application](#running-the-application)
-- [Environment Variables](#environment-variables)
-- [API Documentation](#api-documentation)
-- [Pages & Routes](#pages--routes)
-- [Components](#components)
-- [Troubleshooting](#troubleshooting)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-- [Author](#author)
-- [Acknowledgments](#acknowledgments)
+![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=flat&logo=next.js)
+![React](https://img.shields.io/badge/React-19.2-blue?style=flat&logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-20+-green?style=flat&logo=node.js)
+![Express](https://img.shields.io/badge/Express-4.22-black?style=flat&logo=express)
+![MongoDB](https://img.shields.io/badge/MongoDB-7-green?style=flat&logo=mongodb)
+![Redis](https://img.shields.io/badge/Redis-7-red?style=flat&logo=redis)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue?style=flat&logo=docker)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=flat&logo=typescript)
 
 ---
 
-## 🌟 About
-
-**Unheard India** is an ethnographic research platform built to preserve, document, and share the rich cultural heritage of India's marginalized communities. The platform leverages modern web technologies to create an accessible, interactive digital archive that brings these communities' stories to life through multimedia content, research data, and community-driven documentation.
-
-### Purpose
-
-The project aims to:
-- **Preserve Cultural Heritage**: Document traditional practices, art forms, and oral histories before they disappear
-- **Amplify Marginalized Voices**: Provide a platform for communities that have been historically underrepresented  
-- **Support Research**: Offer researchers and academics a comprehensive resource for ethnographic studies
-- **Educate**: Raise awareness about India's diverse cultural tapestry among students and the general public
-- **Foster Community Engagement**: Enable direct participation from community members in documenting their own heritage
+## 📖 Table of Contents
+1. [Our Mission & Academic Value](#our-mission--academic-value)
+2. [Core Features](#core-features)
+3. [System Architecture & Tech Stack](#system-architecture--tech-stack)
+4. [Project Structure](#project-structure)
+5. [Getting Started (Local Development)](#getting-started-local-development)
+6. [API & Routing Summary](#api--routing-summary)
+7. [Research Ethics & Data Security](#research-ethics--data-security)
+8. [Contributing](#contributing)
+9. [License & Usage Terms](#license--usage-terms)
 
 ---
 
-## ✨ Features
+## 🌍 Our Mission & Academic Value
 
-### Core Features
-- 📚 **Community Documentation**: Detailed profiles of various communities with rich multimedia content
-- 🖼️ **Image Gallery**: High-quality photo galleries showcasing cultural artifacts, daily life, and traditional practices
-- 🎥 **Documentary Section**: Curated documentaries and video content about featured communities
-- 🔍 **Research Data Management**: Structured storage and retrieval of ethnographic research data
-- 📝 **Student Submissions**: Platform for students to submit their fieldwork and research findings
-- 📱 **Fully Responsive Design**: Optimized for all devices from mobile to desktop
-- 🔐 **Secure Authentication**: User registration and login with JWT-based authentication
-- 👥 **Admin Panel**: Comprehensive dashboard for content management and moderation
-- 📞 **Contact System**: Direct communication channel for inquiries and collaboration
-- 🏷️ **Ethics Guidelines**: Detailed ethical guidelines for research conduct with indigenous communities
-- 🌐 **About & Information Pages**: Comprehensive information about the project's mission and goals
+The **Unheard India** ethnographic research platform is built to preserve, document, and share the rich cultural heritage of India's marginalized communities. By leveraging modern web technologies, we've created an accessible, interactive digital archive. 
 
-### Technical Features
-- 🚀 **Server-Side Rendering**: Next.js App Router for optimal performance and SEO
-- 💾 **File Upload System**: Multer-based file handling for images and documents
-- 🔄 **RESTful API**: Well-structured API endpoints for all CRUD operations  
-- 🎨 **Modern UI Components**: Built with Radix UI and Tailwind CSS for beautiful, accessible interfaces
-- 🧩 **Component Library**: Extensive library of reusable React components
-- 📊 **Data Visualization**: Charts and visualizations using Recharts
-- 🗂️ **Database Integration**: MongoDB with Mongoose ODM for data persistence
-- 🔒 **Security**: Helmet.js and CORS configuration for enhanced security
+Our primary goals are to:
+- **Preserve Traditional Practices:** Document art forms, oral histories, and daily routines before they disappear.
+- **Amplify Marginalized Voices:** Provide a highly visible platform for historically underrepresented groups.
+- **Support Rigorous Research:** Give researchers, anthropologists, and academics robust, structured access to ethnographic data.
+- **Educate The Public:** Raise awareness about India's incredibly diverse cultural tapestry.
+- **Foster Direct Engagement:** Enable community members to actively participate in documenting their own living heritage.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ Core Features
 
-### Frontend
+### For Researchers & the Public
+- **Community Documentation:** Detailed, peer-reviewed profiles of various communities alongside rich multimedia content.
+- **Image & Artifact Gallery:** High-resolution photo galleries showcasing cultural artifacts, daily life, and traditional craftsmanship.
+- **Documentary Section:** Curated documentaries, field recordings, and video content specific to the featured communities.
+- **Research Data Management:** Structured storage, tagging, and retrieval of sensitive ethnographic field data.
+- **Student Submissions:** A secure portal for university students and junior researchers to submit fieldwork and findings (`/student-submission`).
+- **Interactive Maps:** Precise geographic mapping of community locations and historical migration routes using Leaflet.
+- **Internationalization (i18n):** Support for multiple Indian languages to ensure local accessibility via `next-intl`.
 
-| Technology | Version | Description |
-|------------|---------|-------------|
-| **Next.js** | 16.1.1 | React framework with App Router for server-side rendering |
-| **React** | 19.2.3 | UI library for building interactive interfaces |
-| **TypeScript** | 5 | Static typing for improved code quality and developer experience |
-| **Tailwind CSS** | 3.4.1 | Utility-first CSS framework for rapid UI development |
-| **Radix UI** | Latest | Unstyled, accessible component primitives |
-| **Axios** | 1.13.2 | Promise-based HTTP client for API requests |
-| **Lucide React** | 0.562.0 | Beautiful, consistent icons |
-| **React Hook Form** | 7.69.0 | Performant form handling with validation |
-| **Date-fns** | 3.6.0 | Modern date utility library |
-| **Recharts** | 3.6.0 | Composable charting library |
-| **Sonner** | 2.0.7 | Toast notification system |
-| **Next Themes** | 0.4.6 | Dark mode support |
-| **Embla Carousel** | 8.6.0 | Lightweight carousel component |
-
-### Backend
-
-| Technology | Version | Description |
-|------------|---------|-------------|
-| **Node.js** | 18+ | JavaScript runtime |
-| **Express.js** | 4.22.1 | Web application framework |
-| **MongoDB** | Latest | NoSQL database |
-| **Mongoose** | 8.21.0 | MongoDB object modeling tool |
-| **Multer** | 2.0.2 | Middleware for handling multipart/form-data (file uploads) |
-| **JWT** | 9.0.3 | JSON Web Token for authentication |
-| **Bcrypt.js** | 3.0.3 | Password hashing |
-| **CORS** | 2.8.5 | Cross-origin resource sharing |
-| **Dotenv** | 16.6.1 | Environment variable management |
-| **Colors** | 1.4.0 | Console output styling |
-
-### Development Tools
-
-- **ESLint**: Code linting and quality checks
-- **PostCSS**: CSS transformations
-- **Autoprefixer**: Automatic vendor prefixing
-- **Nodemon**: Auto-restart development server
-- **Postman**: API testing and documentation
-- **Git & GitHub**: Version control and collaboration
+### For Administrators
+- **CMS Dashboard:** Secure admin-only routes to create, update, and delete community profiles (`/admin`).
+- **Data Moderation:** Admins can approve, reject, and moderate student research data submissions.
+- **Access Control:** Granular Role-Based Access Control (RBAC) to protect sensitive cultural data.
 
 ---
 
-## 📁 Project Structure
+## 🏗️ System Architecture & Tech Stack
 
+The application follows a decoupled **Client-Server Architecture** operating as a Monorepo.
+
+### High-Level Architecture Diagram
+```mermaid
+graph TD
+    Client[Next.js Client] <-->|HTTP/JSON| API[Express API Server]
+    API <-->|Mongoose| DB[(MongoDB)]
+    API <-->|ioredis| Cache[(Redis)]
+    API <-->|Multer| FS[Local File Storage]
+
+    subgraph Frontend
+        Pages[App Router Pages]
+        Comps[UI Components]
+        Hooks[Custom Hooks]
+    end
+
+    subgraph Backend
+        Controllers[Controllers]
+        Services[Service Layer]
+        Routes[API Routes]
+        Models[Data Models]
+    end
 ```
+
+### 💻 Frontend
+- **Core:** Next.js 16.1 (App Router), React 19.2, TypeScript
+- **Styling:** Tailwind CSS, Radix UI primitives, `clsx`, `tailwind-merge`
+- **State Management:** Zustand
+- **Data Fetching:** Axios, React Hook Form, Zod (Schema Validation)
+- **Mapping & Charts:** Leaflet, Recharts
+- **Internationalization:** `next-intl`
+
+### ⚙️ Backend
+- **Core:** Node.js, Express.js 4.22, TypeScript
+- **Architecture Pattern:** Controller -> Service -> Model layer
+- **Database:** MongoDB 7 (via Mongoose 8) with Replica Sets for transactions.
+- **Caching & Rate Limiting:** Redis 7 for high-performance data retrieval and Express rate limiting.
+- **Security:** Argon2 for password hashing, JWT for stateless authentication, Helmet, XSS-clean, HPP.
+- **File Handling:** Multer
+- **Observability:** OpenTelemetry & Pino logging.
+- **Testing:** Vitest for Unit and Integration testing.
+
+---
+
+## 📂 Project Structure
+
+```text
 Ethnography-research-project/
 ├── client/                       # Next.js frontend application
-│   ├── public/                   # Static assets
-│   │   ├── next.svg
-│   │   └── vercel.svg
+│   ├── public/                   # Static assets (images, icons, svgs)
 │   ├── src/
-│   │   ├── app/                  # Next.js App Router pages
-│   │   │   ├── about/            # About page
-│   │   │   ├── admin/            # Admin dashboard
-│   │   │   ├── communities/      # Communities listing
-│   │   │   ├── contact/          # Contact form
-│   │   │   ├── documentaries/    # Documentary showcase
-│   │   │   ├── ethics-guidelines/# Research ethics
-│   │   │   ├── login/            # Authentication page
-│   │   │   ├── research/         # Research data page
-│   │   │   ├── student-submission/ # Student submissions
-│   │   │   ├── favicon.ico       # Site favicon
-│   │   │   ├── layout.tsx        # Root layout
-│   │   │   └── page.tsx          # Homepage
-│   │   ├── components/           # Reusable React components
-│   │   │   └── ui/               # UI component library
-│   │   ├── lib/                  # Utilities and helpers
-│   │   │   └── api.ts            # API client configuration
-│   │   └── styles/               # Global styles
-│   │       └── globals.css
-│   ├── .env.example              # Environment variables template
-│   ├── .gitignore                # Git ignore rules
-│   ├── eslint.config.mjs         # ESLint configuration
-│   ├── next-env.d.ts             # Next.js TypeScript declarations
-│   ├── next.config.ts            # Next.js configuration
-│   ├── package.json              # Frontend dependencies
-│   ├── postcss.config.mjs        # PostCSS configuration
-│   ├── README.md                 # Frontend documentation
-│   ├── tailwind.config.ts        # Tailwind CSS configuration
-│   └── tsconfig.json             # TypeScript configuration
+│   │   ├── app/                  # Next.js App Router definitions
+│   │   ├── components/           # Reusable UI components (Radix UI + Tailwind)
+│   │   ├── hooks/                # Custom data fetching hooks
+│   │   ├── lib/                  # Utilities (Axios config, etc.)
+│   │   ├── services/             # API integration calls
+│   │   └── types/                # Shared TypeScript definitions
+│   └── package.json
 │
-├── server/                       # Express backend application
-│   ├── config/                   # Configuration files
-│   │   └── db.js                 # MongoDB connection
-│   ├── controllers/              # Route handlers (business logic)
-│   │   ├── authController.js     # Authentication logic
-│   │   ├── communityController.js# Community CRUD operations
-│   │   └── researchController.js # Research data handling
-│   ├── middlewares/              # Custom middleware
-│   │   └── upload.js             # File upload configuration
-│   ├── models/                   # MongoDB schemas
-│   │   ├── User.js               # User model
-│   │   ├── Community.js          # Community model
-│   │   └── Research.js           # Research model
-│   ├── routes/                   # API route definitions
-│   │   ├── auth.js               # Auth routes
-│   │   ├── communities.js        # Community routes
-│   │   └── research.js           # Research routes
-│   ├── scripts/                  # Utility scripts
-│   │   └── seed.js               # Database seeding
-│   ├── uploads/                  # File storage directory
-│   │   └── .gitkeep
-│   ├── .env.example              # Environment variables template
-│   ├── .gitignore                # Git ignore rules
-│   ├── package.json              # Backend dependencies
-│   ├── server.js                 # Main entry point
-│   ├── test.html                 # API test page
-│   ├── Unheard-India-API.postman_collection.json        # Full Postman collection
-│   └── Unheard-India-API-SIMPLE.postman_collection.json # Simplified Postman collection
+├── server/                       # Express backend API
+│   ├── scripts/                  # DB Seeding and environment checks
+│   ├── src/
+│   │   ├── config/               # DB, Redis, and App configurations
+│   │   ├── controllers/          # Request handling and response formatting
+│   │   ├── middlewares/          # Security, auth, & validation checks
+│   │   ├── models/               # MongoDB / Mongoose schemas
+│   │   ├── routes/               # API endpoint definitions
+│   │   ├── services/             # Business logic layer
+│   │   └── utils/                # Helper functions
+│   ├── tests/                    # Vitest integration and unit tests
+│   └── package.json
 │
-├── .gitignore                    # Root git ignore
-└── README.md                     # This file
+├── docs/                         # Internal architectural & feature docs (PRD, ROADMAP)
+├── docker-compose.yml            # Local development orchestration
+└── docker-compose.prod.yml       # Production deployment configuration
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Getting Started (Local Development)
 
 ### Prerequisites
+- **Node.js:** v20.x or higher
+- **Docker & Docker Compose:** Required for running the database replica sets and cache locally.
+- **Git**
 
-Before you begin, ensure you have the following installed on your system:
+### 1. Docker Quick Start (Recommended)
+The easiest way to spin up the entire database, cache, backend, and frontend stack. The `docker-compose.yml` sets up a MongoDB replica set (`rs0`) required for advanced database transactions.
 
-- **Node.js** (v18.x or higher) - [Download](https://nodejs.org/)
-- **npm** (comes with Node.js) or **yarn** - Package manager
-- **MongoDB** - Database
-  - Option 1: [MongoDB Community Server](https://www.mongodb.com/try/download/community) (local installation)
-  - Option 2: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (cloud database - recommended for deployment)
-- **Git** - Version control system
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Gauravkumar260/Ethnography-research-project.git
+   cd Ethnography-research-project
+   ```
 
-### Installation
+2. **Start the application stack:**
+   ```bash
+   docker compose up -d
+   ```
 
-Follow these steps to set up the project locally:
+3. **Seed necessary reference data (Admin user, base communities):**
+   ```bash
+   docker compose exec server npm run seed:admin
+   docker compose exec server npm run seed:communities
+   ```
 
-#### 1. Clone the Repository
+4. **Access the platforms:**
+   - **Frontend App:** http://localhost:3000
+   - **Backend API:** http://localhost:5000
+   - **MongoDB Express (DB Viewer):** http://localhost:8081 *(Development only)*
 
+*Note: To view real-time server logs, run `docker compose logs -f server`.*
+
+### 2. Manual Installation
+If you prefer running the services directly on your host machine to debug or develop without Docker overhead.
+
+**Setup Backend:**
 ```bash
-git clone https://github.com/Gauravkumar260/Ethnography-research-project.git
-cd Ethnography-research-project
-```
-
-#### 2. Setup Backend (Server)
-
-```bash
-# Navigate to server directory
 cd server
-
-# Install dependencies
 npm install
-
-# Create environment file
-cp .env.example .env
-
-# Edit .env file with your configuration
-nano .env  # or use your preferred editor
-
-# Add your MongoDB URI in .env:
-# For local MongoDB:
-# MONGO_URI=mongodb://localhost:27017/unheard_india
-# 
-# For MongoDB Atlas:
-# MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/unheard_india
+cp .env.example .env.local
+# Ensure your local MongoDB (running as a replica set) and Redis instances are active. Update .env.local if needed.
+npm run dev
 ```
 
-
-
-#### 3. Setup Frontend (Client)
-
-Open a new terminal window:
-
+**Setup Frontend (in a new terminal):**
 ```bash
-# Navigate to client directory (from project root)
 cd client
-
-# Install dependencies
 npm install
-
-# Create environment file
-cp .env.example .env
-
-# Edit .env if needed
-nano .env
-```
-
-**Client Environment Variables (.env)**:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
-### Running the Application
-
-#### Development Mode
-
-1. **Start the Backend Server** (Terminal 1):
-   ```bash
-   cd server
-   npm start
-   # or for auto-reload during development:
-   npm run dev
-   ```
-   Server will be running at `http://localhost:5000`
-
-2. **Start the Frontend** (Terminal 2):
-   ```bash
-   cd client
-   npm run dev
-   ```
-   Frontend will be running at `http://localhost:3000`
-
-3. **Access the Application**:
-   - **Frontend**: [http://localhost:3000](http://localhost:3000)
-   - **Backend API**: [http://localhost:5000](http://localhost:5000)
-   - **API Health Check**: [http://localhost:5000/](http://localhost:5000) (should return: `{"message": "Unheard India API is running..."}`)
-
-#### Production Mode
-
-1. **Build the Frontend**:
-   ```bash
-   cd client
-   npm run build
-   npm start
-   ```
-
-2. **Run the Backend**:
-   ```bash
-   cd server
-   NODE_ENV=production npm start
-   ```
-
----
-
-## 🔐 Environment Variables
-
-
-**Note**: All environment variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Never put sensitive credentials in these variables.
-
----
-
-## 📡 API Documentation
-
-The project includes comprehensive Postman collections for testing all API endpoints:
-
-### Postman Collections
-
-- **Full Collection**: `server/Unheard-India-API.postman_collection.json` - Complete API with all endpoints and examples
-- **Simplified Collection**: `server/Unheard-India-API-SIMPLE.postman_collection.json` - Basic endpoints for quick testing
-
-### Main API Endpoints
-
-#### Base URL
-```
-http://localhost:5000/api
-```
-
-#### Authentication Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/auth/register` | Register new user | No |
-| POST | `/auth/login` | User login | No |
-| GET | `/auth/me` | Get current user info | Yes |
-| PUT | `/auth/update` | Update user profile | Yes |
-
-**Request Body (Register/Login)**:
-```json
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "John Doe" // only for register
-}
-```
-
-#### Community Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/communities` | Get all communities | No |
-| GET | `/communities/:id` | Get community by ID | No |
-| POST | `/communities` | Create new community | Yes (Admin) |
-| PUT | `/communities/:id` | Update community | Yes (Admin) |
-| DELETE | `/communities/:id` | Delete community | Yes (Admin) |
-| POST | `/communities/:id/images` | Upload community images | Yes (Admin) |
-
-**Community Schema**:
-```json
-{
-  "name": "Community Name",
-  "description": "Detailed description",
-  "location": "Geographic location",
-  "population": 5000,
-  "language": "Primary language",
-  "traditions": ["tradition1", "tradition2"],
-  "images": ["image1.jpg", "image2.jpg"],
-  "documentaries": [{
-    "title": "Documentary Title",
-    "url": "https://youtube.com/...",
-    "description": "Documentary description"
-  }]
-}
-```
-
-#### Research Endpoints
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| GET | `/research` | Get all research data | No |
-| GET | `/research/:id` | Get research by ID | No |
-| POST | `/research` | Submit research data | Yes |
-| PUT | `/research/:id` | Update research data | Yes |
-| DELETE | `/research/:id` | Delete research data | Yes (Admin) |
-
-**Research Schema**:
-```json
-{
-  "title": "Research Title",
-  "researcher": "Researcher Name",
-  "community": "community_id",
-  "fieldworkDates": {
-    "start": "2025-01-01",
-    "end": "2025-01-31"
-  },
-  "methodology": "Research methodology",
-  "findings": "Key findings",
-  "documents": ["doc1.pdf", "doc2.pdf"],
-  "status": "draft" // or "published"
-}
+cp .env.example .env.local
+npm run dev
 ```
 
 ---
 
-## 🏛️ Pages & Routes
+## 🔌 API & Routing Summary
 
-### Frontend Routes
+### Frontend Key Routes
+- `/` : Public homepage conveying project overview.
+- `/communities` : Browse all documented ethnographic groups.
+- `/research` : Access published findings and field data.
+- `/student-submission` : Portal for academic contributions.
+- `/admin` : Secured CMS dashboard for content moderation.
 
-| Route | Page | Description | Auth Required |
-|-------|------|-------------|---------------|
-| `/` | Homepage | Landing page with project overview | No |
-| `/about` | About | Project mission, goals, and team information | No |
-| `/communities` | Communities | Browse all documented communities | No |
-| `/communities/[id]` | Community Detail | Detailed view of specific community | No |
-| `/documentaries` | Documentaries | Video content and documentaries | No |
-| `/research` | Research | Browse research data and findings | No |
-| `/research/[id]` | Research Detail | Detailed research paper view | No |
-| `/student-submission` | Student Form | Submit student research work | No |
-| `/contact` | Contact | Contact form for inquiries | No |
-| `/ethics-guidelines` | Ethics | Research ethics guidelines | No |
-| `/login` | Login/Register | User authentication | No |
-| `/admin` | Admin Dashboard | Content management (CRUD operations) | Yes (Admin) |
+### Backend Base API: `http://localhost:5000/api/v1`
+- `POST /auth/register`, `POST /auth/login` : JWT authentication endpoints.
+- `GET /communities` : Retrieve all community profiles.
+- `POST /communities` : Create a community profile (Admin Protected).
+- `GET /research` : Query structured ethnographic field data.
+- `POST /research/submit` : Student fieldwork submission endpoint.
 
----
-
-## 🧩 Components
-
-The project uses a comprehensive component library built with **Radix UI** and **Tailwind CSS**:
-
-### UI Components (`client/src/components/ui/`)
-
-- **accordion**: Collapsible content sections
-- **alert**: Notification and alert messages  
-- **avatar**: User profile pictures
-- **button**: Interactive buttons with variants
-- **card**: Content containers
-- **carousel**: Image/content carousels
-- **checkbox**: Form checkboxes
-- **dialog**: Modal dialogs
-- **dropdown-menu**: Dropdown navigation menus
-- **form**: Form components with React Hook Form
-- **input**: Text input fields
-- **label**: Form field labels
-- **navigation-menu**: Site navigation
-- **popover**: Floating content panels
-- **progress**: Progress indicators
-- **radio-group**: Radio button groups
-- **scroll-area**: Scrollable containers
-- **select**: Dropdown select inputs
-- **separator**: Visual dividers
-- **tabs**: Tabbed interfaces
-- **textarea**: Multi-line text inputs
-- **toast**: Toast notifications (Sonner)
-- **tooltip**: Contextual tooltips
-
-All components are fully typed with TypeScript and follow accessibility best practices.
+*(For a complete list of endpoints, schemas, and payload requirements, see the respective route files inside `server/src/routes`)*
 
 ---
 
-## 🔧 Troubleshooting
+## 🧪 Testing
 
-### Common Issues and Solutions
+The backend utilizes `Vitest` for comprehensive testing. 
 
-#### 1. Network Error or Connection Refused
-
-**Symptoms**: Frontend cannot connect to backend
-
-**Solutions**:
-- Ensure the backend server is running on port 5000
-- Check `NEXT_PUBLIC_API_URL` in `client/.env` matches your backend URL
-- Verify CORS settings in `server/server.js` include your frontend URL
-- Check if any firewall is blocking the connection
-
+To run the backend test suite:
 ```bash
-# Test backend is running
-curl http://localhost:5000/
+cd server
+npm run test
+# OR for watch mode
+npm run test:watch
 ```
-
-#### 2. MongoDB Connection Failed
-
-**Symptoms**: Server crashes on start with MongoDB error
-
-**Solutions**:
-- Verify MongoDB is running: `sudo systemctl status mongod` (Linux) or check MongoDB Compass
-- Check `MONGO_URI` in `server/.env` is correct
-- For MongoDB Atlas:
-  - Verify your IP is whitelisted
-  - Check username/password are correct
-  - Ensure cluster is running
-- Test connection:
-  ```bash
-  # For local MongoDB
-  mongosh mongodb://localhost:27017/unheard_india
-  ```
-
-#### 3. Images Not Loading
-
-**Symptoms**: Uploaded images don't display
-
-**Solutions**:
-- Ensure `NEXT_PUBLIC_API_URL` is correctly set
-- Check server is serving static files from `/uploads` directory
-- Verify file permissions on `server/uploads/` directory
-- Check browser console for CORS errors
-
-#### 4. TypeScript Errors
-
-**Symptoms**: Type errors during development or build
-
-**Solutions**:
-- Run `npm install` to ensure all dependencies are installed
-- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
-- Check `tsconfig.json` configuration
-- Clear Next.js cache: `rm -rf .next`
-- Recent fix applied for Calendar TypeScript errors (already resolved)
-
-#### 5. Port Already in Use
-
-**Symptoms**: Error: "Port 3000/5000 is already in use"
-
-**Solutions**:
-- Find and kill the process:
-  ```bash
-  # Linux/Mac
-  lsof -ti:3000 | xargs kill
-  lsof -ti:5000 | xargs kill
-  
-  # Windows
-  netstat -ano | findstr:3000
-  taskkill /PID <PID> /F
-  ```
-- Or use different ports in environment variables
-
-#### 6. File Upload Fails
-
-**Symptoms**: File upload returns error
-
-**Solutions**:
-- Check file size limits in `server/middlewares/upload.js`
-- Verify `server/uploads/` directory exists and has write permissions
-- Check disk space on server
-- Review file type restrictions
 
 ---
 
-## 🌐 Deployment
+## 🛡️ Research Ethics & Data Security
 
-### Recommended Deployment Stack
+Working with ethnographic data involves profound responsibility to the communities documented.
 
-- **Frontend**: [Vercel](https://vercel.com/) or [Netlify](https://www.netlify.com/)
-- **Backend**: [Render](https://render.com/) or [Railway](https://railway.app/)
-- **Database**: [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) (Free M0 tier available)
-- **File Storage**: Consider cloud storage (AWS S3, Cloudinary) for production
-
-### Quick Deployment Guide
-
-#### 1. MongoDB Atlas Setup
-
-1. Create account at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free M0 cluster (512MB storage, shared RAM)
-3. Database Access:
-   - Create database user with password
-   - Save credentials securely
-4. Network Access:
-   - Add IP: `0.0.0.0/0` (allow access from anywhere)
-   - For production, specify your backend server IP
-5. Get connection string:
-   - Click "Connect" > "Connect your application"
-   - Copy the connection string
-   - Replace `<password>` with your database user password
-
-#### 2. Deploy Backend (Render)
-
-1. Sign up at [render.com](https://render.com/)
-2. Create "New Web Service"
-3. Connect your GitHub repository
-4. Configure:
-   - **Name**: `unheard-india-api`
-   - **Root Directory**: `server`
-   - **Environment**: Node
-   - **Build Command**: `npm install`
-   - **Start Command**: `node server.js`
-   - **Plan**: Free
-
-5. Environment Variables (Add in Render dashboard):
-   ```
-   MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/unheard_india
-   CLIENT_URL=https://your-frontend-url.vercel.app
-   PORT=5000
-   NODE_ENV=production
-   JWT_SECRET=your_production_jwt_secret
-   ```
-
-6. Deploy and note your backend URL (e.g., `https://unheard-india-api.onrender.com`)
-
-#### 3. Deploy Frontend (Vercel)
-
-1. Sign up at [vercel.com](https://vercel.com/)
-2. Import your GitHub repository
-3. Configure:
-   - **Framework Preset**: Next.js
-   - **Root Directory**: `client`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `.next`
-   - **Install Command**: `npm install`
-
-4. Environment Variables:
-   ```
-   NEXT_PUBLIC_API_URL=https://your-backend-url.onrender.com/api
-   ```
-
-5. Deploy
-
-#### 4. Update CORS
-
-After frontend deployment:
-1. Go to Render dashboard
-2. Update `CLIENT_URL` environment variable with your Vercel URL
-3. Restart the backend service
-
-### Deployment Checklist
-
-- [ ] MongoDB Atlas cluster created and configured
-- [ ] Database user created with strong password
-- [ ] Network access configured (IP whitelist)
-- [ ] Backend deployed on Render/Railway
-- [ ] Backend environment variables configured
-- [ ] Frontend deployed on Vercel/Netlify
-- [ ] Frontend environment variables configured
-- [ ] CORS updated with production URLs
-- [ ] API endpoints tested (use Postman)
-- [ ] File uploads working
-- [ ] Authentication flow tested
-- [ ] Database connection verified
-- [ ] SSL/HTTPS enabled (automatic on Vercel/Render)
-
-### Performance Optimization
-
-1. **Frontend**:
-   - Enable Next.js image optimization
-   - Implement lazy loading for images
-   - Use dynamic imports for large components
-   - Enable gzip compression
-
-2. **Backend**:
-   - Add database indexing for frequently queried fields
-   - Implement caching (Redis) for expensive queries
-   - Use CDN for static file serving
-   - Compress API responses
-
-3. **Database**:
-   - Create indexes on query fields
-   - Implement pagination for large datasets
-   - Use projections to limit returned fields
-   - Monitor query performance
+- **Informed Consent:** All media and data managed by this platform must be collected with documented, informed consent.
+- **Data Privacy:** Sensitive cultural information and precise geolocations, where applicable, are protected and tiered via access control (Admin/Researcher roles only).
+- **Immutable Audit Logs:** The backend maintains strict, immutable logs of content modification and access to ensure data integrity and track potential abuse.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome and appreciated! Whether it's bug reports, feature requests, documentation improvements, or code contributions.
+We welcome contributions from both developers (code, bug fixes) and researchers (data, documentation improvements).
 
-### How to Contribute
+1. Fork the repository.
+2. Create your feature branch (`git checkout -b feature/new-component`).
+3. Commit your changes logically (`git commit -m 'Add new component'`).
+4. Ensure all backend tests pass (`cd server && npm run test`).
+5. Push to the branch (`git push origin feature/new-component`).
+6. Open a Pull Request clearly detailing your changes.
 
-1. **Fork the Repository**
-   ```bash
-   # Click the Fork button on GitHub
-   # Clone your fork
-   git clone https://github.com/YOUR_USERNAME/Ethnography-research-project.git
-   cd Ethnography-research-project
-   ```
-
-2. **Create a Feature Branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   # or for bug fixes
-   git checkout -b fix/bug-description
-   ```
-
-3. **Make Your Changes**
-   - Write clean, documented code
-   - Follow existing code style
-   - Add comments for complex logic
-   - Update documentation if needed
-
-4. **Test Your Changes**
-   ```bash
-   # Run the application locally
-   # Test all affected features
-   # Ensure no regressions
-   ```
-
-5. **Commit Your Changes**
-   ```bash
-   git add .
-   git commit -m "feat: add amazing feature"
-   # Use conventional commit messages:
-   # feat: new feature
-   # fix: bug fix
-   # docs: documentation
-   # style: formatting
-   # refactor: code restructuring
-   # test: adding tests
-   # chore: maintenance
-   ```
-
-6. **Push to Your Fork**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-
-7. **Open a Pull Request**
-   - Go to the original repository on GitHub
-   - Click "New Pull Request"
-   - Select your branch
-   - Provide clear description of changes
-   - Link any related issues
-
-### Development Guidelines
-
-- **Code Style**:
-  - Use TypeScript for new frontend code
-  - Follow ESLint configuration
-  - Use meaningful variable and function names
-  - Keep functions small and focused
-
-- **Commit Messages**:
-  - Use conventional commits format
-  - Write clear, descriptive messages
-  - Reference issue numbers when applicable
-
-- **Documentation**:
-  - Update README for new features
-  - Add JSDoc comments for functions
-  - Document API changes
-  - Include examples where helpful
-
-- **Testing**:
-  - Test all new features thoroughly
-  - Check responsive design
-  - Verify API endpoints
-  - Test edge cases
-
-### Code of Conduct
-
-- Be respectful and inclusive
-- Provide constructive feedback
-- Focus on the code, not the person
-- Help newcomers learn
-- Credit others' work
-
-### Areas for Contribution
-
-- **Features**: New functionality, UI improvements
-- **Bug Fixes**: Resolve existing issues
-- **Documentation**: Improve guides, add tutorials
-- **Testing**: Add test coverage
-- **Performance**: Optimize code, queries
-- **Accessibility**: Improve ARIA labels, keyboard navigation
-- **Internationalization**: Add multi-language support
-- **Security**: Identify and fix vulnerabilities
+**Note:** Code contributions must adhere strictly to the project's TypeScript configuration, Biome/ESLint settings, and styling standards.
 
 ---
 
-## 📝 License
+## 📜 License & Usage Terms
 
-This project is created for **educational and research purposes**. 
+This project is created for **educational and research purposes**.
 
-### Usage Terms
-
-- Free to use for academic research
-- Free to use for educational purposes
-- Attribution required when using or adapting code
-- Commercial use requires permission
-
-For specific licensing questions, please contact the author.
+- **Academic/Educational Use:** Free to use and adapt.
+- **Code Adaptation:** Attribution is required when reusing portions of this codebase for other platforms.
+- **Commercial Use:** Strictly requires direct permission from the author.
 
 ---
-
-## 👤 Author
-
-**Gaurav Kumar**
-
-- **GitHub**: [@Gauravkumar260](https://github.com/Gauravkumar260)
-- **Location**: Haridwar, Uttarakhand, India
-- **Project**: Ethnography Research Documentation Platform
-- **Role**: Full-Stack Developer & Researcher
-
-### About the Developer
-
-This project was developed as part of ethnographic research to document and preserve the cultural heritage of India's marginalized communities. The platform combines technical expertise with anthropological research to create a meaningful digital archive.
-
----
-
-##  Acknowledgments
-
-Special thanks to:
-
-- **Communities**: The Gadia Lohar, Bhoksa, and other indigenous communities who shared their stories and trusted us with their cultural heritage
-- **Research Advisors**: Academic mentors who guided the ethnographic research methodology
-- **Open Source Community**: Developers and contributors of the amazing tools and libraries used in this project
-  - [Next.js Team](https://nextjs.org/) - For the incredible React framework
-  - [Vercel](https://vercel.com/) - For hosting and deployment tools
-  - [MongoDB](https://www.mongodb.com/) - For the flexible database solution
-  - [Radix UI](https://www.radix-ui.com/) - For accessible component primitives
-  - [Tailwind CSS](https://tailwindcss.com/) - For the utility-first CSS framework
-  - [Shadcn/ui](https://ui.shadcn.com/) - For beautiful component designs
-- **Beta Testers**: Students and researchers who provided valuable feedback
-- **Documentation Inspiration**: Open source projects with excellent documentation
-
----
-
-## 📌 Quick Links
-
-- **Live Demo**: [Coming Soon]
-- **Documentation**: This README
-- **Issues**: [GitHub Issues](https://github.com/Gauravkumar260/Ethnography-research-project/issues)
-- **Pull Requests**: [GitHub PRs](https://github.com/Gauravkumar260/Ethnography-research-project/pulls)
-- **Project Board**: [GitHub Projects](https://github.com/Gauravkumar260/Ethnography-research-project/projects)
-
----
-
-## 📈 Project Statistics
-
-- **Languages**: TypeScript (81.6%), JavaScript (16.6%), CSS (1.5%), HTML (0.3%)
-- **Deployments**: 10+ successful deployments
-- **Status**: Active Development
-- **Version**: 1.0.0
-- **Last Updated**: January 2026
-
----
-
-## 🚀 Future Roadmap
-
-- [ ] Multi-language support (Hindi, regional languages)
-- [ ] Advanced search and filtering
-- [ ] Interactive maps showing community locations
-- [ ] Video testimonials from community members
-- [ ] Mobile app (React Native)
-- [ ] Offline mode for field researchers
-- [ ] Data export functionality (PDF, CSV)
-- [ ] Social media integration
-- [ ] Community forums
-- [ ] Advanced analytics dashboard
-
----
-
-<div align="center">
-
-### ⭐ If you find this project valuable, please consider giving it a star!
-
-**Made with ❤️ for preserving cultural heritage**
-
-**Last Updated**: January 2026
-
-For issues, questions, or collaboration inquiries, please [open an issue](https://github.com/Gauravkumar260/Ethnography-research-project/issues) on GitHub.
-
----
-
-© 2026 Gaurav Kumar. All rights reserved.
-
-</div>
+**Gaurav Kumar**  
+GitHub: [@Gauravkumar260](https://github.com/Gauravkumar260)  
+*Made for preserving cultural heritage. Last Updated: March 2026.*

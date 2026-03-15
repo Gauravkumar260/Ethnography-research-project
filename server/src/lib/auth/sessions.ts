@@ -1,12 +1,10 @@
 import mongoose from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import * as argon2 from 'argon2';
 import { Session, User } from '../db/models';
 import { redis } from './rateLimit';
 import { generateAccessToken, generateRefreshToken } from './tokens';
 import { logAuthEvent } from './audit';
-import pino from 'pino';
-
-const logger = pino();
+import { logger } from '../logger';
 
 export interface DeviceInfo {
   browser: string;
@@ -21,10 +19,9 @@ export async function createSession(
   userAgent: string
 ) {
   const { token, hash } = await generateRefreshToken();
-  const tokenFamily = new mongoose.Types.ObjectId().toString(); // Initial family ID
+  const tokenFamily = new mongoose.Types.ObjectId().toString();
 
-  // Get location (Mocking geo-lookup for now)
-  const location = null; 
+  const location = null;
 
   // Concurrent session limit check: revoke oldest if > 3
   const activeSessions = await Session.find({ userId, isActive: true }).sort({ createdAt: 1 });
@@ -76,25 +73,21 @@ export async function refreshSession(
   ipAddress: string,
   userAgent: string
 ) {
-  // Find session by comparing hashes (Need to iterate or have a token id in the JWT)
-  // For security & performance, in production we would embed the sessionId in the refresh token string (e.g. sessionId.randomString)
-  // For this example, assuming oldRefreshToken format is "sessionId.tokenString"
-  const [sessionId, tokenString] = oldRefreshToken.includes('.') 
-    ? oldRefreshToken.split('.') 
+  const [sessionId, tokenString] = oldRefreshToken.includes('.')
+    ? oldRefreshToken.split('.')
     : [null, oldRefreshToken];
 
   let session;
   if (sessionId) {
     session = await Session.findById(sessionId);
   } else {
-    // Fallback: This is highly inefficient in MongoDB. The token MUST include the ID in reality.
-    // Assuming the user implements "sessionId.tokenString" moving forward.
     throw new Error('Refresh token must contain session ID');
   }
 
   if (!session) return null;
 
-  const isValid = await bcrypt.compare(tokenString, session.refreshTokenHash);
+  // Use argon2 consistently (was bcrypt — security audit fix)
+  const isValid = await argon2.verify(session.refreshTokenHash, tokenString);
 
   if (!isValid || !session.isActive) {
     // REUSE DETECTED!
@@ -113,7 +106,7 @@ export async function refreshSession(
 
   // Rotate token
   const { token, hash } = await generateRefreshToken();
-  
+
   session.refreshTokenHash = hash;
   session.lastUsedAt = new Date();
   session.ipAddress = ipAddress;
@@ -149,7 +142,7 @@ export async function revokeAllUserSessions(userId: mongoose.Types.ObjectId, exc
   const sessionIds = sessions.map(s => s._id);
 
   await Session.updateMany(query, { isActive: false, revokedAt: new Date() });
-  
+
   const pipeline = redis.pipeline();
   sessionIds.forEach(id => pipeline.del(`session:${id}`));
   await pipeline.exec();
@@ -157,4 +150,9 @@ export async function revokeAllUserSessions(userId: mongoose.Types.ObjectId, exc
 
 export async function getUserActiveSessions(userId: mongoose.Types.ObjectId) {
   return await Session.find({ userId, isActive: true }).sort({ lastUsedAt: -1 });
+}
+
+export async function cleanExpiredSessions() {
+  const result = await Session.deleteMany({ expiresAt: { $lt: new Date() } });
+  logger.info({ deletedCount: result.deletedCount }, 'Cleaned up expired sessions');
 }

@@ -1,0 +1,29 @@
+{
+  "title": "Auth & Security Operations",
+  "timezone": "browser",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Failed Logins vs Success (5m)",
+      "targets": [
+        { "expr": "rate(auth_login_failed_total[5m])", "legendFormat": "Failed" },
+        { "expr": "rate(auth_login_success_total[5m])", "legendFormat": "Success" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Avg Risk Score (1h)",
+      "targets": [
+        { "expr": "avg_over_time(auth_login_risk_score[1h])" }
+      ],
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "green", "value": null },
+          { "color": "orange", "value": 0.4 },
+          { "color": "red", "value": 0.7 }
+        ]
+      }
+    }
+  ]
+}

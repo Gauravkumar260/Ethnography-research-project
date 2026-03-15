@@ -26,4 +26,4 @@ const fieldDataSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default (mongoose.models.FieldData as any) || mongoose.model('FieldData', fieldDataSchema);
+export default mongoose.model('FieldData', fieldDataSchema);

@@ -1,12 +1,13 @@
-// @ts-nocheck
-import FieldData from '../models/FieldData';
+import { Request, Response } from 'express';
+import { logger } from '../lib/logger';
+import fieldDataService from '../services/fieldDataService';
 
 // @desc    Get all field data (with optional filtering)
 // @route   GET /api/field-data
-const getFieldData = async (req, res) => {
+const getFieldData = async (req: Request, res: Response) => {
   try {
     const { type, community } = req.query;
-    let query = {};
+    const query: Record<string, any> = {};
 
     if (type && type !== 'all') {
       query.type = String(type);
@@ -15,24 +16,24 @@ const getFieldData = async (req, res) => {
       query.community = String(community);
     }
 
-    const data = await FieldData.find(query).sort({ createdAt: -1 });
-    res.json(data);
+    const data = await fieldDataService.findAll(query);
+    res.status(200).json({ success: true, count: data.length, data });
   } catch (error) {
-    res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
 // @desc    Upload new field data (Protected)
 // @route   POST /api/field-data/upload
-const uploadFieldData = async (req, res) => {
+const uploadFieldData = async (req: Request, res: Response) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'Please upload a file' });
+    if (!(req as any).file) {
+      return res.status(400).json({ success: false, message: 'Please upload a file' });
     }
 
     const { title, type, community, description, researcher, batch, datasetSize, fileCount } = req.body;
 
-    const newData = new FieldData({
+    const savedData = await fieldDataService.create({
       title,
       type,
       community,
@@ -41,15 +42,14 @@ const uploadFieldData = async (req, res) => {
       batch,
       datasetSize,
       fileCount,
-      fileUrl: req.file.path,
+      fileUrl: (req as any).file.path,
     });
 
-    const savedData = await newData.save();
-    res.status(201).json(savedData);
+    res.status(201).json({ success: true, data: savedData });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server Error' });
+    logger.error(error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
 
-export {  getFieldData, uploadFieldData  };
+export { getFieldData, uploadFieldData };

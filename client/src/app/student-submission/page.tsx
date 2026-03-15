@@ -1,7 +1,5 @@
 "use client";
 
-// IMPORTS
-// ------------------------------------------------------------------
 import React, { useState } from 'react';
 import Link from 'next/link';
 import {
@@ -9,26 +7,23 @@ import {
   CheckCircle, ArrowLeft, Image as ImageIcon, AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { apiFetch } from '@/lib/api'; // Ensure this path matches your project
+import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
-// TYPES
-// ------------------------------------------------------------------
 type SubmissionType = 'thesis' | 'publication' | 'dataset' | 'patent' | '';
 
 export default function SubmissionPage() {
-  // STATE MANAGEMENT
-  // ----------------------------------------------------------------
+  const t = useTranslations('Submission');
+
   const [submissionType, setSubmissionType] = useState<SubmissionType>('');
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreed, setAgreed] = useState(false);
 
-  // FILE STATE (Separate states for different upload slots)
   const [mainFile, setMainFile] = useState<File | null>(null);
-  const [mediaFile, setMediaFile] = useState<File | null>(null); // Only for Field Data
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [ethicsFile, setEthicsFile] = useState<File | null>(null);
 
-  // FORM DATA STATE
   const [formData, setFormData] = useState({
     studentName: '',
     studentId: '',
@@ -42,13 +37,10 @@ export default function SubmissionPage() {
     keywords: '',
   });
 
-  // HANDLERS
-  // ----------------------------------------------------------------
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Generic File Handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<File | null>>) => {
     if (e.target.files && e.target.files[0]) {
       setter(e.target.files[0]);
@@ -59,15 +51,15 @@ export default function SubmissionPage() {
     e.preventDefault();
 
     if (!mainFile) {
-      toast.error("Please upload the required document.");
+      toast.error(t('errorUploadDoc'));
       return;
     }
     if (!ethicsFile) {
-      toast.error("Please upload the ethics approval form.");
+      toast.error(t('errorUploadEthics'));
       return;
     }
     if (!agreed) {
-      toast.error("Please agree to the declaration.");
+      toast.error(t('errorAgree'));
       return;
     }
 
@@ -83,10 +75,6 @@ export default function SubmissionPage() {
       if (mediaFile) data.append('mediaFile', mediaFile);
       data.append('ethicsFile', ethicsFile);
 
-      // If we're sending FormData, we should let the browser set the Content-Type header
-      // automatically so it includes the proper boundary. In our apiFetch wrapper,
-      // providing 'body' instead of 'bodyData' skips stringification. We also override
-      // the default Content-Type header (which is application/json) by passing undefined.
       await apiFetch('/research/submit', {
         method: 'POST',
         body: data,
@@ -96,45 +84,40 @@ export default function SubmissionPage() {
       });
 
       setSubmitted(true);
-      toast.success("Research submitted successfully!");
+      toast.success(t('successToast'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error: unknown) {
-      console.error(error);
       const message = error instanceof Error
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ? (error as any).response?.data?.message || error.message
-        : "Submission failed.";
+        : t('errorToast');
       toast.error(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // HELPER: Dynamic Title based on selection
   const getPageTitle = () => {
     switch (submissionType) {
-      case 'thesis': return 'Submit Thesis/Dissertation';
-      case 'publication': return 'Submit Publication';
-      case 'dataset': return 'Submit Field Data';
-      case 'patent': return 'Submit Patent';
-      default: return 'Submit Research';
+      case 'thesis': return t('submitThesis');
+      case 'publication': return t('submitPublication');
+      case 'dataset': return t('submitDataset');
+      case 'patent': return t('submitPatent');
+      default: return t('submitResearch');
     }
   };
 
-  // HELPER: Main File Label
   const getMainFileLabel = () => {
     switch (submissionType) {
-      case 'thesis': return 'Upload Thesis PDF';
-      case 'publication': return 'Upload Publication PDF';
-      case 'dataset': return 'Upload Dataset Files (ZIP)';
-      case 'patent': return 'Upload Patent Documentation';
-      default: return 'Upload Document';
+      case 'thesis': return t('uploadThesisPdf');
+      case 'publication': return t('uploadPublicationPdf');
+      case 'dataset': return t('uploadDatasetZip');
+      case 'patent': return t('uploadPatentDoc');
+      default: return t('uploadDocument');
     }
   };
 
-  // RENDER: SUCCESS VIEW
-  // ----------------------------------------------------------------
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#Eae9e5] font-sans px-4">
@@ -142,9 +125,9 @@ export default function SubmissionPage() {
           <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-6">
             <CheckCircle className="w-10 h-10 text-green-700" />
           </div>
-          <h2 className="text-[#1a1a1a] mb-4 text-3xl font-serif font-bold">Submission Received</h2>
+          <h2 className="text-[#1a1a1a] mb-4 text-3xl font-serif font-bold">{t('successTitle')}</h2>
           <p className="text-[#1a1a1a]/70 mb-8 leading-relaxed">
-            Thank you for contributing to Unheard India. Your research has been sent for faculty review.
+            {t('successDesc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
@@ -154,10 +137,10 @@ export default function SubmissionPage() {
               }}
               className="px-8 py-3 bg-[#99302A] text-white hover:bg-[#7a2621] transition-colors text-xs font-bold uppercase tracking-wider rounded-sm"
             >
-              Submit Another
+              {t('submitAnother')}
             </button>
             <Link href="/research" className="px-8 py-3 bg-white border border-[#1a1a1a]/20 text-[#1a1a1a] hover:bg-[#FAFAF9] transition-colors text-xs font-bold uppercase tracking-wider rounded-sm">
-              Back to Library
+              {t('backToLibrary')}
             </Link>
           </div>
         </div>
@@ -165,33 +148,29 @@ export default function SubmissionPage() {
     );
   }
 
-  // RENDER: MAIN VIEW
-  // ----------------------------------------------------------------
   return (
     <div className="min-h-screen bg-[#Eae9e5] text-[#1a1a1a] font-sans">
 
-      {/* SELECTION GRID (Step 1) */}
       {!submissionType && (
         <>
           <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
             <div className="max-w-5xl mx-auto text-center">
-              <h1 className="mb-4 text-4xl font-bold font-serif">Submit Your Research</h1>
+              <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
               <p className="text-[#E3E1DB]/80 max-w-3xl mx-auto text-lg font-light">
-                Share your ethnographic research, thesis, publications, or field data with the academic community.
+                {t('subtitle')}
               </p>
             </div>
           </section>
 
           <section className="py-20 px-4">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-[#1a1a1a] mb-12 text-center text-2xl font-serif font-bold">What would you like to submit?</h2>
+              <h2 className="text-[#1a1a1a] mb-12 text-center text-2xl font-serif font-bold">{t('selectPrompt')}</h2>
               <div className="grid md:grid-cols-2 gap-8">
-                {/* Options */}
                 {[
-                  { id: 'thesis', icon: BookOpen, title: 'Thesis / Dissertation', desc: 'Submit your completed thesis or dissertation.' },
-                  { id: 'publication', icon: FileText, title: 'Publication / Paper', desc: 'Share your journal articles or conference papers.' },
-                  { id: 'dataset', icon: Database, title: 'Field Data / Dataset', desc: 'Contribute primary research data or raw field notes.' },
-                  { id: 'patent', icon: Award, title: 'Patent / Innovation', desc: 'Submit documentation of research innovations.' }
+                  { id: 'thesis', icon: BookOpen, title: t('thesisTitle'), desc: t('thesisDesc') },
+                  { id: 'publication', icon: FileText, title: t('publicationTitle'), desc: t('publicationDesc') },
+                  { id: 'dataset', icon: Database, title: t('datasetTitle'), desc: t('datasetDesc') },
+                  { id: 'patent', icon: Award, title: t('patentTitle'), desc: t('patentDesc') }
                 ].map((item) => (
                   <button key={item.id} onClick={() => setSubmissionType(item.id as SubmissionType)} className="group bg-white p-10 border border-[#1a1a1a]/10 hover:border-[#99302A] hover:shadow-xl transition-all text-left rounded-sm flex flex-col items-start">
                     <div className="w-14 h-14 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-6 group-hover:bg-[#99302A] transition-colors">
@@ -207,56 +186,49 @@ export default function SubmissionPage() {
         </>
       )}
 
-      {/* FORM VIEW (Step 2) */}
       {submissionType && (
         <section className="max-w-4xl mx-auto px-4 py-10">
-          {/* Back Button */}
           <button
             onClick={() => setSubmissionType('')}
             className="mb-8 flex items-center gap-2 text-sm text-[#99302A] hover:underline font-medium transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to selection
+            <ArrowLeft className="w-4 h-4" /> {t('backToSelection')}
           </button>
 
           <div className="bg-white p-10 md:p-14 shadow-sm border border-[#1a1a1a]/5 rounded-sm">
             <form onSubmit={handleSubmit} className="space-y-10">
 
-              {/* Header */}
               <h2 className="text-xl font-serif font-bold text-[#1a1a1a] border-b border-[#1a1a1a]/10 pb-4">
                 {getPageTitle()}
               </h2>
 
               {/* Student Information */}
               <div>
-                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">Student Information</h3>
+                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">{t('studentInfo')}</h3>
                 <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
-                  {/* Name */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Full Name *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('fullName')} *</label>
                     <input type="text" name="studentName" value={formData.studentName} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="Enter your full name"
                     />
                   </div>
-                  {/* ID */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Student ID *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('studentId')} *</label>
                     <input type="text" name="studentId" value={formData.studentId} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="e.g., PhD2018001"
                     />
                   </div>
-                  {/* Email */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Email *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('email')} *</label>
                     <input type="email" name="email" value={formData.email} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="your.email@university.edu"
                     />
                   </div>
-                  {/* Program */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Program *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('program')} *</label>
                     <select name="program" value={formData.program} onChange={handleChange}
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                     >
@@ -265,17 +237,15 @@ export default function SubmissionPage() {
                       <option value="MPhil">MPhil</option>
                     </select>
                   </div>
-                  {/* Batch */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Batch *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('batch')} *</label>
                     <input type="text" name="batch" value={formData.batch} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="e.g., 2019-2024"
                     />
                   </div>
-                  {/* Mentor */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Research Mentor/Advisor *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('mentor')} *</label>
                     <input type="text" name="mentor" value={formData.mentor} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="Dr. Name"
@@ -286,46 +256,39 @@ export default function SubmissionPage() {
 
               {/* Research Details */}
               <div>
-                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">Research Details</h3>
+                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">{t('researchDetails')}</h3>
                 <div className="space-y-6">
-                  {/* Title */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Title *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('researchTitle')} *</label>
                     <input type="text" name="title" value={formData.title} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="Full title of your research work"
                     />
                   </div>
-                  {/* Abstract */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Abstract *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('abstract')} *</label>
                     <textarea name="abstract" value={formData.abstract} onChange={handleChange} required rows={5}
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm resize-none transition-colors"
-                      placeholder="Provide a comprehensive abstract (200-300 words)"
+                      placeholder={t('abstractPlaceholder')}
                     />
                   </div>
-
-                  {/* Community & Type Row */}
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#1a1a1a]/70">Community Studied *</label>
+                      <label className="text-xs font-bold text-[#1a1a1a]/70">{t('communityStudied')} *</label>
                       <input type="text" name="community" value={formData.community} onChange={handleChange} required
                         className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                         placeholder="e.g. Van Gujjar"
                       />
                     </div>
-                    {/* Read-only Research Type */}
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-[#1a1a1a]/70">Research Type *</label>
+                      <label className="text-xs font-bold text-[#1a1a1a]/70">{t('researchType')} *</label>
                       <input type="text" value={submissionType === 'dataset' ? 'Field Data' : submissionType} disabled
                         className="w-full px-4 py-3 bg-[#FAFAF9] border border-[#E5E5E5] rounded-sm text-sm capitalize text-[#1a1a1a]/60 cursor-not-allowed"
                       />
                     </div>
                   </div>
-
-                  {/* Keywords - Global for all types */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#1a1a1a]/70">Keywords (comma separated) *</label>
+                    <label className="text-xs font-bold text-[#1a1a1a]/70">{t('keywords')} *</label>
                     <input type="text" name="keywords" value={formData.keywords} onChange={handleChange} required
                       className="w-full px-4 py-3 bg-white border border-[#E5E5E5] focus:border-[#99302A] focus:outline-none rounded-sm text-sm transition-colors"
                       placeholder="e.g., nomadic communities, craft heritage, cultural identity"
@@ -334,27 +297,26 @@ export default function SubmissionPage() {
                 </div>
               </div>
 
-              {/* Upload Files Section */}
+              {/* Upload Files */}
               <div>
-                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">Upload Files</h3>
+                <h3 className="text-sm font-bold text-[#1a1a1a] mb-6 uppercase tracking-wider">{t('uploadFiles')}</h3>
                 <div className="space-y-4">
 
-                  {/* 1. MAIN FILE (Always Visible) */}
                   <div className="border border-[#E5E5E5] p-8 text-center bg-white rounded-sm hover:shadow-sm transition-shadow">
                     <div className="flex flex-col items-center">
                       {mainFile ? (
                         <>
                           <CheckCircle className="w-10 h-10 text-green-600 mb-2" />
                           <p className="text-sm font-bold text-[#1a1a1a]">{mainFile.name}</p>
-                          <button type="button" onClick={() => setMainFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">Remove</button>
+                          <button type="button" onClick={() => setMainFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">{t('remove')}</button>
                         </>
                       ) : (
                         <>
                           <Upload className="w-8 h-8 text-[#1a1a1a]/80 mb-3" />
                           <p className="text-sm font-bold text-[#1a1a1a] mb-1">{getMainFileLabel()}</p>
-                          <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">Maximum file size: 500MB • Accepted formats: PDF, ZIP</p>
+                          <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">{t('maxFileSize')}</p>
                           <label className="px-8 py-3 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors cursor-pointer">
-                            Choose File
+                            {t('chooseFile')}
                             <input type="file" className="hidden" onChange={(e) => handleFileChange(e, setMainFile)} />
                           </label>
                         </>
@@ -362,7 +324,6 @@ export default function SubmissionPage() {
                     </div>
                   </div>
 
-                  {/* 2. SUPPORTING MEDIA (Only for Dataset/Field Data) */}
                   {submissionType === 'dataset' && (
                     <div className="border border-[#E5E5E5] p-8 text-center bg-white rounded-sm hover:shadow-sm transition-shadow">
                       <div className="flex flex-col items-center">
@@ -370,15 +331,15 @@ export default function SubmissionPage() {
                           <>
                             <CheckCircle className="w-10 h-10 text-green-600 mb-2" />
                             <p className="text-sm font-bold text-[#1a1a1a]">{mediaFile.name}</p>
-                            <button type="button" onClick={() => setMediaFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">Remove</button>
+                            <button type="button" onClick={() => setMediaFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">{t('remove')}</button>
                           </>
                         ) : (
                           <>
                             <ImageIcon className="w-8 h-8 text-[#1a1a1a]/80 mb-3" />
-                            <p className="text-sm font-bold text-[#1a1a1a] mb-1">Upload Supporting Media (Optional)</p>
-                            <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">Videos, audio, or images related to your dataset</p>
+                            <p className="text-sm font-bold text-[#1a1a1a] mb-1">{t('supportingMedia')}</p>
+                            <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">{t('supportingMediaDesc')}</p>
                             <label className="px-8 py-3 bg-white border border-[#1a1a1a]/20 text-[#1a1a1a] text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#FAFAF9] transition-colors cursor-pointer">
-                              Choose Files
+                              {t('chooseFiles')}
                               <input type="file" className="hidden" onChange={(e) => handleFileChange(e, setMediaFile)} />
                             </label>
                           </>
@@ -387,22 +348,21 @@ export default function SubmissionPage() {
                     </div>
                   )}
 
-                  {/* 3. ETHICS (Always Visible) */}
                   <div className="border border-[#E5E5E5] p-8 text-center bg-white rounded-sm hover:shadow-sm transition-shadow">
                     <div className="flex flex-col items-center">
                       {ethicsFile ? (
                         <>
                           <CheckCircle className="w-10 h-10 text-green-600 mb-2" />
                           <p className="text-sm font-bold text-[#1a1a1a]">{ethicsFile.name}</p>
-                          <button type="button" onClick={() => setEthicsFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">Remove</button>
+                          <button type="button" onClick={() => setEthicsFile(null)} className="mt-3 text-xs text-[#99302A] hover:underline font-bold uppercase tracking-wider">{t('remove')}</button>
                         </>
                       ) : (
                         <>
                           <FileText className="w-8 h-8 text-[#1a1a1a]/80 mb-3" />
-                          <p className="text-sm font-bold text-[#1a1a1a] mb-1">Upload Ethics Approval & Consent Forms *</p>
-                          <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">IRB approval, community consent forms, participant agreements</p>
+                          <p className="text-sm font-bold text-[#1a1a1a] mb-1">{t('ethicsUpload')} *</p>
+                          <p className="text-[10px] text-[#1a1a1a]/50 uppercase tracking-wide mb-5">{t('ethicsUploadDesc')}</p>
                           <label className="px-8 py-3 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors cursor-pointer">
-                            Choose Files
+                            {t('chooseFiles')}
                             <input type="file" className="hidden" onChange={(e) => handleFileChange(e, setEthicsFile)} />
                           </label>
                         </>
@@ -413,48 +373,48 @@ export default function SubmissionPage() {
                 </div>
               </div>
 
-              {/* Declaration Checkbox */}
+              {/* Declaration */}
               <div className="bg-[#F5F5F4] p-6 flex gap-3 items-start border border-[#E5E5E5] rounded-sm">
                 <input
                   type="checkbox" id="declaration" checked={agreed} onChange={(e) => setAgreed(e.target.checked)}
                   className="mt-1 accent-[#99302A] cursor-pointer w-4 h-4"
                 />
                 <label htmlFor="declaration" className="text-xs text-[#1a1a1a]/80 leading-relaxed cursor-pointer select-none">
-                  I declare that this research was conducted in accordance with ethical guidelines, all participants provided informed consent, and the data is accurate to the best of my knowledge. I understand that this submission will undergo faculty review before publication.
+                  {t('declaration')}
                 </label>
               </div>
 
-              {/* Action Buttons */}
+              {/* Actions */}
               <div className="flex gap-4 pt-2">
                 <button
                   type="submit" disabled={isLoading}
                   className="px-10 py-3.5 bg-[#99302A] text-white hover:bg-[#7a2621] transition-colors font-bold tracking-wider uppercase text-xs rounded-sm disabled:opacity-50 min-w-[180px]"
                 >
-                  {isLoading ? "Submitting..." : "Submit for Review"}
+                  {isLoading ? t('submitting') : t('submitForReview')}
                 </button>
                 <button
                   type="button" onClick={() => setSubmissionType('')}
                   className="px-10 py-3.5 bg-white border border-[#E5E5E5] text-[#1a1a1a] hover:bg-gray-50 transition-colors font-bold tracking-wider uppercase text-xs rounded-sm"
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
 
             </form>
           </div>
 
-          {/* Submission Guidelines Footer */}
+          {/* Guidelines */}
           <div className="bg-[#Eae2cc] p-8 mt-8 rounded-sm border border-[#d6cfbb]">
             <div className="flex items-center gap-2 mb-4">
               <AlertCircle className="w-5 h-5 text-[#99302A]" />
-              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a]">Submission Guidelines</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1a1a1a]">{t('guidelinesTitle')}</h4>
             </div>
             <ul className="list-disc pl-5 space-y-2 text-xs text-[#1a1a1a]/80 leading-relaxed font-medium">
-              <li>Ensure all personal identifiers are properly anonymized where required</li>
-              <li>Include complete metadata (keywords, abstract, community details)</li>
-              <li>Ethics approval documentation is mandatory for all submissions</li>
-              <li>Large datasets (&gt;500MB) may require special upload arrangements</li>
-              <li>Faculty review typically takes 3-5 business days</li>
+              <li>{t('guideline1')}</li>
+              <li>{t('guideline2')}</li>
+              <li>{t('guideline3')}</li>
+              <li>{t('guideline4')}</li>
+              <li>{t('guideline5')}</li>
             </ul>
           </div>
 

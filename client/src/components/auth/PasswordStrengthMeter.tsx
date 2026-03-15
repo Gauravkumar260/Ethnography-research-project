@@ -1,78 +1,83 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import zxcvbn from "zxcvbn";
-import { Progress } from "@/components/ui/progress";
+import React, { useMemo } from 'react';
+import { Check, X } from 'lucide-react';
 
 interface PasswordStrengthMeterProps {
   password?: string;
 }
 
-export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterProps) {
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState<string[]>([]);
+export function PasswordStrengthMeter({ password = '' }: PasswordStrengthMeterProps) {
+  const { score, rules } = useMemo(() => {
+    const minLength = password.length >= 12;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasDigit = /\d/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-  useEffect(() => {
-    if (!password) {
-      setScore(0);
-      setFeedback([]);
-      return;
-    }
+    // Simple score proxy 0-4 based on rules
+    const rulesMet = [minLength, hasUpper, hasLower, hasDigit, hasSpecial].filter(Boolean).length;
+    const strengthScore = password.length === 0 ? 0 : Math.min(4, Math.max(1, Math.floor((rulesMet / 5) * 4)));
 
-    const result = zxcvbn(password);
-    setScore(result.score);
-    setFeedback(result.feedback.suggestions || []);
+    return {
+      score: strengthScore,
+      rules: { minLength, hasUpper, hasLower, hasDigit, hasSpecial }
+    };
   }, [password]);
 
-  const getColor = (score: number) => {
-    switch (score) {
-      case 0: return "bg-red-500";
-      case 1: return "bg-orange-500";
-      case 2: return "bg-yellow-500";
-      case 3: return "bg-lime-500";
-      case 4: return "bg-green-500";
-      default: return "bg-slate-200";
-    }
+  const getColor = (s: number) => {
+    if (s === 0) return 'bg-muted';
+    if (s <= 1) return 'bg-destructive';
+    if (s === 2) return 'bg-amber-500';
+    if (s === 3) return 'bg-blue-500';
+    return 'bg-green-500';
   };
 
-  const getLabel = (score: number) => {
-    switch (score) {
-      case 0: return "Very Weak";
-      case 1: return "Weak";
-      case 2: return "Fair";
-      case 3: return "Good";
-      case 4: return "Strong";
-      default: return "";
-    }
+  const getLabel = (s: number) => {
+    if (s === 0) return 'None';
+    if (s <= 1) return 'Weak';
+    if (s === 2) return 'Fair';
+    if (s === 3) return 'Good';
+    return 'Strong';
   };
-
-  // Score is 0-4, progress value is 0-100
-  const progressValue = password ? ((score + 1) / 5) * 100 : 0;
 
   return (
-    <div className="mt-2 space-y-2">
-      <div className="flex justify-between items-center text-xs">
-        <span className="font-medium text-slate-500">Password Strength</span>
-        <span className={`font-semibold ${password ? "" : "opacity-0"}`}>{getLabel(score)}</span>
+    <div className="space-y-4 mt-2">
+      <div className="flex gap-2">
+        {[1, 2, 3, 4].map((segment) => (
+          <div 
+            key={segment} 
+            className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${score >= segment ? getColor(score) : 'bg-muted'}`} 
+          />
+        ))}
       </div>
-      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-300 ${getColor(score)}`} 
-          style={{ width: `${progressValue}%` }}
-        />
+      <div className="text-sm font-medium text-muted-foreground flex justify-between">
+        <span>Password Strength</span>
+        <span className={score >= 3 ? 'text-green-600' : 'text-muted-foreground'}>{getLabel(score)}</span>
       </div>
-      {feedback.length > 0 && (
-        <ul className="text-xs text-slate-500 list-disc pl-4 space-y-1">
-          {feedback.map((f, i) => (
-            <li key={i}>{f}</li>
-          ))}
+
+      <div className="space-y-2 text-sm text-muted-foreground bg-muted/30 p-4 rounded-md">
+        <p className="font-medium text-foreground">Password must contain:</p>
+        <ul className="grid grid-cols-2 gap-2">
+          <li className="flex items-center gap-2">
+            {rules.minLength ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-muted-foreground" />}
+            At least 12 characters
+          </li>
+          <li className="flex items-center gap-2">
+            {rules.hasUpper ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-muted-foreground" />}
+            Uppercase letter
+          </li>
+          <li className="flex items-center gap-2">
+            {rules.hasLower ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-muted-foreground" />}
+            Lowercase letter
+          </li>
+          <li className="flex items-center gap-2">
+            {rules.hasDigit ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-muted-foreground" />}
+            Number
+          </li>
+          <li className="flex items-center gap-2">
+            {rules.hasSpecial ? <Check className="w-4 h-4 text-green-500" /> : <X className="w-4 h-4 text-muted-foreground" />}
+            Special character
+          </li>
         </ul>
-      )}
-      <div className="text-xs text-slate-500 flex gap-4 mt-2">
-        <span className={password.length >= 12 ? "text-green-600" : ""}>✓ 12+ chars</span>
-        <span className={/[A-Z]/.test(password) ? "text-green-600" : ""}>✓ Uppercase</span>
-        <span className={/[0-9]/.test(password) ? "text-green-600" : ""}>✓ Number</span>
-        <span className={/[^A-Za-z0-9]/.test(password) ? "text-green-600" : ""}>✓ Symbol</span>
       </div>
     </div>
   );

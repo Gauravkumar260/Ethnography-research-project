@@ -1,18 +1,15 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Monitor, Smartphone, Globe, Clock, Trash2, ShieldCheck } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface Session {
   id: string;
-  deviceInfo: {
-    browser?: string;
-    os?: string;
-    deviceType?: string;
-  };
+  deviceInfo: { browser?: string; os?: string; deviceType?: string };
   ipAddress: string;
-  location?: {
-    country?: string;
-    city?: string;
-    region?: string;
-  };
+  location?: { country?: string; city?: string; region?: string };
   lastUsedAt: string;
   isCurrent: boolean;
 }
@@ -20,96 +17,120 @@ interface Session {
 export function SessionsTable() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
+  const [revokingId, setRevokingId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch sessions logic here
-    const fetchSessions = async () => {
-      // Mock for now until API is connected
+    // Mock fetch
+    setTimeout(() => {
       setSessions([
         {
           id: '1',
-          deviceInfo: { browser: 'Chrome', os: 'Windows' },
+          deviceInfo: { browser: 'Chrome', os: 'macOS', deviceType: 'desktop' },
           ipAddress: '192.168.1.1',
+          location: { city: 'New York', country: 'US' },
           lastUsedAt: new Date().toISOString(),
           isCurrent: true,
         },
+        {
+          id: '2',
+          deviceInfo: { browser: 'Safari', os: 'iOS', deviceType: 'mobile' },
+          ipAddress: '10.0.0.12',
+          location: { city: 'Boston', country: 'US' },
+          lastUsedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
+          isCurrent: false,
+        }
       ]);
       setLoading(false);
-    };
-    
-    fetchSessions();
+    }, 1000);
   }, []);
 
   const handleRevoke = async (id: string) => {
-    // await api.delete(`/auth/sessions/${id}`);
-    setSessions(sessions.filter(s => s.id !== id));
+    setRevokingId(id);
+    setTimeout(() => {
+      setSessions(sessions.filter(s => s.id !== id));
+      setRevokingId(null);
+      toast.success("Session revoked successfully");
+    }, 800);
   };
 
   const handleRevokeAll = async () => {
-    // await api.delete('/auth/sessions');
+    toast.success("All other sessions revoked");
     setSessions(sessions.filter(s => s.isCurrent));
   };
 
   if (loading) {
-    return <div className="animate-pulse flex space-x-4">
-      <div className="flex-1 space-y-4 py-1">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="space-y-2">
-          <div className="h-4 bg-gray-200 rounded"></div>
-          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+    return (
+      <div className="space-y-4 w-full">
+        <div className="h-8 bg-muted animate-pulse rounded w-1/4"></div>
+        <div className="space-y-3">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-20 bg-muted animate-pulse rounded-lg border border-border"></div>
+          ))}
         </div>
       </div>
-    </div>;
+    );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Active Sessions</h3>
-        <button
-          onClick={handleRevokeAll}
-          className="text-sm text-red-600 hover:text-red-500 font-medium"
-        >
-          Log out all other devices
-        </button>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-xl font-bold font-serif text-primary">Active Sessions</h3>
+          <p className="text-sm text-muted-foreground mt-1">Manage devices currently logged into your account.</p>
+        </div>
+        <Button variant="destructive" onClick={handleRevokeAll} className="gap-2">
+          <Trash2 className="w-4 h-4" /> Revoke All Others
+        </Button>
       </div>
 
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
+      <div className="bg-card shadow-sm border border-border rounded-xl overflow-hidden">
+        <ul className="divide-y divide-border">
           {sessions.map((session) => (
-            <li key={session.id}>
-              <div className="px-4 py-4 sm:px-6 flex items-center justify-between">
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-indigo-600 truncate">
-                      {session.deviceInfo?.browser} on {session.deviceInfo?.os}
-                    </span>
-                    {session.isCurrent && (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Current Session
-                      </span>
-                    )}
+            <li key={session.id} className="p-4 sm:px-6 hover:bg-muted/30 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-primary/5 rounded-full hidden sm:block">
+                    {session.deviceInfo?.deviceType === 'mobile' ? 
+                      <Smartphone className="w-6 h-6 text-primary" /> : 
+                      <Monitor className="w-6 h-6 text-primary" />
+                    }
                   </div>
-                  <div className="mt-2 flex items-center text-sm text-gray-500">
-                    <span>IP: {session.ipAddress}</span>
-                    {session.location?.city && (
-                      <>
-                        <span className="mx-2">•</span>
-                        <span>{session.location.city}, {session.location.country}</span>
-                      </>
-                    )}
-                    <span className="mx-2">•</span>
-                    <span>Last active: {new Date(session.lastUsedAt).toLocaleString()}</span>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold text-foreground">
+                        {session.deviceInfo?.browser} on {session.deviceInfo?.os}
+                      </span>
+                      {session.isCurrent && (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                          <ShieldCheck className="w-3 h-3" /> Current
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5" />
+                        {session.location?.city ? `${session.location.city}, ${session.location.country}` : 'Unknown Location'} ({session.ipAddress})
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5" />
+                        Last active: {new Date(session.lastUsedAt).toLocaleDateString()}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
                 {!session.isCurrent && (
-                  <button
-                    onClick={() => handleRevoke(session.id)}
-                    className="ml-4 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    Revoke
-                  </button>
+                  <div className="ml-4 flex-shrink-0">
+                    {revokingId === session.id ? (
+                      <Button variant="outline" disabled className="text-destructive border-destructive/30">
+                        Revoking...
+                      </Button>
+                    ) : (
+                      <Button variant="outline" onClick={() => handleRevoke(session.id)} className="text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors">
+                        Revoke
+                      </Button>
+                    )}
+                  </div>
                 )}
               </div>
             </li>

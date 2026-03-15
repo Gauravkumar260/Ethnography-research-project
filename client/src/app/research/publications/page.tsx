@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FileText, Download, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function PublicationsPage() {
+  const t = useTranslations('Publications');
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,14 +18,14 @@ export default function PublicationsPage() {
       try {
         // ✅ Fix 1: Get the response object correctly
         const { data: response } = await apiFetch('/research/public');
-        
+
         // ✅ Fix 2: Extract the array safely (response.data is the array)
         const allItems = response.data || [];
-        
+
         // ✅ Fix 3: Case-insensitive filter
         setPublications(allItems.filter((item: any) => item.type?.toLowerCase() === 'publication'));
       } catch (error) {
-        console.error("Error:", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -36,11 +38,11 @@ export default function PublicationsPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back to Research
+            <ChevronLeft className="w-5 h-5" /> {t('backToResearch')}
           </Link>
-          <h1 className="mb-4 text-4xl font-bold font-serif">Publications</h1>
+          <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            Peer-reviewed research articles and papers advancing scholarly understanding.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -51,8 +53,8 @@ export default function PublicationsPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>
           ) : publications.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg p-10">
-               <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> 
-               <p>No publications found.</p>
+              <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+              <p>{t('noResults')}</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -74,16 +76,16 @@ export default function PublicationsPage() {
                       <p className="text-sm text-[#1a1a1a]/70 leading-relaxed mb-6 bg-[#FAFAF9] p-4 border-l-2 border-[#99302A]">
                         "{pub.abstract}"
                       </p>
-                      
+
                       {/* ✅ Fix 4: Correct Download Link */}
                       {pub.fileUrl && (
-                        <a 
-                          href={`${API_BASE_URL}/${pub.fileUrl.replace(/\\/g, "/")}`} 
-                          target="_blank" 
-                          rel="noreferrer" 
+                        <a
+                          href={`${API_BASE_URL}/${pub.fileUrl.replace(/\\/g, "/")}`}
+                          target="_blank"
+                          rel="noreferrer"
                           className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline"
                         >
-                            <Download className="w-4 h-4" /> Download Full Paper
+                          <Download className="w-4 h-4" /> {t('downloadPaper')}
                         </a>
                       )}
                     </div>

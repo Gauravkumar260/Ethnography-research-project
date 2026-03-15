@@ -3,6 +3,8 @@ import { apiFetch } from '@/lib/api';
 export interface LoginCredentials {
   email: string;
   password: string;
+  mfaToken?: string;
+  deviceFingerprint?: string;
 }
 
 export const AuthService = {

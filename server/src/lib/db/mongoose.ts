@@ -1,8 +1,9 @@
+import { config } from '../../config/env';
 import mongoose from 'mongoose';
 import pino from 'pino';
 
 const logger = pino();
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = config.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

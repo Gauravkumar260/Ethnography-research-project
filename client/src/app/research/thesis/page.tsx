@@ -4,10 +4,12 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { BookOpen, Download, Calendar, User, ChevronLeft, GraduationCap, Loader2, AlertCircle } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 const API_BASE_URL = "https://unheard-india-api.onrender.com";
 
 export default function ThesisPage() {
+  const t = useTranslations('Thesis');
   const [theses, setTheses] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,11 +19,11 @@ export default function ThesisPage() {
         // ✅ FIX 1: Correctly extract the array from response.data
         const { data: response } = await apiFetch('/research/public');
         const allItems = response.data || [];
-        
+
         // ✅ FIX 2: Case-insensitive filtering
         setTheses(allItems.filter((item: any) => item.type?.toLowerCase() === 'thesis'));
       } catch (error) {
-        console.error("Error fetching theses:", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -34,11 +36,11 @@ export default function ThesisPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back to Research
+            <ChevronLeft className="w-5 h-5" /> {t('backToResearch')}
           </Link>
-          <h1 className="mb-4 text-4xl font-bold font-serif">Thesis & Dissertations</h1>
+          <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            Comprehensive academic research exploring cultural anthropology and lived experiences.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -49,8 +51,8 @@ export default function ThesisPage() {
             <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-[#99302A]" /></div>
           ) : theses.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg p-10">
-               <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> 
-               <p>No theses found.</p>
+              <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+              <p>{t('noResults')}</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -93,18 +95,18 @@ export default function ThesisPage() {
                           "{thesis.abstract}"
                         </p>
                       </div>
-                      
+
                       {/* ✅ FIX 3: Correct Download Link pointing to Render */}
                       {thesis.fileUrl && (
                         <div className="flex items-center gap-4">
-                            <a 
-                              href={`${API_BASE_URL}/${thesis.fileUrl.replace(/\\/g, "/")}`} 
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline"
-                            >
-                              <Download className="w-4 h-4" /> Download PDF
-                            </a>
+                          <a
+                            href={`${API_BASE_URL}/${thesis.fileUrl.replace(/\\/g, "/")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex items-center gap-2 text-sm text-[#99302A] font-bold hover:underline"
+                          >
+                            <Download className="w-4 h-4" /> {t('downloadPdf')}
+                          </a>
                         </div>
                       )}
                     </div>

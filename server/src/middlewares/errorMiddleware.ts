@@ -1,42 +1,36 @@
-// @ts-nocheck
+import { logger } from '../lib/logger';
 import 'colors';
-const errorHandler = (err, req, res, next) => {
-  // console.error('Error Stack:', err.stack); // Use for deep debugging
+import { Request, Response, NextFunction } from 'express';
 
+const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || 'Server Error';
 
-  // 1. Mongoose Bad ObjectId
   if (err.name === 'CastError') {
     message = 'Resource not found';
     statusCode = 404;
   }
 
-  // 2. Mongoose Duplicate Key
   if (err.code === 11000) {
     message = 'Duplicate field value entered';
     statusCode = 400;
   }
 
-  // 3. Mongoose Validation Error
   if (err.name === 'ValidationError') {
-    message = Object.values(err.errors).map(val => val.message).join(', ');
+    message = Object.values(err.errors as Record<string, any>).map((val: any) => val.message).join(', ');
     statusCode = 400;
   }
 
-  // 4. JWT Invalid Token
   if (err.name === 'JsonWebTokenError') {
     message = 'Invalid token';
     statusCode = 401;
   }
 
-  // 5. JWT Expired Token
   if (err.name === 'TokenExpiredError') {
     message = 'Token expired';
     statusCode = 401;
   }
 
-  // 6. Multer Errors
   if (err.name === 'MulterError') {
     statusCode = 400;
     if (err.code === 'LIMIT_FILE_SIZE') {
@@ -48,20 +42,18 @@ const errorHandler = (err, req, res, next) => {
     }
   }
 
-  // 7. Generic Error: If it contains "Invalid file type", return 400
   if (err.message && (err.message.includes('Invalid file type') || err.message.includes('Only PDF'))) {
     statusCode = 400;
   }
 
-  console.error(`Error (${statusCode}):`.red, message);
+  logger.error(`Error (${statusCode}):`.red, message);
 
+  // Never leak stack traces to the client
   res.status(statusCode).json({
     success: false,
     message,
-    correlationId: req.correlationId,
-    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
+    correlationId: (req as any).correlationId || req.headers['x-request-id'] || 'unknown'
   });
 };
 
-// ✅ CORRECT EXPORT for your server.js
-export {  errorHandler  };
+export { errorHandler };

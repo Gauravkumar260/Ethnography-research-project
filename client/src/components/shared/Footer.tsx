@@ -1,115 +1,73 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from 'next-intl';
 
 export function Footer() {
+  const t = useTranslations('Footer');
 
-  
   return (
-    <footer className="bg-[#1a1a1a] text-[#E3E1DB] py-20 border-t border-[#E3E1DB]/10">
+    <footer className="bg-primary text-primary-foreground py-20 border-t border-primary-foreground/10">
       <div className="container mx-auto px-4">
-
-        {/* Admin Quick Action (Merged from Admin Panel) */}
-        
 
         <div className="grid md:grid-cols-4 gap-12 text-sm">
 
           {/* Brand Column */}
           <div className="space-y-4">
             <Link href="/" className="hover:opacity-80 transition-opacity">
-              <h3 className="font-serif text-xl font-bold text-white">
-                Unheard India
+              <h3 className="font-serif text-xl font-bold text-primary-foreground">
+                {t('brand')}
               </h3>
             </Link>
             <p className="opacity-70 leading-relaxed max-w-xs">
-              Preserving stories today, so history doesn&apos;t lose them tomorrow.
+              {t('tagline')}
             </p>
           </div>
 
           {/* Explore Column */}
           <div className="space-y-4">
-            <h4 className="font-serif text-lg text-white">Explore</h4>
+            <h4 className="font-serif text-lg text-primary-foreground">{t('explore')}</h4>
             <ul className="space-y-3 opacity-70">
               <li>
-                <Link href="/communities" className="hover:text-white hover:underline transition-all">
-                  Communities
+                <Link href="/communities" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('communities')}
                 </Link>
               </li>
               <li>
-                <Link href="/documentaries" className="hover:text-white hover:underline transition-all">
-                  Documentaries
+                <Link href="/documentaries" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('documentaries')}
                 </Link>
               </li>
-              {/* <li>
-                <Link href="/research" className="hover:text-white hover:underline transition-all">
-                  Research Hub
-                </Link>
-              </li> */}
             </ul>
           </div>
-
-          {/* Research Column */}
-          {/* <div className="space-y-4">
-            <h4 className="font-serif text-lg text-white">Research</h4>
-            <ul className="space-y-3 opacity-70">
-              <li>
-                <Link href="/research/thesis" className="hover:text-white hover:underline transition-all">
-                  Thesis & Dissertations
-                </Link>
-              </li>
-              <li>
-                <Link href="/research/publications" className="hover:text-white hover:underline transition-all">
-                  Publications
-                </Link>
-              </li>
-              <li>
-                <Link href="/research/field-data" className="hover:text-white hover:underline transition-all">
-                  Field Data Repository
-                </Link>
-              </li>
-              <li>
-                <Link href="/research/patents" className="hover:text-white hover:underline transition-all">
-                  Patents & Innovations
-                </Link>
-              </li>
-              <li>
-                <Link href="/research/patents" className="hover:text-white hover:underline transition-all">
-                  Patents & Innovations
-                </Link>
-              </li>
-
-            </ul>
-          </div>
-          */}
 
           {/* Connect Column */}
           <div className="space-y-4">
-            <h4 className="font-serif text-lg text-white">Connect</h4>
+            <h4 className="font-serif text-lg text-primary-foreground">{t('connect')}</h4>
             <ul className="space-y-3 opacity-70">
               <li>
-                <Link href="/about" className="hover:text-white hover:underline transition-all">
-                  About Us
+                <Link href="/about" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('aboutUs')}
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-white hover:underline transition-all">
-                  Contact
+                <Link href="/contact" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('contact')}
                 </Link>
               </li>
               <li>
-                <Link href="/student-submission" className="hover:text-white hover:underline transition-all">
-                  Submit Research
+                <Link href="/student-submission" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('submitResearch')}
                 </Link>
               </li>
               <li>
-                {/* ✅ Added: Important for your platform */}
-                <Link href="/ethics-guidelines" className="hover:text-white hover:underline transition-all">
-                  Ethics Guidelines
+                <Link href="/ethics-guidelines" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('ethicsGuidelines')}
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-white hover:underline transition-all">
-                  Faculty Login
+                <Link href="/auth/login" className="hover:text-primary-foreground hover:underline transition-all">
+                  {t('facultyLogin')}
                 </Link>
               </li>
             </ul>
@@ -117,8 +75,8 @@ export function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-16 pt-8 border-t border-[#E3E1DB]/10 text-center text-xs opacity-40">
-          © 2025 Unheard India — Living Ethnographies
+        <div className="mt-16 pt-8 border-t border-primary-foreground/10 text-center text-xs opacity-40">
+          {t('copyright')}
         </div>
       </div>
     </footer>

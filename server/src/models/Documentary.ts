@@ -42,4 +42,4 @@ const documentarySchema = new mongoose.Schema(
   }
 );
 
-export default (mongoose.models.Documentary as any) || mongoose.model('Documentary', documentarySchema);
+export default mongoose.model('Documentary', documentarySchema);

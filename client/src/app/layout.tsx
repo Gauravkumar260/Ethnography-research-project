@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Crimson_Text } from "next/font/google"; 
+import { EB_Garamond, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google"; 
 import "@/styles/globals.css"; 
 import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
@@ -8,16 +8,21 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
-// 1. Configure Fonts
-const inter = Inter({ 
-  subsets: ["latin"], 
+const ebGaramond = EB_Garamond({ 
+  subsets: ["latin"],
+  variable: "--font-garamond" 
+});
+
+const ibmPlexSans = IBM_Plex_Sans({ 
+  weight: ['400', '500', '600', '700'],
+  subsets: ["latin"],
   variable: "--font-sans" 
 });
 
-const crimson = Crimson_Text({ 
-  weight: ['400', '600', '700'],
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ['400', '500'],
   subsets: ["latin"],
-  variable: "--font-serif" 
+  variable: "--font-mono"
 });
 
 export const metadata: Metadata = {
@@ -31,14 +36,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const locale = 'en';
-
-  // Providing all messages to the client
-  // side is the easiest way to get started
   const messages = await getMessages({locale});
 
   return (
     <html lang={locale}>
-      <body className={`${inter.variable} ${crimson.variable} font-sans antialiased bg-[#FAFAF9]`}>
+      <body className={`${ebGaramond.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans antialiased bg-background text-foreground`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <Navbar />
           

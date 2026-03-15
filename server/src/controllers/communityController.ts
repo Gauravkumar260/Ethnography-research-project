@@ -1,3 +1,4 @@
+import { logger } from '../lib/logger';
 import communityService from '../services/communityService';
 
 // ==========================================
@@ -15,7 +16,7 @@ const getCommunities = async (req, res) => {
       data: communities,
     });
   } catch (error) {
-    console.error("Error in getCommunities:", error);
+    logger.error("Error in getCommunities:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -38,7 +39,7 @@ const getCommunityBySlug = async (req, res) => {
       data: community,
     });
   } catch (error) {
-    console.error("Error in getCommunityBySlug:", error);
+    logger.error("Error in getCommunityBySlug:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -66,7 +67,7 @@ const getCommunityStats = async (req, res) => {
         }
     });
   } catch (error) {
-    console.error("Error in getCommunityStats:", error);
+    logger.error("Error in getCommunityStats:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -89,7 +90,7 @@ const createCommunity = async (req, res) => {
     if (error.code === 11000) {
         return res.status(400).json({ message: 'Community name/slug must be unique' });
     }
-    console.error("Error in createCommunity:", error);
+    logger.error("Error in createCommunity:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -112,7 +113,7 @@ const updateCommunity = async (req, res) => {
       data: community,
     });
   } catch (error) {
-    console.error("Error in updateCommunity:", error);
+    logger.error("Error in updateCommunity:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -134,7 +135,7 @@ const deleteCommunity = async (req, res) => {
       message: 'Community deleted successfully',
     });
   } catch (error) {
-    console.error("Error in deleteCommunity:", error);
+    logger.error("Error in deleteCommunity:", error);
     res.status(500).json({ message: 'Server Error' });
   }
 };

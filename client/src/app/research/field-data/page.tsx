@@ -2,26 +2,28 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  Database, 
-  Download, 
-  ChevronLeft, 
-  Loader2, 
-  AlertCircle, 
-  FileAudio, 
-  Image as ImageIcon, 
-  FileText, 
-  FileSpreadsheet 
+import {
+  Database,
+  Download,
+  ChevronLeft,
+  Loader2,
+  AlertCircle,
+  FileAudio,
+  Image as ImageIcon,
+  FileText,
+  FileSpreadsheet
 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
 type FilterType = 'all' | 'interview' | 'photo' | 'survey' | 'field_note' | 'document' | 'dataset';
 
 export default function FieldDataPage() {
+  const t = useTranslations('FieldData');
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [allData, setAllData] = useState([]); 
+  const [allData, setAllData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // ==========================================
@@ -34,7 +36,7 @@ export default function FieldDataPage() {
         // Fix: Use response.data to get the array
         setAllData(response.data || []);
       } catch (error) {
-        console.error("Error loading field data:", error);
+        // fetch error handled silently
       } finally {
         setLoading(false);
       }
@@ -47,7 +49,7 @@ export default function FieldDataPage() {
   // ==========================================
   const filteredData = allData.filter((item: any) => {
     const itemType = item.type?.toLowerCase();
-    
+
     // A. Security Check
     const validFieldTypes = ['dataset', 'interview', 'photo', 'survey', 'field_note', 'document', 'field data'];
     if (!validFieldTypes.includes(itemType)) return false;
@@ -72,20 +74,20 @@ export default function FieldDataPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type?.toLowerCase()) {
-      case 'interview': return 'Interview';
-      case 'photo': return 'Photo Gallery';
-      case 'survey': return 'Survey Data';
-      case 'field_note': return 'Field Notes';
-      default: return 'Dataset';
+      case 'interview': return t('interview');
+      case 'photo': return t('photoGallery');
+      case 'survey': return t('surveyData');
+      case 'field_note': return t('fieldNotes');
+      default: return t('dataset');
     }
   };
 
   const filters: { id: FilterType; label: string; icon: any }[] = [
-    { id: 'all', label: 'All Data', icon: Database },
-    { id: 'interview', label: 'Interviews', icon: FileAudio },
-    { id: 'photo', label: 'Photos', icon: ImageIcon },
-    { id: 'survey', label: 'Surveys', icon: FileSpreadsheet },
-    { id: 'field_note', label: 'Notes', icon: FileText },
+    { id: 'all', label: t('allData'), icon: Database },
+    { id: 'interview', label: t('interviews'), icon: FileAudio },
+    { id: 'photo', label: t('photos'), icon: ImageIcon },
+    { id: 'survey', label: t('surveys'), icon: FileSpreadsheet },
+    { id: 'field_note', label: t('notes'), icon: FileText },
   ];
 
   return (
@@ -93,11 +95,11 @@ export default function FieldDataPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-5xl mx-auto">
           <Link href="/research" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back to Research Hub
+            <ChevronLeft className="w-5 h-5" /> {t('backToResearch')}
           </Link>
-          <h1 className="mb-4 text-4xl font-bold font-serif">Field Data Repository</h1>
+          <h1 className="mb-4 text-4xl font-bold font-serif">{t('title')}</h1>
           <p className="text-[#E3E1DB]/80 max-w-3xl text-lg font-light">
-            Access primary research data, field documentation, and raw datasets.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -109,11 +111,10 @@ export default function FieldDataPage() {
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-full transition-all ${
-                activeFilter === filter.id
-                  ? 'bg-[#99302A] text-white shadow-md'
-                  : 'bg-white border border-[#1a1a1a]/10 text-[#1a1a1a]/70 hover:border-[#99302A] hover:text-[#99302A]'
-              }`}
+              className={`flex items-center gap-2 px-5 py-2 text-sm font-medium rounded-full transition-all ${activeFilter === filter.id
+                ? 'bg-[#99302A] text-white shadow-md'
+                : 'bg-white border border-[#1a1a1a]/10 text-[#1a1a1a]/70 hover:border-[#99302A] hover:text-[#99302A]'
+                }`}
             >
               <filter.icon className="w-4 h-4" />
               {filter.label}
@@ -131,38 +132,39 @@ export default function FieldDataPage() {
             </div>
           ) : filteredData.length === 0 ? (
             <div className="text-center py-20 text-gray-500 flex flex-col items-center bg-white border border-dashed border-gray-200 rounded-lg p-10">
-               <AlertCircle className="w-10 h-10 mb-2 opacity-20"/> 
-               <p>No {activeFilter === 'all' ? 'data' : activeFilter.replace('_', ' ') + 's'} found.</p>
+              <AlertCircle className="w-10 h-10 mb-2 opacity-20" />
+              <p>No {activeFilter === 'all' ? 'data' : activeFilter.replace('_', ' ') + 's'} found.</p>
             </div>
           ) : (
             <div className="space-y-6">
               <p className="text-sm text-[#1a1a1a]/50 font-medium uppercase tracking-wider mb-4">
-                Showing {filteredData.length} Results
+                {t('showingResults', { count: filteredData.length })}
               </p>
-              
+
+
               {filteredData.map((data: any) => (
                 <div key={data._id} className="bg-white p-8 border border-[#1a1a1a]/10 hover:shadow-lg transition-all duration-300 rounded-sm">
                   <div className="flex flex-col md:flex-row gap-6 items-start">
                     <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0 text-[#99302A]">
                       {getTypeIcon(data.type)}
                     </div>
-                    
+
                     <div className="flex-1 w-full">
                       <div className="flex flex-wrap gap-2 mb-3">
-                          <span className="bg-[#99302A]/10 text-[#99302A] text-[10px] uppercase font-bold px-2 py-1 rounded-sm tracking-wide">
-                            {getTypeLabel(data.type)}
-                          </span>
-                          <span className="bg-gray-100 text-gray-600 text-[10px] uppercase font-bold px-2 py-1 rounded-sm">
-                            {data.community}
-                          </span>
+                        <span className="bg-[#99302A]/10 text-[#99302A] text-[10px] uppercase font-bold px-2 py-1 rounded-sm tracking-wide">
+                          {getTypeLabel(data.type)}
+                        </span>
+                        <span className="bg-gray-100 text-gray-600 text-[10px] uppercase font-bold px-2 py-1 rounded-sm">
+                          {data.community}
+                        </span>
                       </div>
 
                       <h3 className="text-[#1a1a1a] mb-2 text-xl font-bold font-serif leading-tight">
                         {data.title}
                       </h3>
-                      
+
                       <div className="flex flex-wrap gap-y-2 gap-x-6 text-sm text-[#1a1a1a]/60 mb-4 items-center">
-                        <span className="font-medium text-[#1a1a1a]">Researcher: {data.studentName}</span>
+                        <span className="font-medium text-[#1a1a1a]">{t('researcher')} {data.studentName}</span>
                         <span>•</span>
                         {data.batch && <span>Batch: {data.batch} • </span>}
                         <span>{new Date(data.createdAt).toLocaleDateString()}</span>
@@ -174,14 +176,14 @@ export default function FieldDataPage() {
 
                       <div className="flex gap-4">
                         {data.fileUrl && (
-                            <a 
-                              href={`${API_BASE_URL}/${data.fileUrl.replace(/\\/g, "/")}`}
-                              target="_blank" 
-                              rel="noreferrer" 
-                              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors shadow-sm"
-                            >
-                              <Download className="w-4 h-4" /> Download File
-                            </a>
+                          <a
+                            href={`${API_BASE_URL}/${data.fileUrl.replace(/\\/g, "/")}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#99302A] text-white text-xs font-bold uppercase tracking-wider rounded-sm hover:bg-[#7a2621] transition-colors shadow-sm"
+                          >
+                            <Download className="w-4 h-4" /> {t('downloadFile')}
+                          </a>
                         )}
                       </div>
                     </div>
@@ -191,7 +193,7 @@ export default function FieldDataPage() {
             </div>
           )}
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 }

@@ -5,10 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Play, Loader2, AlertCircle, ChevronLeft, X } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
+import { useTranslations } from 'next-intl';
 
 type FilterType = 'all' | 'craft' | 'tribal' | 'nomadic' | 'heritage';
 
-// Define the shape of data based on the Backend Model
 interface Documentary {
   _id: string;
   title: string;
@@ -23,12 +23,12 @@ interface Documentary {
 }
 
 export default function DocumentaryPage() {
+  const t = useTranslations('Documentaries');
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [documentaries, setDocumentaries] = useState<Documentary[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
-  // --- STATIC DATA (Requested) ---
   const STATIC_DOCS: Documentary[] = [
     {
       _id: 'static-1',
@@ -73,7 +73,7 @@ export default function DocumentaryPage() {
       duration: '6:09',
       category: ['nomadic', 'craft', 'heritage'],
       thumbnailUrl: '/assets/Banjara.svg',
-      videoUrl: '', // No link provided
+      videoUrl: '',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
@@ -92,14 +92,12 @@ export default function DocumentaryPage() {
     }
   ];
 
-  // --- 1. FETCH DATA ---
   useEffect(() => {
     const fetchDocs = async () => {
       try {
         const { data } = await apiFetch('/docs');
         setDocumentaries([...STATIC_DOCS, ...(data || [])]);
       } catch (error) {
-        console.error("Failed to load documentaries", error);
         setDocumentaries(STATIC_DOCS);
       } finally {
         setLoading(false);
@@ -109,7 +107,6 @@ export default function DocumentaryPage() {
     fetchDocs();
   }, []);
 
-  // Helper: Handle local vs remote images
   const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
 
   const getFileUrl = (path: string) => {
@@ -125,11 +122,11 @@ export default function DocumentaryPage() {
   };
 
   const filters: { id: FilterType; label: string }[] = [
-    { id: 'all', label: 'All Stories' },
-    { id: 'craft', label: 'Craft' },
-    { id: 'tribal', label: 'Tribal' },
-    { id: 'nomadic', label: 'Nomadic' },
-    { id: 'heritage', label: 'Heritage' },
+    { id: 'all', label: t('allStories') },
+    { id: 'craft', label: t('craft') },
+    { id: 'tribal', label: t('tribal') },
+    { id: 'nomadic', label: t('nomadic') },
+    { id: 'heritage', label: t('heritage') },
   ];
 
   const filteredDocs = activeFilter === 'all'
@@ -146,13 +143,13 @@ export default function DocumentaryPage() {
       <section className="py-20 px-4 bg-[#1a1a1a] text-[#E3E1DB]">
         <div className="max-w-6xl mx-auto">
           <Link href="/" className="flex items-center gap-2 text-[#E3E1DB] hover:text-[#99302A] transition-colors mb-8 w-fit">
-            <ChevronLeft className="w-5 h-5" /> Back Home
+            <ChevronLeft className="w-5 h-5" /> {t('backHome')}
           </Link>
           <h1 className="mb-4 text-4xl font-bold font-serif">
-            Documentary Library
+            {t('title')}
           </h1>
           <p className="text-[#E3E1DB]/80 text-lg font-light">
-            Visual ethnography: Watch the stories that need to be told.
+            {t('subtitle')}
           </p>
         </div>
       </section>
@@ -184,7 +181,7 @@ export default function DocumentaryPage() {
           {loading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="w-10 h-10 animate-spin text-[#99302A] mb-4" />
-              <p className="text-[#1a1a1a]/50">Loading library...</p>
+              <p className="text-[#1a1a1a]/50">{t('loading')}</p>
             </div>
           ) : (
             <>
@@ -195,7 +192,6 @@ export default function DocumentaryPage() {
                     className="group cursor-pointer bg-white overflow-hidden hover:shadow-xl transition-all duration-300 rounded-lg border border-[#1a1a1a]/5 flex flex-col h-full"
                     onClick={() => setSelectedVideo(doc.videoUrl)}
                   >
-                    {/* Thumbnail Container */}
                     <div className="relative h-56 overflow-hidden bg-gray-100">
                       <Image
                         src={getFileUrl(doc.thumbnailUrl)}
@@ -214,7 +210,6 @@ export default function DocumentaryPage() {
                       </div>
                     </div>
 
-                    {/* Content */}
                     <div className="p-6 flex flex-col flex-grow">
                       <h3 className="text-[#1a1a1a] mb-3 text-xl font-serif font-bold leading-tight group-hover:text-[#99302A] transition-colors">
                         {doc.title}
@@ -223,9 +218,8 @@ export default function DocumentaryPage() {
                         {doc.description}
                       </p>
 
-                      {/* Tags */}
                       <div className="flex flex-wrap gap-2 mt-auto">
-                        {doc.category.map((cat) => (
+                        {doc.category?.map((cat) => (
                           <span
                             key={cat}
                             className="text-[10px] uppercase tracking-wider font-bold px-3 py-1 bg-[#1a1a1a]/5 text-[#1a1a1a]/60 rounded-full"
@@ -242,7 +236,7 @@ export default function DocumentaryPage() {
               {filteredDocs.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-lg border border-dashed border-[#1a1a1a]/20">
                   <AlertCircle className="w-10 h-10 text-[#1a1a1a]/20 mb-4" />
-                  <p className="text-[#1a1a1a]/50 text-lg font-serif italic">No documentaries found.</p>
+                  <p className="text-[#1a1a1a]/50 text-lg font-serif italic">{t('noResults')}</p>
                 </div>
               )}
             </>

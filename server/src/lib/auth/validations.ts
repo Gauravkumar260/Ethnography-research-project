@@ -7,7 +7,7 @@ const registerSchema = z.object({
   password: z.string().min(12, 'Password must be at least 12 characters'),
   role: z.enum(['STUDENT', 'SUPERVISOR']).default('STUDENT'),
   departmentId: z.string().optional() // Make required if department logic is strictly enforced
-}).strict();
+});
 
 // Schema for login input
 const loginSchema = z.object({
@@ -18,7 +18,18 @@ const loginSchema = z.object({
   rememberMe: z.boolean().optional()
 });
 
+const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address')
+});
+
+const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token is required'),
+  newPassword: z.string().min(12, 'Password must be at least 12 characters')
+});
+
 export { 
   registerSchema,
-  loginSchema
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
  };
