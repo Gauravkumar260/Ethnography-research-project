@@ -37,7 +37,7 @@ export default function DocumentaryPage() {
       duration: '6:46',
       category: ['craft', 'nomadic'],
       thumbnailUrl: '/assets/story-gadia-lohar.png',
-      videoUrl: 'https://www.youtube.com/watch?v=IH-UsMlAiLM',
+      videoUrl: 'https://youtu.be/IH-UsMlAiLM',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
@@ -49,7 +49,7 @@ export default function DocumentaryPage() {
       duration: '9:04',
       category: ['tribal', 'heritage'],
       thumbnailUrl: '/assets/story-bhoksa.png',
-      videoUrl: 'https://www.youtube.com/watch?v=xf-sbEJ5Czg',
+      videoUrl: 'https://youtu.be/xf-sbEJ5Czg',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
@@ -61,7 +61,7 @@ export default function DocumentaryPage() {
       duration: '6:40',
       category: ['heritage', 'tribal'],
       thumbnailUrl: '/assets/story-jaunsar.png',
-      videoUrl: 'https://www.youtube.com/watch?v=Iflb7xwh_Yo',
+      videoUrl: 'https://youtu.be/Iflb7xwh_Yo',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
@@ -85,7 +85,7 @@ export default function DocumentaryPage() {
       duration: '6:18',
       category: ['nomadic', 'heritage'],
       thumbnailUrl: '/assets/Van Gujjar.svg',
-      videoUrl: 'https://www.youtube.com/watch?v=EOCZ_zXqh5U',
+      videoUrl: 'https://youtu.be/EOCZ_zXqh5U',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
