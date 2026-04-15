@@ -73,7 +73,7 @@ export default function DocumentaryPage() {
       duration: '6:09',
       category: ['nomadic', 'craft', 'heritage'],
       thumbnailUrl: '/assets/Banjara.svg',
-      videoUrl: '',
+      videoUrl: 'https://youtu.be/placeholder-banjara-url',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
       status: 'approved'
@@ -84,7 +84,7 @@ export default function DocumentaryPage() {
       description: 'Forest dwellers balancing conservation challenges with traditional livelihoods',
       duration: '6:18',
       category: ['nomadic', 'heritage'],
-      thumbnailUrl: '/assets/Van Gujjar.svg',
+      thumbnailUrl: '/assets/Van Gujjar.svg', 
       videoUrl: 'https://youtu.be/EOCZ_zXqh5U',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
@@ -189,8 +189,8 @@ export default function DocumentaryPage() {
                 {filteredDocs.map((doc) => (
                   <div
                     key={doc._id}
-                    className="group cursor-pointer bg-white overflow-hidden hover:shadow-xl transition-all duration-300 rounded-lg border border-[#1a1a1a]/5 flex flex-col h-full"
-                    onClick={() => setSelectedVideo(doc.videoUrl)}
+                    className={`group bg-white overflow-hidden hover:shadow-xl transition-all duration-300 rounded-lg border border-[#1a1a1a]/5 flex flex-col h-full ${doc.videoUrl ? 'cursor-pointer' : 'cursor-not-allowed opacity-70'}`}
+                    onClick={() => doc.videoUrl && setSelectedVideo(doc.videoUrl)}
                   >
                     <div className="relative h-56 overflow-hidden bg-gray-100">
                       <Image
@@ -199,11 +199,26 @@ export default function DocumentaryPage() {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-700"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/assets/story-bhoksa.png'; // Fallback image
+                        }}
                       />
-                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-[#99302A]/90 backdrop-blur-sm flex items-center justify-center transform scale-90 group-hover:scale-110 transition-all duration-300 shadow-lg border border-white/20">
-                          <Play className="w-6 h-6 text-white ml-1" fill="currentColor" />
+                      {!doc.videoUrl && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                          <span className="text-white font-bold text-lg">Coming Soon</span>
                         </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                        {doc.videoUrl ? (
+                          <div className="w-14 h-14 rounded-full bg-[#99302A]/90 backdrop-blur-sm flex items-center justify-center transform scale-90 group-hover:scale-110 transition-all duration-300 shadow-lg border border-white/20">
+                            <Play className="w-6 h-6 text-white ml-1" fill="currentColor" />
+                          </div>
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-gray-500/50 backdrop-blur-sm flex items-center justify-center transform scale-90 transition-all duration-300 shadow-lg border border-white/20">
+                            <Play className="w-6 h-6 text-white/50 ml-1" fill="currentColor" />
+                          </div>
+                        )}
                       </div>
                       <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-md text-white px-3 py-1 text-xs font-medium rounded-full border border-white/10">
                         {doc.duration}
@@ -263,17 +278,29 @@ export default function DocumentaryPage() {
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
                 className="w-full h-full"
+                onError={(e) => {
+                  const target = e.target as HTMLIFrameElement;
+                  console.error('YouTube iframe failed to load:', target.src);
+                }}
               ></iframe>
-            ) : (
+            ) : selectedVideo ? (
               <video
                 src={getFileUrl(selectedVideo)}
                 controls
                 autoPlay
                 className="w-full h-full outline-none"
                 preload="metadata"
+                onError={(e) => {
+                  const target = e.target as HTMLVideoElement;
+                  console.error('Video failed to load:', target.src);
+                }}
               >
                 Your browser does not support the video tag.
               </video>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white">
+                <p>Video not available</p>
+              </div>
             )}
           </div>
         </div>
