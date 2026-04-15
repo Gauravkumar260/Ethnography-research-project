@@ -19,42 +19,67 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative min-h-[85svh] flex items-center justify-center overflow-hidden bg-background">
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/assets/hero-image.png"
-            alt="Hero Background"
-            width={1270}
-            height={10}
-            className="object-cover object-center"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/40 to-background/70"></div>
-        </div>
+     {/* Hero Section */}
+<section className="relative min-h-[100svh] sm:min-h-[90svh] md:min-h-[85svh] flex items-center justify-center overflow-hidden bg-background">
+  
+  {/* Background Image */}
+  <div className="absolute inset-0 w-full h-full">
+    <Image
+      src="/assets/hero-image.png"
+      alt="Hero Background"
+      fill
+      sizes="100vw"
+      className="object-cover object-center"
+      priority
+    />
+    <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/80 sm:from-background/60 sm:via-background/40 sm:to-background/70" />
+  </div>
 
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-primary-foreground mb-6 text-5xl font-bold">
-            Unheard India
+  {/* Content */}
+  <div className="relative z-10 text-center px-4 sm:px-6 md:px-8 w-full max-w-xs sm:max-w-xl md:max-w-2xl lg:max-w-4xl mx-auto py-16 sm:py-20 md:py-24">
+    
+    <h1
+      className="mb-4 sm:mb-5 md:mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight"
+      style={{ color: '#E3E1DBE5' }}
+    >
+      Unheard India
+    </h1>
 
-            <p className="text-primary-foreground/90 mb-8 max-w-2xl mx-auto text-xl font-medium">
-              Documenting the diverse cultural heritage of India's marginalized communities.
-            </p>
-          </h1>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild variant="default" size="lg">
-              <Link href="/communities">Explore Communities</Link>
-            </Button>
-            {/* ✅ CORRECTED LINK 1: Hero Button */}
-            <Button asChild variant="outline" size="lg" className="bg-transparent border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary gap-2">
-              <Link href="/documentaries">
-                <Play className="w-4 h-4" />
-                Watch Documentaries
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+    <p
+      className="mb-6 sm:mb-7 md:mb-8 max-w-xs sm:max-w-sm md:max-w-xl lg:max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed"
+      style={{ color: '#E3E1DBE5' }}
+    >
+      Documenting the diverse cultural heritage of India's marginalized communities.
+    </p>
+
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
+      <Button
+        asChild
+        variant="default"
+        size="lg"
+        className="w-full sm:w-auto text-sm sm:text-base px-6 sm:px-8"
+      >
+        <Link href="/communities">Explore Communities</Link>
+      </Button>
+
+      <Button
+        asChild
+        variant="outline"
+        size="lg"
+        className="w-full sm:w-auto text-sm sm:text-base px-6 sm:px-8 bg-transparent gap-2"
+        style={{
+          color: '#E3E1DBE5',
+          borderColor: '#E3E1DBE5',
+        }}
+      >
+        <Link href="/documentaries">
+          <Play className="w-4 h-4 flex-shrink-0" />
+          Watch Documentaries
+        </Link>
+      </Button>
+    </div>
+  </div>
+</section>
 
       {/* Why This Exists */}
       <section className="py-20 px-4">
