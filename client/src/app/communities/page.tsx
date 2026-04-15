@@ -166,9 +166,10 @@ export default function CommunitiesPage() {
                       {community.description}
                     </p>
                     <div className="mt-auto">
-                      <span className="text-xs font-bold uppercase tracking-widest text-secondary group-hover:underline flex items-center gap-2">
-                        {t('exploreProfile')} <span className="text-lg leading-none">→</span>
-                      </span>
+                     <span className="text-xs font-bold uppercase tracking-widest text-[#99302A] hover:text-[#99302A]/80 group-hover:underline flex items-center gap-2 transition-colors">
+                     {t('exploreProfile')} 
+                     <span className="text-lg leading-none" aria-hidden="true">→</span>
+                     </span>
                     </div>
                   </div>
                 </Link>

@@ -66,32 +66,55 @@ export default function HomePage() {
             Some live in people. We built this platform to preserve, present, and honour the lived experiences of communities whose narratives rarely reach mainstream spaces.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
-                <span className="text-2xl">🏛️</span>
-              </div>
-              <p className="text-sm text-primary font-medium">Culture</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
-                <span className="text-2xl">✋</span>
-              </div>
-              <p className="text-sm text-primary font-medium">Craft</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
-                <span className="text-2xl">🪪</span>
-              </div>
-              <p className="text-sm text-primary font-medium">Identity</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mb-4 text-secondary">
-                <span className="text-2xl">💪</span>
-              </div>
-              <p className="text-sm text-primary font-medium">Survival</p>
-            </div>
-          </div>
+         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16">
+  {/* Culture */}
+  <div className="flex flex-col items-center">
+    <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
+      <img 
+        src="/assets/svg/arcticons_pass-culture.svg" 
+        alt="Culture" 
+        className="w-8 h-8 object-contain" 
+      />
+    </div>
+    <p className="text-sm text-primary font-medium">Culture</p>
+  </div>
+
+  {/* Craft */}
+  <div className="flex flex-col items-center">
+    <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
+      <img 
+        src="/assets/svg/game-icons_stone-crafting.svg" 
+        alt="Craft" 
+        className="w-8 h-8 object-contain" 
+      />
+    </div>
+    <p className="text-sm text-primary font-medium">Craft</p>
+  </div>
+
+  {/* Identity */}
+  <div className="flex flex-col items-center">
+    <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
+      <img 
+        src="/assets/svg/hugeicons_identity-card.svg" 
+        alt="Identity" 
+        className="w-8 h-8 object-contain" 
+      />
+    </div>
+    <p className="text-sm text-primary font-medium">Identity</p>
+  </div>
+
+  {/* Survival */}
+  <div className="flex flex-col items-center">
+    <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
+      <img 
+        src="/assets/svg/hugeicons_body-part-muscle.svg" 
+        alt="Survival" 
+        className="w-8 h-8 object-contain" 
+      />
+    </div>
+    <p className="text-sm text-primary font-medium">Survival</p>
+  </div>
+</div>
         </div>
       </section>
 

@@ -98,8 +98,7 @@ const CommunityMap = ({ communities }: CommunityMapProps) => {
                   <p className="text-sm text-gray-600">{community.location}</p>
                   <a
                     href={`/communities/${community.slug}`}
-                    className="text-primary hover:underline text-sm font-medium"
-                  >
+                    className="text-[#99302A] hover:text-[#99302A]/80 hover:underline text-sm font-medium">
                     View Profile →
                   </a>
                 </div>

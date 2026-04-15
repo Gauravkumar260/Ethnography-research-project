@@ -34,12 +34,10 @@ export function Navbar() {
 
   const isActive = (path: string) => pathname === path;
 
-  // Updated to match Header.jpg exactly
   const navLinks = [
     { name: t('home'), path: "/" },
     { name: t('communities'), path: "/communities" },
     { name: "Documentaries", path: "/documentaries" },
-    // { name: t('research'), path: "/research" },
     { name: t('about'), path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
@@ -53,29 +51,27 @@ export function Navbar() {
     )}>
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
 
-       <div className="flex items-center gap-4">
-       {/* Logo 1: DIT University */}
-       <div className="h-10 md:h-12 lg:h-16 w-auto transition-all duration-300">
-       <a href="https://www.dituniversity.edu.in" target="_blank" rel="noopener noreferrer">
-       <img
-        src={assets.LOGO.ditlogo}
-        alt="DIT Logo"
-        className="h-full w-auto object-contain"
-        />
-       </a>
-       </div>
+        <div className="flex items-center gap-4">
+          <div className="h-10 md:h-12 lg:h-16 w-auto transition-all duration-300">
+            <a href="https://www.dituniversity.edu.in" target="_blank" rel="noopener noreferrer">
+              <img
+                src={assets.LOGO.ditlogo}
+                alt="DIT Logo"
+                className="h-full w-auto object-contain"
+              />
+            </a>
+          </div>
 
-       {/* Logo 2: SOD Alumni */}
-       <div className="h-10 md:h-12 lg:h-16 w-auto transition-all duration-300">
-       <a href="https://www.dituniversity.edu.in/school/school-of-design/our-alumni" target="_blank" rel="noopener noreferrer">
-       <img
-        src={assets.LOGO.SODDITLOGO}
-        alt="SOD DIT Logo"
-        className="h-full w-auto object-contain"
-       />
-       </a>
-       </div>
-       </div>
+          <div className="h-10 md:h-12 lg:h-16 w-auto transition-all duration-300">
+            <a href="https://www.dituniversity.edu.in/school/school-of-design/our-alumni" target="_blank" rel="noopener noreferrer">
+              <img
+                src={assets.LOGO.SODDITLOGO}
+                alt="SOD DIT Logo"
+                className="h-full w-auto object-contain"
+              />
+            </a>
+          </div>
+        </div>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
@@ -84,16 +80,14 @@ export function Navbar() {
               key={link.path}
               href={link.path}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-secondary uppercase tracking-wide",
-                isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
+                "text-sm font-medium transition-colors hover:text-[#99302A] uppercase tracking-wide",
+                // Updated active color to #99302A
+                isActive(link.path) ? "text-[#99302A] font-semibold" : "text-primary/70"
               )}
             >
               {link.name}
             </Link>
           ))}
-
-          {/* CTA Button */}
-
         </div>
 
         {/* Mobile Nav — Sheet Drawer */}
@@ -113,8 +107,9 @@ export function Navbar() {
                   <Link
                     href={link.path}
                     className={cn(
-                      "block text-lg font-medium py-2 transition-colors hover:text-secondary",
-                      isActive(link.path) ? "text-secondary font-semibold" : "text-primary/70"
+                      "block text-lg font-medium py-2 transition-colors hover:text-[#99302A]",
+                      // Updated active color to #99302A
+                      isActive(link.path) ? "text-[#99302A] font-semibold" : "text-primary/70"
                     )}
                   >
                     {link.name}

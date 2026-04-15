@@ -84,7 +84,7 @@ export default function DocumentaryPage() {
       description: 'Forest dwellers balancing conservation challenges with traditional livelihoods',
       duration: '6:18',
       category: ['nomadic', 'heritage'],
-      thumbnailUrl: '/assets/Van Gujjar.svg', 
+      thumbnailUrl: '/assets/Van Gujjar.svg',
       videoUrl: 'https://youtu.be/EOCZ_zXqh5U',
       studentName: 'Admin',
       createdAt: new Date().toISOString(),
@@ -155,7 +155,7 @@ export default function DocumentaryPage() {
       </section>
 
       {/* FILTER TABS */}
-      <section className="sticky top-0 z-40 bg-[#FDFBF7]/95 backdrop-blur-sm border-b border-[#1a1a1a]/10 py-4 px-4 shadow-sm">
+      <section className="sticky top-20 z-40 bg-[#FDFBF7]/95 backdrop-blur-sm border-b border-[#1a1a1a]/10 py-4 px-4 shadow-sm">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-wrap gap-3">
             {filters.map((filter) => (
