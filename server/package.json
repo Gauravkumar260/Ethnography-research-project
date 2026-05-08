@@ -11,6 +11,7 @@
     "predev": "npx ts-node scripts/check-env.ts",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc && tsc-alias",
+    "lint": "eslint src/**",
     "postinstall": "npm run build",
     "seed:communities": "ts-node scripts/seedCommunities.ts",
     "seed:admin": "ts-node scripts/seedAdmin.ts"
@@ -18,6 +19,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "pnpm": {
+    "overrides": {
+      "protobufjs": ">=7.5.5",
+      "picomatch": ">=2.3.2",
+      "lodash": ">=4.18.0"
+    }
+  },
   "dependencies": {
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.70.1",
@@ -29,7 +37,7 @@
     "@react-email/components": "^1.0.8",
     "@react-email/render": "^2.0.4",
     "argon2": "^0.44.0",
-    "axios": "^1.13.6",
+    "axios": "^1.15.2",
     "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.7",
@@ -39,10 +47,10 @@
     "express": "^4.22.1",
     "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
-    "express-rate-limit": "^8.2.1",
-    "file-type": "16.2.0",
+    "express-rate-limit": "^8.5.1",
+    "file-type": "16.5.4",
     "helmet": "^8.1.0",
-    "hpp": "^0.2.3",
+    "hpp": "0.2.3",
     "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.21.0",

@@ -4,7 +4,8 @@ WORKDIR /app
 # Install dependencies needed for node-gyp (argon2, bcryptjs)
 RUN apk add --no-cache python3 make g++ 
 COPY package.json pnpm-lock.yaml* ./
-RUN npm install -g pnpm && pnpm install --frozen-lockfile
+# Use --ignore-scripts to prevent 'postinstall' (build) from running without source files
+RUN npm install -g pnpm && pnpm install --frozen-lockfile --ignore-scripts
 
 FROM node:20-alpine AS builder
 WORKDIR /app
