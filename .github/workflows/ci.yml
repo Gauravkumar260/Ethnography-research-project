@@ -10,15 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-      - run: npm install -g pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: cd server && pnpm run lint
-      - run: cd server && pnpm exec tsc --noEmit
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
+      - name: Install dependencies (Server)
+        run: cd server && pnpm install --frozen-lockfile
+
+      - name: Lint (Server)
+        run: cd server && pnpm run lint
+
+      - name: Type Check (Server)
+        run: cd server && pnpm exec tsc --noEmit
 
   test:
     runs-on: ubuntu-latest
@@ -39,15 +50,24 @@ jobs:
     env:
       MONGODB_URI: mongodb://localhost:27017/thesis_auth_test
       REDIS_URL: redis://localhost:6379
+      RESEND_API_KEY: re_123
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
-      - run: npm install -g pnpm
-      - run: pnpm install --frozen-lockfile
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
+      - name: Install dependencies (Server)
+        run: cd server && pnpm install --frozen-lockfile
+
       # - run: cd server && pnpm run test:unit
       # - run: cd server && pnpm run test:integration
       # - run: cd server && pnpm run test:security
