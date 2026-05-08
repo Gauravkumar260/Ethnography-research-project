@@ -95,10 +95,12 @@ export default function HomePage() {
   {/* Culture */}
   <div className="flex flex-col items-center">
     <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
-      <img 
+      <Image
         src="/assets/svg/arcticons_pass-culture.svg" 
         alt="Culture" 
-        className="w-8 h-8 object-contain" 
+        width={32}
+        height={32}
+        className="object-contain"
       />
     </div>
     <p className="text-sm text-primary font-medium">Culture</p>
@@ -107,10 +109,12 @@ export default function HomePage() {
   {/* Craft */}
   <div className="flex flex-col items-center">
     <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
-      <img 
+      <Image
         src="/assets/svg/game-icons_stone-crafting.svg" 
         alt="Craft" 
-        className="w-8 h-8 object-contain" 
+        width={32}
+        height={32}
+        className="object-contain"
       />
     </div>
     <p className="text-sm text-primary font-medium">Craft</p>
@@ -119,10 +123,12 @@ export default function HomePage() {
   {/* Identity */}
   <div className="flex flex-col items-center">
     <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
-      <img 
+      <Image
         src="/assets/svg/hugeicons_identity-card.svg" 
         alt="Identity" 
-        className="w-8 h-8 object-contain" 
+        width={32}
+        height={32}
+        className="object-contain"
       />
     </div>
     <p className="text-sm text-primary font-medium">Identity</p>
@@ -131,10 +137,12 @@ export default function HomePage() {
   {/* Survival */}
   <div className="flex flex-col items-center">
     <div className="w-16 h-16 rounded-full bg-[#99302A]/10 flex items-center justify-center mb-4">
-      <img 
+      <Image
         src="/assets/svg/hugeicons_body-part-muscle.svg" 
         alt="Survival" 
-        className="w-8 h-8 object-contain" 
+        width={32}
+        height={32}
+        className="object-contain"
       />
     </div>
     <p className="text-sm text-primary font-medium">Survival</p>

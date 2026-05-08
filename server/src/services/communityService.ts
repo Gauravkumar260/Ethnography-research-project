@@ -1,6 +1,9 @@
 import Community from '../models/Community';
 import Research from '../models/Research';
+import { cache } from '../lib/cache';
 // import Documentary from '../models/Documentary';
+
+const CACHE_KEY_ACTIVE = 'cache:communities:active';
 
 /**
  * Service for Community-related business logic.
@@ -11,9 +14,17 @@ class CommunityService {
    * @returns {Promise<Array>} List of communities
    */
   async getActiveCommunities() {
-    return await Community.find({ status: 'active' })
+    const cachedData = await cache.get<any[]>(CACHE_KEY_ACTIVE);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    const communities = await Community.find({ status: 'active' })
       .select('name slug subtitle location thumbnail heroImage region')
       .sort({ name: 1 });
+
+    await cache.set(CACHE_KEY_ACTIVE, communities, 120);
+    return communities;
   }
 
   /**
@@ -21,29 +32,27 @@ class CommunityService {
    * @param {string} slug - The community slug
    * @returns {Promise<Object>} Community document or null
    */
-  async getCommunityBySlug(slug) {
-    const community = await Community.findOne({
+  async getCommunityBySlug(slug: string) {
+    return await Community.findOne({
       slug: slug,
       status: 'active'
     });
+  }
 
-    if (!community) {
-      return null;
-    }
-
-    // Live Count: Check for approved research papers
+  /**
+   * Update the research count for a community based on approved research papers.
+   * @param {string} communityName - The name of the community
+   */
+  async updateResearchCount(communityName: string) {
     const researchCount = await Research.countDocuments({
-      community: community.name,
+      community: communityName,
       status: 'approved',
     });
 
-    // Update stats in DB (Side-effect business logic)
-    if (community.researchCount !== researchCount) {
-        community.researchCount = researchCount;
-        await community.save();
-    }
-
-    return community;
+    await Community.updateOne(
+      { name: communityName },
+      { $set: { researchCount } }
+    );
   }
 
   /**
@@ -52,7 +61,9 @@ class CommunityService {
    * @returns {Promise<Object>} Created community
    */
   async createCommunity(data) {
-    return await Community.create(data);
+    const community = await Community.create(data);
+    await cache.del(CACHE_KEY_ACTIVE);
+    return community;
   }
 
   /**
@@ -62,11 +73,15 @@ class CommunityService {
    * @returns {Promise<Object>} Updated community or null
    */
   async updateCommunity(id, data) {
-    return await Community.findByIdAndUpdate(
+    const community = await Community.findByIdAndUpdate(
       id,
       data,
       { new: true, runValidators: true }
     );
+    if (community) {
+      await cache.del(CACHE_KEY_ACTIVE);
+    }
+    return community;
   }
 
   /**
@@ -80,6 +95,7 @@ class CommunityService {
       return false;
     }
     await community.deleteOne();
+    await cache.del(CACHE_KEY_ACTIVE);
     return true;
   }
 }
