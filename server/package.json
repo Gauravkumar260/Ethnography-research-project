@@ -13,7 +13,18 @@
     "build": "tsc && tsc-alias",
     "postinstall": "npm run build",
     "seed:communities": "ts-node scripts/seedCommunities.ts",
-    "seed:admin": "ts-node scripts/seedAdmin.ts"
+    "seed:admin": "ts-node scripts/seedAdmin.ts",
+    "lint": "echo 'No lint script defined'"
+  },
+  "pnpm": {
+    "overrides": {
+      "protobufjs": ">=7.5.5",
+      "path-to-regexp": ">=0.1.13",
+      "picomatch": ">=2.3.2",
+      "lodash": ">=4.17.21",
+      "vite": ">=7.3.2",
+      "axios": ">=1.15.1"
+    }
   },
   "keywords": [],
   "author": "",
@@ -29,7 +40,7 @@
     "@react-email/components": "^1.0.8",
     "@react-email/render": "^2.0.4",
     "argon2": "^0.44.0",
-    "axios": "^1.13.6",
+    "axios": "^1.16.0",
     "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.7",
@@ -39,7 +50,7 @@
     "express": "^4.22.1",
     "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
-    "express-rate-limit": "^8.2.1",
+    "express-rate-limit": "^8.5.1",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "ioredis": "^5.10.0",
