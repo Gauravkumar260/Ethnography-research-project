@@ -17,9 +17,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-<<<<<<< HEAD
-      - run: npm install -g pnpm
-<<<<<<< HEAD
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
       - name: Server Audit
         run: |
           cd server
@@ -30,16 +32,6 @@ jobs:
           cd client
           pnpm install --frozen-lockfile
           pnpm audit --audit-level=high
-=======
-      - name: Audit Client
-        run: cd client && pnpm install --frozen-lockfile && pnpm audit --audit-level=high
-      - name: Audit Server
-        run: cd server && pnpm install --frozen-lockfile && pnpm audit --audit-level=high
->>>>>>> origin/fix-faculty-login-and-seed-10808693450861460860
-=======
-      - run: cd server && pnpm install --frozen-lockfile
-      - run: cd server && pnpm audit --audit-level=high
->>>>>>> origin/sentinel-security-hardening-9171034175871724734
 
   secrets-scan:
     runs-on: ubuntu-latest
@@ -66,7 +58,7 @@ jobs:
   container-scan:
     runs-on: ubuntu-latest
     steps:
-<<<<<<< HEAD
+      - uses: actions/checkout@v4
       - name: Build Server Docker image
         run: docker build -t server:local ./server
       - name: Build Client Docker image
@@ -84,20 +76,6 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'client:local'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-=======
-      - uses: actions/checkout@v4
-      - name: Build Docker image (Server)
-        run: cd server && docker build -t server:local .
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: 'server:local'
->>>>>>> origin/sentinel-security-hardening-9171034175871724734
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true

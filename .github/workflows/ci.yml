@@ -17,52 +17,24 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-<<<<<<< HEAD
-      - run: npm install -g pnpm
-<<<<<<< HEAD
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
       - name: Install Server Deps
         run: cd server && pnpm install --frozen-lockfile
       - name: Server Lint
         run: cd server && pnpm run lint
       - name: Server Typecheck
         run: cd server && pnpm exec tsc --noEmit
+
       - name: Install Client Deps
         run: cd client && pnpm install --frozen-lockfile
       - name: Client Lint
         run: cd client && pnpm run lint
       - name: Client Typecheck
         run: cd client && pnpm exec tsc --noEmit
-=======
-
-      - name: Install Client Dependencies
-        run: cd client && pnpm install --frozen-lockfile
-      - name: Lint Client
-        run: cd client && pnpm run lint
-      - name: Typecheck Client
-        run: cd client && pnpm exec tsc --noEmit
-
-      - name: Install Server Dependencies
-        run: cd server && pnpm install --frozen-lockfile
-      - name: Lint Server
-        run: cd server && pnpm run lint
-      - name: Typecheck Server
-        run: cd server && pnpm exec tsc --noEmit
->>>>>>> origin/fix-faculty-login-and-seed-10808693450861460860
-=======
-          cache: 'pnpm'
-          cache-dependency-path: |
-            server/pnpm-lock.yaml
-            client/pnpm-lock.yaml
-
-      - name: Install dependencies (Server)
-        run: cd server && pnpm install --frozen-lockfile
-
-      - name: Lint (Server)
-        run: cd server && pnpm run lint
-
-      - name: Type Check (Server)
-        run: cd server && pnpm exec tsc --noEmit
->>>>>>> origin/sentinel-security-hardening-9171034175871724734
 
   test:
     runs-on: ubuntu-latest
@@ -93,20 +65,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-<<<<<<< HEAD
-      - run: npm install -g pnpm
-      - name: Install Server Deps
-        run: cd server && pnpm install --frozen-lockfile
-=======
           cache: 'pnpm'
           cache-dependency-path: |
             server/pnpm-lock.yaml
             client/pnpm-lock.yaml
 
-      - name: Install dependencies (Server)
+      - name: Install Server Deps
         run: cd server && pnpm install --frozen-lockfile
-
->>>>>>> origin/sentinel-security-hardening-9171034175871724734
       # - run: cd server && pnpm run test:unit
       # - run: cd server && pnpm run test:integration
       # - run: cd server && pnpm run test:security
