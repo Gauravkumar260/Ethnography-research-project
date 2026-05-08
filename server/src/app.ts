@@ -21,6 +21,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 
+// Trust the first proxy (Render/Cloudflare) to prevent IP spoofing
+app.set('trust proxy', 1);
+
 // Correlation ID for distributed tracing and audit logs
 app.use((req: any, res, next) => {
   req.correlationId = req.headers['x-request-id'] || uuidv4();
@@ -67,7 +70,8 @@ const allowedOrigins = [
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
-    const isAllowed = allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app');
+    // Security Fix: Removed wildcard for .vercel.app to prevent unauthorized cross-origin requests from preview deploys
+    const isAllowed = allowedOrigins.indexOf(origin) !== -1;
     if (isAllowed) return callback(null, true);
     return callback(new Error('CORS blocked'), false);
   },
@@ -75,7 +79,7 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: false, limit: '10kb' }));
 app.use(cookieParser());
 
 app.use(mongoSanitize());

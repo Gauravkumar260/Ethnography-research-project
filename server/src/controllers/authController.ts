@@ -23,12 +23,8 @@ import { sendEmail } from '../lib/email/sender';
 import { VerifyEmailTemplate } from '../lib/email/templates/verify-email';
 import { ResetPasswordTemplate } from '../lib/email/templates/reset-password';
 
-const getIp = (req: Request) => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1') as string;
-
 export const register = asyncHandler(async (req: Request, res: Response): Promise<any> => {
-  const ip = getIp(req);
-  const rl = await checkRateLimit(Profiles.REGISTER(ip).key, Profiles.REGISTER(ip).max, Profiles.REGISTER(ip).window);
-  if (!rl.allowed) return res.status(429).json({ message: 'Too many registration attempts. Try again later.' });
+  const ip = req.ip!;
 
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
@@ -72,15 +68,12 @@ export const register = asyncHandler(async (req: Request, res: Response): Promis
 });
 
 export const login = asyncHandler(async (req: Request, res: Response): Promise<any> => {
-  const ip = getIp(req);
+  const ip = req.ip!;
   const ua = req.headers['user-agent'] || '';
 
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ errors: parsed.error.format() });
   const { email, password, mfaToken, deviceFingerprint } = parsed.data;
-
-  const rlIp = await checkRateLimit(Profiles.LOGIN_ATTEMPT_IP(ip).key, Profiles.LOGIN_ATTEMPT_IP(ip).max, Profiles.LOGIN_ATTEMPT_IP(ip).window);
-  if (!rlIp.allowed) return res.status(429).json({ message: 'Too many attempts from this IP.' });
 
   const user = await User.findOne({ email: email.toLowerCase() });
 
@@ -147,7 +140,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response): Promise
   const oldRefreshToken = req.cookies.__rt;
   if (!oldRefreshToken) return res.status(401).json({ message: 'No refresh token provided' });
 
-  const ip = getIp(req);
+  const ip = req.ip!;
   const ua = req.headers['user-agent'] || '';
   const parser = new UAParser(ua);
   const deviceInfo = { browser: parser.getBrowser().name || 'Unknown Browser', os: parser.getOS().name || 'Unknown OS', deviceType: parser.getDevice().type || 'desktop' };
@@ -166,7 +159,7 @@ export const refresh = asyncHandler(async (req: Request, res: Response): Promise
 export const logout = asyncHandler(async (req: Request, res: Response): Promise<any> => {
   if ((req as any).session) {
     await revokeAuthSession((req as any).session._id);
-    await logAuthEvent({ userId: (req as any).user._id, eventType: 'LOGOUT', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true });
+    await logAuthEvent({ userId: (req as any).user._id, eventType: 'LOGOUT', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true });
   }
   res.clearCookie('__rt');
   res.status(200).json({ message: 'Logged out successfully' });
@@ -184,7 +177,7 @@ export const verifyEmail = asyncHandler(async (req: Request, res: Response): Pro
   verification.usedAt = new Date();
   await verification.save();
   await User.findByIdAndUpdate(verification.userId, { emailVerified: true, emailVerifiedAt: new Date() });
-  await logAuthEvent({ userId: verification.userId, eventType: 'EMAIL_VERIFIED', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true });
+  await logAuthEvent({ userId: verification.userId, eventType: 'EMAIL_VERIFIED', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true });
   res.status(200).json({ message: 'Email verified' });
 });
 
@@ -192,7 +185,7 @@ export const forgotPassword = asyncHandler(async (req: Request, res: Response): 
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'Email is required' });
 
-  const ip = getIp(req);
+  const ip = req.ip!;
   const rl = await checkRateLimit(Profiles.PASSWORD_RESET(email).key, Profiles.PASSWORD_RESET(email).max, Profiles.PASSWORD_RESET(email).window);
   if (!rl.allowed) return res.status(429).json({ message: 'Too many requests' });
 
@@ -238,7 +231,7 @@ export const resetPassword = asyncHandler(async (req: Request, res: Response): P
   await resetReq.save();
 
   await revokeAllUserSessions(user._id);
-  await logAuthEvent({ userId: user._id, eventType: 'PASSWORD_RESET', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true });
+  await logAuthEvent({ userId: user._id, eventType: 'PASSWORD_RESET', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true });
   res.status(200).json({ message: 'Password updated. Please log in.' });
 });
 
@@ -275,7 +268,7 @@ export const verifyMfa = asyncHandler(async (req: Request, res: Response): Promi
   mfaConfig.enabledAt = new Date();
   await mfaConfig.save();
 
-  await logAuthEvent({ userId: user._id, eventType: 'MFA_ENABLED', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true });
+  await logAuthEvent({ userId: user._id, eventType: 'MFA_ENABLED', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true });
   res.status(200).json({ success: true, message: 'MFA enabled successfully' });
 });
 
@@ -299,7 +292,7 @@ export const verifyBackupCode = asyncHandler(async (req: Request, res: Response)
   if (!matched) return res.status(401).json({ message: 'Invalid backup code' });
   await mfaConfig.save();
 
-  const ip = getIp(req);
+  const ip = req.ip!;
   const ua = req.headers['user-agent'] || '';
   const { session, refreshToken } = await createSession(user._id, { browser: 'Unknown', os: 'Unknown', deviceType: 'desktop' }, ip, ua);
   const accessToken = generateAccessToken({ sub: user._id.toString(), role: user.role, sessionId: session._id.toString() });
@@ -320,13 +313,13 @@ export const getSessions = asyncHandler(async (req: Request, res: Response): Pro
 export const revokeSession = asyncHandler(async (req: Request, res: Response): Promise<any> => {
   const { id } = req.params;
   await revokeAuthSession(id as any);
-  await logAuthEvent({ userId: (req as any).user._id, eventType: 'SESSION_REVOKED', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true, metadata: { sessionId: id } });
+  await logAuthEvent({ userId: (req as any).user._id, eventType: 'SESSION_REVOKED', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true, metadata: { sessionId: id } });
   res.status(200).json({ message: 'Session revoked' });
 });
 
 export const revokeAllSessions = asyncHandler(async (req: Request, res: Response): Promise<any> => {
   await revokeAllUserSessions((req as any).user._id, (req as any).session ? (req as any).session._id : undefined);
-  await logAuthEvent({ userId: (req as any).user._id, eventType: 'SESSION_REVOKED', ipAddress: getIp(req), userAgent: req.headers['user-agent'] || '', success: true, metadata: { all: true } });
+  await logAuthEvent({ userId: (req as any).user._id, eventType: 'SESSION_REVOKED', ipAddress: req.ip!, userAgent: req.headers['user-agent'] || '', success: true, metadata: { all: true } });
   res.status(200).json({ message: 'All other sessions revoked' });
 });
 
@@ -338,7 +331,7 @@ export const magicLink = asyncHandler(async (req: Request, res: Response): Promi
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'Email required' });
 
-  const ip = getIp(req);
+  const ip = req.ip!;
   const rl = await checkRateLimit(Profiles.LOGIN_ATTEMPT_EMAIL(email).key, 3, 3600);
   if (!rl.allowed) return res.status(429).json({ message: 'Too many requests' });
 

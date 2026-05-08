@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import researchService from '../services/researchService';
+import { validateFileContent } from '../middlewares/uploadMiddleware';
+import fs from 'fs';
 
 // ==========================================
 // 1. SUBMIT RESEARCH (Student)
@@ -17,6 +19,29 @@ const submitResearch = asyncHandler(async (req: Request, res: Response): Promise
   }
   if (!ethicsFile) {
     return res.status(400).json({ success: false, message: 'Ethics approval document is required.' });
+  }
+
+  // Security: Validate file content using magic bytes
+  const allowedDocTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  const allowedMediaTypes = [
+    'image/jpeg', 'image/png', 'image/webp', 'image/tiff',
+    'video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'
+  ];
+
+  const isMainValid = await validateFileContent(mainFile, allowedDocTypes);
+  const isEthicsValid = await validateFileContent(ethicsFile, allowedDocTypes);
+  const isMediaValid = mediaFile ? await validateFileContent(mediaFile, allowedMediaTypes) : true;
+
+  if (!isMainValid || !isEthicsValid || !isMediaValid) {
+    // Cleanup files if validation fails
+    [mainFile, ethicsFile, mediaFile].forEach(f => {
+      if (f && f.path && fs.existsSync(f.path)) fs.unlinkSync(f.path);
+    });
+    return res.status(400).json({ success: false, message: 'Invalid file content detected. Upload aborted.' });
   }
 
   const requiredFields = ['studentName', 'studentId', 'email', 'program', 'mentor', 'title', 'abstract', 'community', 'type'];
