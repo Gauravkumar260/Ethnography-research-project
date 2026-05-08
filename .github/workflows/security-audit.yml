@@ -15,8 +15,10 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm audit --audit-level=high
+      - name: Audit Client
+        run: cd client && pnpm install --frozen-lockfile && pnpm audit --audit-level=high
+      - name: Audit Server
+        run: cd server && pnpm install --frozen-lockfile && pnpm audit --audit-level=high
 
   secrets-scan:
     runs-on: ubuntu-latest
@@ -27,6 +29,8 @@ jobs:
       # This catches if anyone commits .env files or API keys
       - name: gitleaks-action
         uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   sast:
     runs-on: ubuntu-latest
@@ -42,12 +46,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t app:local .
+      - name: Build Server Docker image
+        run: cd server && docker build -t server:local .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'app:local'
+          image-ref: 'server:local'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true

@@ -14,11 +14,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
       - run: npm install -g pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: cd server && pnpm run lint
-      - run: cd server && pnpm exec tsc --noEmit
+
+      - name: Install Client Dependencies
+        run: cd client && pnpm install --frozen-lockfile
+      - name: Lint Client
+        run: cd client && pnpm run lint
+      - name: Typecheck Client
+        run: cd client && pnpm exec tsc --noEmit
+
+      - name: Install Server Dependencies
+        run: cd server && pnpm install --frozen-lockfile
+      - name: Lint Server
+        run: cd server && pnpm run lint
+      - name: Typecheck Server
+        run: cd server && pnpm exec tsc --noEmit
 
   test:
     runs-on: ubuntu-latest
@@ -45,9 +55,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
       - run: npm install -g pnpm
-      - run: pnpm install --frozen-lockfile
+      - name: Install Server Dependencies
+        run: cd server && pnpm install --frozen-lockfile
       # - run: cd server && pnpm run test:unit
       # - run: cd server && pnpm run test:integration
       # - run: cd server && pnpm run test:security
