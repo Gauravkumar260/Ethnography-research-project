@@ -29,7 +29,7 @@
     "@react-email/components": "^1.0.8",
     "@react-email/render": "^2.0.4",
     "argon2": "^0.44.0",
-    "axios": "^1.13.6",
+    "axios": "^1.15.2",
     "bcryptjs": "^3.0.3",
     "colors": "^1.4.0",
     "cookie-parser": "^1.4.7",
@@ -57,7 +57,7 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "ua-parser-js": "^2.0.9",
-    "uuid": "^13.0.0",
+    "uuid": "^14.0.0",
     "xss-clean": "^0.1.4",
     "zod": "^4.3.6",
     "zxcvbn": "^4.4.2"
