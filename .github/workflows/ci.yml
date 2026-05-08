@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 20
       - run: npm install -g pnpm
+<<<<<<< HEAD
       - name: Install Server Deps
         run: cd server && pnpm install --frozen-lockfile
       - name: Server Lint
@@ -27,6 +28,22 @@ jobs:
         run: cd client && pnpm run lint
       - name: Client Typecheck
         run: cd client && pnpm exec tsc --noEmit
+=======
+
+      - name: Install Client Dependencies
+        run: cd client && pnpm install --frozen-lockfile
+      - name: Lint Client
+        run: cd client && pnpm run lint
+      - name: Typecheck Client
+        run: cd client && pnpm exec tsc --noEmit
+
+      - name: Install Server Dependencies
+        run: cd server && pnpm install --frozen-lockfile
+      - name: Lint Server
+        run: cd server && pnpm run lint
+      - name: Typecheck Server
+        run: cd server && pnpm exec tsc --noEmit
+>>>>>>> origin/fix-faculty-login-and-seed-10808693450861460860
 
   test:
     runs-on: ubuntu-latest

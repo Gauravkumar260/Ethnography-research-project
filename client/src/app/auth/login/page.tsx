@@ -32,12 +32,19 @@ export default function LoginPage() {
           <LoginForm />
 
           {/* Demo Credentials (Optional: Remove in Production) */}
-          <div className="bg-[#FAFAF9] border border-[#1a1a1a]/5 p-4 rounded text-center mt-8">
-            <p className="text-[10px] text-[#1a1a1a]/40 mb-1 font-bold uppercase tracking-wider">Demo Credentials</p>
-            <div className="text-xs text-[#1a1a1a]/70 font-mono">
-              admin@university.edu / admin123
+          {process.env.NEXT_PUBLIC_SHOW_DEMO_CREDENTIALS === 'true' && (
+            <div className="bg-[#FAFAF9] border border-[#1a1a1a]/5 p-4 rounded text-center mt-8">
+              <p className="text-[10px] text-[#1a1a1a]/40 mb-2 font-bold uppercase tracking-wider">Demo Credentials</p>
+              <div className="space-y-2">
+                <div className="text-[10px] text-[#1a1a1a]/60 font-mono">
+                  <span className="font-bold">ADMIN:</span> admin@university.edu / {process.env.NEXT_PUBLIC_SEED_ADMIN_PASSWORD || 'AdminPass123!'}
+                </div>
+                <div className="text-[10px] text-[#1a1a1a]/60 font-mono">
+                  <span className="font-bold">FACULTY:</span> faculty@university.edu / {process.env.NEXT_PUBLIC_SEED_FACULTY_PASSWORD || 'AdminPass123!'}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-8 text-center text-sm font-medium text-[#1a1a1a]/70 border-t border-[#1a1a1a]/10 pt-6">
             New to the Research Hub?{" "}
