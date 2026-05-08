@@ -10,10 +10,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+<<<<<<< HEAD
       - run: npm install -g pnpm
 <<<<<<< HEAD
       - name: Install Server Deps
@@ -44,6 +48,21 @@ jobs:
       - name: Typecheck Server
         run: cd server && pnpm exec tsc --noEmit
 >>>>>>> origin/fix-faculty-login-and-seed-10808693450861460860
+=======
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
+      - name: Install dependencies (Server)
+        run: cd server && pnpm install --frozen-lockfile
+
+      - name: Lint (Server)
+        run: cd server && pnpm run lint
+
+      - name: Type Check (Server)
+        run: cd server && pnpm exec tsc --noEmit
+>>>>>>> origin/sentinel-security-hardening-9171034175871724734
 
   test:
     runs-on: ubuntu-latest
@@ -64,15 +83,30 @@ jobs:
     env:
       MONGODB_URI: mongodb://localhost:27017/thesis_auth_test
       REDIS_URL: redis://localhost:6379
+      RESEND_API_KEY: re_123
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 10
       - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+<<<<<<< HEAD
       - run: npm install -g pnpm
       - name: Install Server Deps
         run: cd server && pnpm install --frozen-lockfile
+=======
+          cache: 'pnpm'
+          cache-dependency-path: |
+            server/pnpm-lock.yaml
+            client/pnpm-lock.yaml
+
+      - name: Install dependencies (Server)
+        run: cd server && pnpm install --frozen-lockfile
+
+>>>>>>> origin/sentinel-security-hardening-9171034175871724734
       # - run: cd server && pnpm run test:unit
       # - run: cd server && pnpm run test:integration
       # - run: cd server && pnpm run test:security

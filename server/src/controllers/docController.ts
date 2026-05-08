@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { logger } from '../lib/logger';
 import docService from '../services/docService';
+import { validateFileContent } from '../middlewares/uploadMiddleware';
+import fs from 'fs';
 
 // @desc    Upload a new Documentary
 // @route   POST /api/docs/upload
@@ -11,6 +13,23 @@ const uploadDocumentary = async (req: Request, res: Response) => {
 
     if (!files || !files.thumbnail || !files.video) {
       return res.status(400).json({ success: false, message: 'Please upload both a thumbnail and a video file.' });
+    }
+
+    // Security: Validate file content using magic bytes
+    const thumbnailFile = files.thumbnail[0];
+    const videoFile = files.video[0];
+
+    const allowedImgTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/tiff'];
+    const allowedVideoTypes = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'];
+
+    const isImgValid = await validateFileContent(thumbnailFile, allowedImgTypes);
+    const isVidValid = await validateFileContent(videoFile, allowedVideoTypes);
+
+    if (!isImgValid || !isVidValid) {
+      [thumbnailFile, videoFile].forEach(f => {
+        if (f && f.path && fs.existsSync(f.path)) fs.unlinkSync(f.path);
+      });
+      return res.status(400).json({ success: false, message: 'Invalid file content detected.' });
     }
 
     let categories: string[] = [];

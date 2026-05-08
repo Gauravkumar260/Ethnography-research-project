@@ -1,5 +1,7 @@
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
+import FileType from 'file-type';
 
 const mimeToExt: Record<string, string> = {
   'application/pdf': '.pdf',
@@ -29,7 +31,11 @@ const mimeToExt: Record<string, string> = {
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'storage/uploads/');
+    const dir = 'storage/uploads/';
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    cb(null, dir);
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -38,8 +44,29 @@ const storage = multer.diskStorage({
   },
 });
 
+/**
+ * Validates file content using magic bytes.
+ * This is more secure than relying on the file extension or the Content-Type header.
+ */
+export const validateFileContent = async (file: Express.Multer.File, allowedMimeTypes: string[]) => {
+  if (!file.path) return false;
+
+  const type = await FileType.fromFile(file.path);
+
+  // For text/plain and CSV, file-type might return undefined as they don't have distinct magic bytes
+  if (!type) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if ((ext === '.txt' || ext === '.csv') && allowedMimeTypes.includes(file.mimetype)) {
+       return true;
+    }
+    return false;
+  }
+
+  return allowedMimeTypes.includes(type.mime);
+};
+
 // File filter for documents (PDF, DOC, DOCX)
-const documentFilter = (req, file, cb) => {
+const documentFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const allowedTypes = [
     'application/pdf',
     'application/msword',
@@ -54,7 +81,7 @@ const documentFilter = (req, file, cb) => {
 };
 
 // File filter for media (images and videos)
-const mediaFilter = (req, file, cb) => {
+const mediaFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const allowedTypes = [
     // Images
     'image/jpeg',
@@ -78,7 +105,7 @@ const mediaFilter = (req, file, cb) => {
 };
 
 // File filter for field data (all types including audio)
-const dataFilter = (req, file, cb) => {
+const dataFilter = (req: any, file: Express.Multer.File, cb: any) => {
   const allowedTypes = [
     // Documents
     'application/pdf',
@@ -149,4 +176,3 @@ export {
   // Default export for backward compatibility
   documentUpload as upload
  };
-

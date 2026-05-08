@@ -11,10 +11,10 @@
     "predev": "npx ts-node scripts/check-env.ts",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc && tsc-alias",
+    "lint": "eslint src/**",
     "postinstall": "npm run build",
     "seed:communities": "ts-node scripts/seedCommunities.ts",
-    "seed:admin": "ts-node scripts/seedAdmin.ts",
-    "lint": "echo 'No lint script defined'"
+    "seed:admin": "ts-node scripts/seedAdmin.ts"
   },
   "pnpm": {
     "overrides": {
@@ -52,6 +52,7 @@
     "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.5.1",
+    "file-type": "16.5.4",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "ioredis": "^5.10.0",
@@ -79,6 +80,7 @@
     "@types/helmet": "^4.0.0",
     "@types/ioredis-mock": "^8.2.6",
     "@types/mongoose": "^5.11.97",
+    "@types/multer": "^2.1.0",
     "@types/node": "^25.3.3",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
