@@ -2,8 +2,8 @@ import { config } from './config/env';
 import { logger } from './lib/logger';
 import dotenv from 'dotenv';
 import 'colors';
-import otelSDK from './lib/otel';
-import connectDB from './config/db';
+import otelSDK from './lib/otel';     
+import connectDB from './config/db';  
 import app from './app';
 
 // Initialize OTEL before anything else
@@ -21,8 +21,8 @@ const startServer = async () => {
       logger.info(`Server running on port ${PORT}`.yellow.bold);
     });
 
-    // Increase timeout for large file uploads (e.g., 5GB could take 30+ minutes)
-    server.timeout = 3600000; // 1 hour
+    // Root Cause Fix: Removed excessive 1-hour timeout which enabled DoS.
+    // Rely on default Node.js timeouts and Multer per-route limits.
 
   } catch (error) {
     logger.error('Failed to start server:'.red, error.message);

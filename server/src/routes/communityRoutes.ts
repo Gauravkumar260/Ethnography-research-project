@@ -1,12 +1,12 @@
 import express from 'express';
 const router = express.Router();
 // 1. Import Middleware (Add authorize back for security)
-import {  protect, authorize  } from '../middlewares/authMiddleware';
+import {  protect, authorize  } from '../middlewares/authMiddleware';  
 import { validate } from '../middlewares/validateMiddleware';
 import { communitySchema } from '../lib/validations';
 
 // 2. Import Controller Functions (These match your controller exactly)
-import { 
+import {
   getCommunities,      // Matches controller export
   getCommunityBySlug,
   getCommunityStats,

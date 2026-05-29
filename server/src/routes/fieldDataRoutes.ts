@@ -1,15 +1,27 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
-import {  getFieldData, uploadFieldData  } from '../controllers/fieldDataController';
-import {  protect, authorize  } from '../middlewares/authMiddleware';
-import {  dataUpload  } from '../middlewares/uploadMiddleware'; // Use the optimized uploader
-import { validate } from '../middlewares/validateMiddleware';
-import { fieldDataSchema } from '../lib/validations';
+import { getFieldData, uploadFieldData } from "../controllers/fieldDataController";
+import { protect, authorize } from "../middlewares/authMiddleware";
+import { dataUpload, validateUpload } from "../middlewares/uploadMiddleware";
+import { validate } from "../middlewares/validateMiddleware";
+import { fieldDataSchema } from "../lib/validations";
 
-// Public: Get List
-router.get('/', getFieldData);
+const allowedTypes = [
+  "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "text/plain", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "text/csv", "image/jpeg", "image/png", "image/tiff", "audio/mpeg", "audio/wav", "video/mp4", "video/avi",
+  "video/quicktime", "application/zip", "application/x-rar-compressed"
+];
 
-// Protected: Upload (Admin only)
-router.post('/upload', protect, authorize('ADMIN'), dataUpload.single('file'), validate(fieldDataSchema), uploadFieldData);
+router.get("/", getFieldData);
+
+router.post("/upload",
+  protect,
+  authorize("ADMIN"),
+  dataUpload.single("file"),
+  validateUpload(allowedTypes),
+  validate(fieldDataSchema),
+  uploadFieldData
+);
 
 export default router;

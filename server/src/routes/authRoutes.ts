@@ -1,9 +1,9 @@
 import express from 'express';
 const router = express.Router();
-import {  
-  register, 
-  login, 
-  refresh, 
+import {
+  register,
+  login,
+  refresh,
   logout,
   verifyEmail,
   forgotPassword,
@@ -26,9 +26,12 @@ import { Profiles } from '../lib/auth/rateLimit';
 router.post('/register', rateLimiter((req) => Profiles.REGISTER(req.ip!)), register);
 router.post('/login', rateLimiter((req) => Profiles.LOGIN_ATTEMPT_IP(req.ip!)), login);
 router.post('/refresh', rateLimiter((req) => Profiles.REFRESH(req.ip!)), refresh);
-router.post('/verify-email', verifyEmail);
+
+// Root Cause Fix: Added rate limiting to verification and reset routes
+router.post('/verify-email', rateLimiter((req) => Profiles.REGISTER(req.ip!)), verifyEmail);
 router.post('/forgot-password', rateLimiter((req) => Profiles.PASSWORD_RESET_IP(req.ip!)), forgotPassword);
 router.post('/reset-password', rateLimiter((req) => Profiles.PASSWORD_RESET_IP(req.ip!)), resetPassword);
+
 router.post('/magic-link', rateLimiter((req) => Profiles.LOGIN_ATTEMPT_IP(req.ip!)), magicLink);
 router.post('/oauth/:provider', oauthLogin);
 

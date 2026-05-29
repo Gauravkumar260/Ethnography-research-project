@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";  
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useTranslations } from 'next-intl';
+import { useState, useEffect } from "react";    
 import {
   Sheet,
   SheetContent,
@@ -22,7 +21,6 @@ const assets = {
 }
 
 export function Navbar() {
-  const t = useTranslations('Navigation');
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -35,10 +33,10 @@ export function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    { name: t('home'), path: "/" },
-    { name: t('communities'), path: "/communities" },
+    { name: "Home", path: "/" },
+    { name: "Communities", path: "/communities" },
     { name: "Documentaries", path: "/documentaries" },
-    { name: t('about'), path: "/about" },
+    { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -81,7 +79,6 @@ export function Navbar() {
               href={link.path}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-[#99302A] uppercase tracking-wide",
-                // Updated active color to #99302A
                 isActive(link.path) ? "text-[#99302A] font-semibold" : "text-primary/70"
               )}
             >
@@ -90,7 +87,7 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Mobile Nav — Sheet Drawer */}
+        {/* Mobile Nav */}
         <Sheet>
           <SheetTrigger asChild>
             <button
@@ -108,7 +105,6 @@ export function Navbar() {
                     href={link.path}
                     className={cn(
                       "block text-lg font-medium py-2 transition-colors hover:text-[#99302A]",
-                      // Updated active color to #99302A
                       isActive(link.path) ? "text-[#99302A] font-semibold" : "text-primary/70"
                     )}
                   >

@@ -16,6 +16,8 @@ import docRoutes from './routes/docRoutes';
 import storyRoutes from './routes/storyRoutes';
 import fieldDataRoutes from './routes/fieldDataRoutes';
 import {  errorHandler  } from './middlewares/errorMiddleware';
+import { rateLimiter } from './middlewares/rateLimitMiddleware';
+import { Profiles } from './lib/auth/rateLimit';
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -116,6 +118,7 @@ app.use((req, res, next) => {
 // ==========================================
 // Static files route removed for security (files stored outside web root)
 
+app.use('/api', rateLimiter((req) => Profiles.API_GLOBAL(req.ip!)));
 app.use('/api/auth', authRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/communities', communityRoutes);
@@ -135,7 +138,8 @@ app.get('/', (req, res) => {
 // 3. ERROR HANDLING
 // ==========================================
 app.use((req, res, next) => {
-  const error = new Error(`Not Found - ${req.originalUrl}`);
+  const error = new Error(
+Not Found - ${req.originalUrl}`);
   res.status(404);
   next(error);
 });
@@ -145,3 +149,6 @@ if (errorHandler) {
 }
 
 export default app;
+
+
+

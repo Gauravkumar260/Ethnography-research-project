@@ -1,35 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { useTranslations } from 'next-intl';
+import React from "react";
+import { Button } from "@/components/ui/button";
 
-function ErrorFallback() {
-  const t = useTranslations('ErrorBoundary');
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FAFAF9] p-4">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-[#1a1a1a] mb-4">
-          {t('title')}
-        </h2>
-        <p className="text-[#1a1a1a]/70 mb-6">
-          {t('message')}
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="px-6 py-3 bg-[#99302A] text-white rounded hover:bg-[#99302A]/90 transition-colors"
-        >
-          {t('reload')}
-        </button>
-      </div>
-    </div>
-  );
+interface Props {
+  children: React.ReactNode;
 }
 
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean }
-> {
-  constructor(props: { children: React.ReactNode }) {
+interface State {
+  hasError: boolean;
+}
+
+class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = { hasError: false };
   }
@@ -39,12 +22,22 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Error logged for debugging
+    console.error("ErrorBoundary caught an error", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      return <ErrorFallback />;
+      return (
+        <div className="min-h-[400px] flex flex-col items-center justify-center text-center px-4">
+          <h2 className="text-2xl font-serif font-bold mb-4">Something went wrong</h2>
+          <p className="text-muted-foreground mb-8">
+            We encountered an unexpected error.
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Reload Page
+          </Button>
+        </div>
+      );
     }
 
     return this.props.children;

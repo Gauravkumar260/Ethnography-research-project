@@ -3,10 +3,10 @@ import communityService from './communityService';
 
 class ResearchService {
     async create(data: Record<string, any>) {
+        // Enforce pending status for non-admins if not already handled by controller
         const submission = new Research(data);
         const saved = await submission.save();
 
-        // If it's created with approved status (unlikely but possible), update count
         if (data.status === 'approved') {
             await communityService.updateResearchCount(data.community);
         }
@@ -14,8 +14,19 @@ class ResearchService {
         return saved;
     }
 
-    async findAll(sort = { createdAt: -1 as const }) {
-        return await Research.find().sort(sort);
+    /**
+     * Finds all research, implicitly filtering for approved status
+     * unless an admin context is provided.
+     */
+    async findAll(query: Record<string, any> = {}, user?: any) {
+        const secureQuery = { ...query };
+
+        // Root Cause Fix: Secure by Default access control
+        if (!user || (user.role !== 'admin' && user.role !== 'super_admin' && user.role !== 'department_admin')) {
+            secureQuery.status = 'approved';
+        }
+
+        return await Research.find(secureQuery).sort({ createdAt: -1 });
     }
 
     async findApproved() {
@@ -27,10 +38,7 @@ class ResearchService {
         const updatedResearch = await Research.findByIdAndUpdate(id, update, { new: true });
 
         if (updatedResearch) {
-            // Trigger research count update for the new community
             await communityService.updateResearchCount(updatedResearch.community);
-
-            // If the community name was changed, update the old one too
             if (oldResearch && oldResearch.community !== updatedResearch.community) {
                 await communityService.updateResearchCount(oldResearch.community);
             }
@@ -45,10 +53,7 @@ class ResearchService {
 
         const communityName = research.community;
         await research.deleteOne();
-
-        // Trigger research count update for the community
         await communityService.updateResearchCount(communityName);
-
         return true;
     }
 

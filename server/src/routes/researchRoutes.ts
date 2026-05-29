@@ -1,68 +1,33 @@
-import express from 'express';
+import express from "express";
 const router = express.Router();
+import { protect, authorize } from "../middlewares/authMiddleware";
+import { validate } from "../middlewares/validateMiddleware";
+import { researchSchema } from "../lib/validations";
+import { dataUpload, validateUpload } from "../middlewares/uploadMiddleware";
+import { submitResearch, getAllSubmissions, getPublicResearch, updateStatus, getResearchStats } from "../controllers/researchController";
 
-// 1. Import Middleware
-import {  protect, authorize  } from '../middlewares/authMiddleware';
-import { validate } from '../middlewares/validateMiddleware';
-import { researchSchema } from '../lib/validations';
+const allowedDocTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+const allowedMediaTypes = ["image/jpeg", "image/png", "image/webp", "image/tiff", "video/mp4", "video/avi", "video/quicktime", "video/x-msvideo", "video/x-matroska"];
+const allAllowed = [...allowedDocTypes, ...allowedMediaTypes];
 
-// File Upload Middleware
-import {  dataUpload  } from '../middlewares/uploadMiddleware'; 
+router.get("/", getPublicResearch);
+router.get("/stats", getResearchStats);
+router.get("/public", getPublicResearch);
 
-// 2. Import Controllers
-import {  
-  submitResearch, 
-  getAllSubmissions, 
-  getPublicResearch, 
-  updateStatus,
-  getResearchStats
- } from '../controllers/researchController';
-
-// ==========================================
-// PUBLIC ROUTES
-// ==========================================
-
-// ✅ NEW: Handle the Root Route (Fixes 404 on /api/research)
-// This maps "GET /" to the Public Gallery function
-router.get('/', getPublicResearch);
-
-// Landing Page Stats
-router.get('/stats', getResearchStats);
-
-// Public Gallery (Alternative URL)
-router.get('/public', getPublicResearch);
-
-// ==========================================
-// PROTECTED ROUTES (Student/Admin Only)
-// ==========================================
-
-// Submit Research (Student)
-// FIX: Added 'protect' and 'authorize' to prevent unauthenticated file uploads
-router.post('/submit', 
-  protect, 
-  authorize('STUDENT', 'ADMIN'),
+router.post("/submit",
+  protect,
+  authorize("STUDENT", "ADMIN"),
   dataUpload.fields([
-    { name: 'mainFile', maxCount: 1 },
-    { name: 'mediaFile', maxCount: 1 },
-    { name: 'ethicsFile', maxCount: 1 }
-  ]), 
+    { name: "mainFile", maxCount: 1 },
+    { name: "mediaFile", maxCount: 1 },
+    { name: "ethicsFile", maxCount: 1 }
+  ]),
+  validateUpload(allAllowed),
   validate(researchSchema),
   submitResearch
 );
 
-// ==========================================
-// ADMIN ROUTES
-// ==========================================
-
-// View All (Admin)
-router.get('/admin', protect, authorize('ADMIN'), getAllSubmissions);
-
-// Update Status (Admin)
-router.patch('/:id/status', protect, authorize('ADMIN'), updateStatus);
-
-// Test Route
-router.get('/test', (req, res) => {
-  res.status(200).json({ success: true, message: "Research Routes Working" });
-});
+router.get("/admin", protect, authorize("ADMIN"), getAllSubmissions);
+router.patch("/:id/status", protect, authorize("ADMIN"), updateStatus);
 
 export default router;
