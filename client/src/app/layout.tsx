@@ -5,6 +5,8 @@ import { Navbar } from "@/components/shared/Navbar";
 import { Footer } from "@/components/shared/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const ebGaramond = EB_Garamond({
   subsets: ["latin"],
@@ -28,24 +30,28 @@ export const metadata: Metadata = {
   description: "A digital archive for marginalized narratives and academic research.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const messages = await getMessages();
+
   return (
     <html lang="en">
       <body className={`${ebGaramond.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable} font-sans antialiased bg-background text-foreground`}>
-        <Navbar />
+        <NextIntlClientProvider messages={messages}>
+          <Navbar />
 
-        <main className="min-h-screen">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-        </main>
+          <main className="min-h-screen">
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+          </main>
 
-        <Footer />
-        <Toaster />
+          <Footer />
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );

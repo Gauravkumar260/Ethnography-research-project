@@ -1,5 +1,3 @@
-"use client";
-
 import React from 'react';
 import { Mail, Users, Building, GraduationCap, Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';

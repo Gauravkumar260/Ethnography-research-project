@@ -1,5 +1,3 @@
-"use client";
-
 import { ShieldCheck, EyeOff, Scale, ScrollText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from 'next-intl';
