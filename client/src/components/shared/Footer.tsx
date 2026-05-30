@@ -73,7 +73,7 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-16 pt-8 border-t border-primary-foreground/10 text-center text-xs opacity-40">
-          © 2025 Unheard India — Living Ethnographies
+          Â© 2025 Unheard India â€¢ Living Ethnographies
         </div>
       </div>
     </footer>
