@@ -54,3 +54,7 @@ Thumbs.db
 design/
 
 gha-creds-*.json
+
+# Gemini CLI
+.gemini/
+
