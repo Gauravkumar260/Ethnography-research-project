@@ -8,18 +8,16 @@
     "start": "next start",
     "lint": "eslint"
   },
-  "pnpm": {
-    "overrides": {
-      "is-number": "1.0.0",
-      "protobufjs": ">=8.0.1",
-      "path-to-regexp": ">=0.1.13",
-      "picomatch": ">=4.0.4",
-      "lodash": ">=4.17.21",
-      "vite": ">=7.3.2",
-      "axios": ">=1.15.2",
-      "flatted": ">=3.4.2",
-      "next": ">=16.2.3"
-    }
+  "overrides": {
+    "is-number": "1.0.0",
+    "protobufjs": ">=8.0.1",
+    "path-to-regexp": ">=0.1.13",
+    "picomatch": ">=4.0.4",
+    "lodash": ">=4.17.21",
+    "vite": ">=7.3.2",
+    "axios": ">=1.15.2",
+    "flatted": ">=3.4.2",
+    "next": ">=16.2.3"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
